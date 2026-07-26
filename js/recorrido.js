@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 import { OrbitControls }       from 'three/addons/controls/OrbitControls.js';
 import { PIECES, getPieceById, buildArtifact } from './pieces-data.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 /* ── Loading bar helpers ─────────────────────────────────────────── */
 var lsEl     = document.getElementById('loading-screen');
@@ -405,10 +406,10 @@ prog(70, 'Instalando vitrinas…');
 // Pair 1 at z=0, Pair 2 at z=-6. Mural will be at z=3 (left wall).
 // Distances: spawn(21)→arch(11)=10, arch(11)→mural(5)=6, mural(5)→vitrina1(-1)=6, vitrina1(-1)→vitrina2(-7)=6
 var LAYOUT = [
-  { piece: PIECES[0], x: -3.0, z:  -1 },
-  { piece: PIECES[1], x:  3.0, z:  -1 },
-  { piece: PIECES[2], x: -3.0, z:  -7 },
-  { piece: PIECES[3], x:  3.0, z:  -7 }
+  { piece: PIECES[0], x: -3.0, z:  -1 },   // Máscara Funeraria
+  { piece: PIECES[1], x:  3.0, z:  -1 },   // Collar de Cuentas
+  { piece: PIECES[2], x: -3.0, z:  -7 },   // Poporo Ceremonial
+  { piece: PIECES[4], x:  3.0, z:  -7 }    // Volante de Uso (pieza real)
 ];
 
 var interactables = [];
@@ -460,11 +461,27 @@ LAYOUT.forEach(function(cfg) {
   var cap = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.64, 0.09, 16), goldM);
   cap.position.y = 2.51; grp.add(cap);
 
-  // Artifact on platform
-  var artifact = buildArtifact(piece, 0.62);
-  artifact.position.set(0, piece.restY, 0);
+  // Artifact on platform — Group so it can rotate regardless of async GLB load
+  var artifact = new THREE.Group();
+  artifact.position.set(0, piece.restY !== undefined ? piece.restY : 1.19, 0);
   artifact.userData.pieceId = piece.id;
   grp.add(artifact);
+  if (piece.modelUrl) {
+    new GLTFLoader().load(piece.modelUrl, function(gltf) {
+      var m = gltf.scene;
+      var bbox = new THREE.Box3().setFromObject(m);
+      var sz   = bbox.getSize(new THREE.Vector3());
+      var maxD = Math.max(sz.x, sz.y, sz.z) || 1;
+      var sc   = 0.85 / maxD;
+      m.scale.setScalar(sc);
+      var ctr  = bbox.getCenter(new THREE.Vector3());
+      // center horizontally, sit on platform (bottom at y=0)
+      m.position.set(-ctr.x * sc, -bbox.min.y * sc, -ctr.z * sc);
+      artifact.add(m);
+    });
+  } else {
+    artifact.add(buildArtifact(piece, 0.62));
+  }
 
   // ── Label plate ABOVE the case ──
   var lc = document.createElement('canvas');
@@ -993,7 +1010,23 @@ function openPieceModal(pieceId) {
   buildMDots();
 
   if (mMesh) mSc.remove(mMesh);
-  mMesh = buildArtifact(piece, 1.05); mSc.add(mMesh);
+  mMesh = new THREE.Group();
+  mSc.add(mMesh);
+  if (piece.modelUrl) {
+    new GLTFLoader().load(piece.modelUrl, function(gltf) {
+      var m = gltf.scene;
+      var bbox = new THREE.Box3().setFromObject(m);
+      var sz   = bbox.getSize(new THREE.Vector3());
+      var maxD = Math.max(sz.x, sz.y, sz.z) || 1;
+      var sc   = 1.4 / maxD;
+      m.scale.setScalar(sc);
+      var ctr  = bbox.getCenter(new THREE.Vector3());
+      m.position.set(-ctr.x * sc, -ctr.y * sc, -ctr.z * sc);
+      mMesh.add(m);
+    });
+  } else {
+    mMesh.add(buildArtifact(piece, 1.05));
+  }
 
   pieceModal.classList.add('open');
   setTimeout(function() { resizeMRdr(); setMView('3d'); }, 30);

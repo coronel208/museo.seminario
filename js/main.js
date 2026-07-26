@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { PIECES, getPieceById, buildArtifact } from './pieces-data.js';
 
 /* ── Build card grid ─────────────────────────────────────────────── */
@@ -40,14 +41,29 @@ function spawnPreview(piece) {
   var fl = new THREE.PointLight(0x446688, 0.6, 10);
   fl.position.set(-2, 1, -1); sc.add(fl);
 
-  var mesh = buildArtifact(piece, 0.92);
-  mesh.position.y = -0.05;
-  sc.add(mesh);
+  var meshGroup = new THREE.Group();
+  meshGroup.position.y = -0.05;
+  sc.add(meshGroup);
+  if (piece.modelUrl) {
+    new GLTFLoader().load(piece.modelUrl, function(gltf) {
+      var m = gltf.scene;
+      var bbox = new THREE.Box3().setFromObject(m);
+      var sz   = bbox.getSize(new THREE.Vector3());
+      var maxD = Math.max(sz.x, sz.y, sz.z) || 1;
+      var sc2  = 1.6 / maxD;
+      m.scale.setScalar(sc2);
+      var ctr  = bbox.getCenter(new THREE.Vector3());
+      m.position.set(-ctr.x * sc2, -ctr.y * sc2, -ctr.z * sc2);
+      meshGroup.add(m);
+    });
+  } else {
+    meshGroup.add(buildArtifact(piece, 0.92));
+  }
 
   var rafId;
   function loop() {
     rafId = requestAnimationFrame(loop);
-    mesh.rotation.y += 0.008;
+    meshGroup.rotation.y += 0.008;
     rdr.render(sc, cam);
   }
 
@@ -199,8 +215,23 @@ function openModal(pieceId) {
 
   /* setup 3d */
   if (mMesh) mSc.remove(mMesh);
-  mMesh = buildArtifact(currentPiece, 1.05);
+  mMesh = new THREE.Group();
   mSc.add(mMesh);
+  if (currentPiece.modelUrl) {
+    new GLTFLoader().load(currentPiece.modelUrl, function(gltf) {
+      var m = gltf.scene;
+      var bbox = new THREE.Box3().setFromObject(m);
+      var sz   = bbox.getSize(new THREE.Vector3());
+      var maxD = Math.max(sz.x, sz.y, sz.z) || 1;
+      var sc   = 1.4 / maxD;
+      m.scale.setScalar(sc);
+      var ctr  = bbox.getCenter(new THREE.Vector3());
+      m.position.set(-ctr.x * sc, -ctr.y * sc, -ctr.z * sc);
+      mMesh.add(m);
+    });
+  } else {
+    mMesh.add(buildArtifact(currentPiece, 1.05));
+  }
 
   modal.style.display = 'flex';
   setTimeout(function() { resizeMRdr(); setView('3d'); }, 40);

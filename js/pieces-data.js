@@ -69,6 +69,28 @@ export const PIECES = [
     ],
     video: null,
     restY: 1.62   // floats above platform
+  },
+
+  // ── VOLANTE DE USO (pieza real de la colección) ───────────────────
+  {
+    id: 'volante-de-uso',
+    nombre: 'Volante de Uso',
+    procedencia: 'Colección Escolar · Período prehispánico',
+    descripcion: 'Objeto cerámico circular utilizado como peso para el huso en la actividad del hilado. Su función era mantener el movimiento giratorio del huso para torcer fibras vegetales o animales y obtener hilo. Presenta decoraciones geométricas grabadas en bajo relieve que revelan la destreza artesanal de su fabricante.',
+    metadata: 'Material: Cerámica · Técnica: Modelado a mano · Período: Prehispánico · Colección: Escolar',
+    color: 0x9b6b3c, roughness: 0.88, metalness: 0.04,
+    imagenes: [
+      'images/volante-de-uso-1.jpg',
+      'images/volante-de-uso-2.jpg',
+      'images/volante-de-uso-3.jpg',
+      'images/volante-de-uso-4.jpg',
+      'images/volante-de-uso-5.jpg',
+      'images/volante-de-uso-6.jpg',
+      'images/volante-de-uso-7.jpg'
+    ],
+    video: null,
+    modelUrl: 'models/volante-de-uso.glb',
+    restY: 1.19   // sits on platform top
   }
 ];
 

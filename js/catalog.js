@@ -25,16 +25,24 @@
 
 var MUSEUM_CATALOG = [
 
-  // ── PIEZA 001 ─────────────────────────────────────────────────────
+  // ── VOLANTE DE USO ────────────────────────────────────────────────
   {
-    id: 'pieza-001',
-    nombre: 'Pieza 001',
-    descripcion: 'Descripción de la pieza. Aquí va la historia, origen y significado del objeto donado al museo.',
-    material: 'Por definir',
-    periodo: 'Por definir',
+    id: 'volante-de-uso',
+    nombre: 'Volante de Uso',
+    descripcion: 'Objeto cerámico circular utilizado como peso para el huso en la actividad del hilado. Su función era mantener el movimiento giratorio del huso para torcer fibras vegetales o animales y obtener hilo. Presenta decoraciones geométricas grabadas que revelan la destreza artesanal de su fabricante.',
+    material: 'Cerámica',
+    periodo: 'Período prehispánico',
     donante: '',
-    modelUrl: null,   // reemplazar con: 'models/pieza-001.glb'
-    imagenes: [],
+    modelUrl: 'models/volante-de-uso.glb',
+    imagenes: [
+      'images/volante-de-uso-1.jpg',
+      'images/volante-de-uso-2.jpg',
+      'images/volante-de-uso-3.jpg',
+      'images/volante-de-uso-4.jpg',
+      'images/volante-de-uso-5.jpg',
+      'images/volante-de-uso-6.jpg',
+      'images/volante-de-uso-7.jpg'
+    ],
     video: null
   },
 
