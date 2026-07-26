@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0b0c0e">
+  <title>AR · Museo Seminario</title>
+
+  <!-- model-viewer: maneja WebXR (Android), Scene Viewer (Android) y Quick Look (iOS) -->
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  <style>
+    :root {
+      --gold:   #d4af37;
+      --gold-l: #f0d060;
+      --bg:     #0b0c0e;
+      --text:   #ddd3c0;
+      --sub:    #a99e8c;
+      --border: rgba(212,175,55,0.30);
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    html, body {
+      width:100%; height:100%; overflow:hidden;
+      background:var(--bg);
+      font-family:'Segoe UI', sans-serif;
+      color:var(--text);
+    }
+
+    /* ── HEADER ──────────────────────────────────────────────────── */
+    #ar-header {
+      position:fixed; top:0; left:0; right:0; z-index:100;
+      height:52px;
+      background:rgba(8,9,11,0.95);
+      border-bottom:1px solid var(--border);
+      backdrop-filter:blur(10px);
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0 1.2rem;
+    }
+    #ar-header .brand {
+      font-family:Georgia,serif; color:var(--gold);
+      font-size:1.1rem; letter-spacing:.06em;
+    }
+    #ar-header .brand span {
+      display:block; font-size:.58rem; color:var(--sub);
+      text-transform:uppercase; letter-spacing:.04em;
+    }
+    #btn-back {
+      background:none; border:1px solid var(--border);
+      color:var(--sub); padding:.35rem .85rem;
+      border-radius:20px; font-size:.78rem;
+      cursor:pointer; transition:all .2s;
+      display:flex; align-items:center; gap:.4rem;
+      text-decoration:none;
+    }
+    #btn-back:hover { color:var(--gold); border-color:var(--gold); }
+
+    /* ── MODEL VIEWER ────────────────────────────────────────────── */
+    model-viewer {
+      position:fixed;
+      top:52px; left:0; right:0; bottom:0;
+      width:100%; height:calc(100% - 52px);
+      background:radial-gradient(ellipse at center, #1a1c22 0%, #0b0c0e 100%);
+      --poster-color: transparent;
+    }
+
+    /* Estilo del botón de AR que genera model-viewer automáticamente */
+    model-viewer::part(default-ar-button) {
+      bottom: 130px;
+      right: 20px;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 4px 20px rgba(212,175,55,0.45);
+    }
+
+    /* ── LOADING ─────────────────────────────────────────────────── */
+    #ar-loading {
+      position:fixed; inset:52px 0 0 0;
+      background:var(--bg);
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      gap:1.4rem; z-index:50;
+      transition:opacity .5s;
+    }
+    #ar-loading.hidden { opacity:0; pointer-events:none; }
+    .ld-ring {
+      width:72px; height:72px; border-radius:50%;
+      border:2px solid rgba(212,175,55,.15);
+      border-top-color:var(--gold);
+      animation:spin 1.1s linear infinite;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    #ar-loading p { color:var(--sub); font-size:.82rem; letter-spacing:.04em; }
+
+    /* ── SIN MODELO ──────────────────────────────────────────────── */
+    #no-model {
+      display:none;
+      position:fixed; inset:52px 0 0 0;
+      flex-direction:column;
+      align-items:center; justify-content:center;
+      gap:1.2rem; text-align:center; padding:2rem;
+    }
+    #no-model i { font-size:3rem; color:rgba(212,175,55,.35); }
+    #no-model h3 { color:var(--gold); font-size:1.2rem; }
+    #no-model p { color:var(--sub); font-size:.85rem; max-width:320px; line-height:1.6; }
+
+    /* ── PIEZA NO ENCONTRADA ─────────────────────────────────────── */
+    #not-found {
+      display:none;
+      position:fixed; inset:52px 0 0 0;
+      flex-direction:column;
+      align-items:center; justify-content:center;
+      gap:1.2rem; text-align:center; padding:2rem;
+    }
+    #not-found i { font-size:3rem; color:rgba(212,175,55,.35); }
+    #not-found h3 { color:var(--gold); font-size:1.3rem; }
+    #not-found p { color:var(--sub); font-size:.85rem; max-width:320px; line-height:1.6; }
+
+    /* ── PANEL DE INFO (parte inferior) ─────────────────────────── */
+    #info-panel {
+      position:fixed;
+      bottom:0; left:0; right:0;
+      z-index:90;
+      transform:translateY(calc(100% - 72px));
+      transition:transform .38s cubic-bezier(.4,0,.2,1);
+    }
+    #info-panel.expanded { transform:translateY(0); }
+
+    #info-handle {
+      height:72px;
+      background:rgba(11,12,14,0.92);
+      border-top:1.5px solid var(--border);
+      backdrop-filter:blur(12px);
+      display:flex; align-items:center;
+      padding:0 1.4rem; gap:1rem;
+      cursor:pointer;
+    }
+    #info-handle .piece-icon {
+      width:42px; height:42px; border-radius:50%;
+      background:rgba(212,175,55,.12);
+      border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      color:var(--gold); font-size:1rem; flex-shrink:0;
+    }
+    #info-handle .piece-mini h4 {
+      font-family:Georgia,serif; color:var(--gold);
+      font-size:1rem; font-weight:600;
+    }
+    #info-handle .piece-mini p {
+      color:var(--sub); font-size:.73rem; margin-top:.15rem;
+    }
+    #info-handle .chevron {
+      margin-left:auto; color:var(--sub); font-size:.9rem;
+      transition:transform .3s;
+    }
+    #info-panel.expanded #info-handle .chevron { transform:rotate(180deg); }
+
+    #info-body {
+      background:rgba(11,12,14,0.97);
+      border-top:1px solid rgba(212,175,55,.12);
+      padding:1.4rem 1.4rem 2rem;
+      max-height:48vh; overflow-y:auto;
+    }
+    #info-body::-webkit-scrollbar { width:3px; }
+    #info-body::-webkit-scrollbar-thumb { background:rgba(212,175,55,.2); border-radius:2px; }
+
+    #info-body p.desc {
+      color:#ccc; font-size:.9rem; line-height:1.72;
+      margin-bottom:1rem;
+    }
+
+    .meta-row {
+      display:flex; flex-direction:column; gap:.4rem;
+      border-top:1px solid rgba(212,175,55,.12);
+      padding-top:.9rem;
+    }
+    .meta-item {
+      display:flex; align-items:center;
+      background:rgba(212,175,55,.06);
+      border-left:2.5px solid var(--gold);
+      border-radius:0 6px 6px 0;
+      overflow:hidden; font-size:.82rem;
+    }
+    .meta-item .ml {
+      font-size:.65rem; color:var(--sub);
+      font-weight:600; text-transform:uppercase;
+      letter-spacing:.05em; min-width:90px;
+      padding:6px 10px;
+      border-right:1px solid rgba(212,175,55,.2);
+      background:rgba(0,0,0,.2);
+    }
+    .meta-item .mv {
+      padding:6px 12px; color:#f0d870;
+    }
+
+    /* ── AR HINT (solo en móvil) ─────────────────────────────────── */
+    #ar-hint {
+      position:fixed;
+      top:68px; left:50%; transform:translateX(-50%);
+      background:rgba(212,175,55,.12);
+      border:1px solid var(--border);
+      color:var(--gold); font-size:.78rem;
+      padding:.4rem 1.1rem; border-radius:20px;
+      pointer-events:none; z-index:80;
+      white-space:nowrap;
+      animation:fadein .5s ease 1.2s both;
+    }
+    @keyframes fadein { from{opacity:0;transform:translate(-50%,-6px);} to{opacity:1;transform:translate(-50%,0);} }
+
+    /* Ocultar hint en desktop */
+    @media(pointer:fine) { #ar-hint { display:none; } }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header id="ar-header">
+    <div class="brand">
+      MUSEO SEMINARIO
+      <span>Diocesano de Cristo Sacerdote</span>
+    </div>
+    <a href="coleccion.html" id="btn-back">
+      <i class="fas fa-arrow-left"></i> Colección
+    </a>
+  </header>
+
+  <!-- LOADING -->
+  <div id="ar-loading">
+    <div class="ld-ring"></div>
+    <p>Cargando modelo 3D…</p>
+  </div>
+
+  <!-- SIN MODELO DISPONIBLE AÚN -->
+  <div id="no-model">
+    <i class="fas fa-cube"></i>
+    <h3>Modelo en preparación</h3>
+    <p>El modelo 3D de esta pieza estará disponible próximamente.<br>
+       Mientras tanto, puedes ver su información a continuación.</p>
+  </div>
+
+  <!-- PIEZA NO ENCONTRADA -->
+  <div id="not-found">
+    <i class="fas fa-exclamation-circle"></i>
+    <h3>Pieza no encontrada</h3>
+    <p>El código QR puede estar desactualizado. Por favor escanea el código en la vitrina.</p>
+    <a href="coleccion.html" style="color:var(--gold);font-size:.88rem;margin-top:.5rem;">Ver colección completa</a>
+  </div>
+
+  <!-- VISOR AR (model-viewer) -->
+  <model-viewer
+    id="mv"
+    camera-controls
+    auto-rotate
+    ar
+    ar-modes="webxr scene-viewer quick-look"
+    ar-scale="auto"
+    shadow-intensity="1"
+    shadow-softness="0.5"
+    exposure="1.1"
+    style="display:none;">
+  </model-viewer>
+
+  <!-- HINT DE AR -->
+  <div id="ar-hint">
+    <i class="fas fa-mobile-alt"></i>&nbsp; Toca el botón <strong>AR</strong> para ver la pieza en tu espacio
+  </div>
+
+  <!-- PANEL DE INFO -->
+  <div id="info-panel">
+    <div id="info-handle" onclick="toggleInfo()">
+      <div class="piece-icon"><i class="fas fa-landmark"></i></div>
+      <div class="piece-mini">
+        <h4 id="ih-nombre">Cargando…</h4>
+        <p id="ih-material"></p>
+      </div>
+      <i class="fas fa-chevron-up chevron"></i>
+    </div>
+    <div id="info-body">
+      <p class="desc" id="ib-desc"></p>
+      <div class="meta-row" id="ib-meta"></div>
+    </div>
+  </div>
+
+  <!-- Catálogo de piezas -->
+  <script src="js/catalog.js"></script>
+
+  <script>
+    /* ── Leer ?id= de la URL ──────────────────────────────────────── */
+    var params  = new URLSearchParams(window.location.search);
+    var pieceId = params.get('id') || '';
+    var piece   = getCatalogPiece(pieceId);
+
+    var mv        = document.getElementById('mv');
+    var loading   = document.getElementById('ar-loading');
+    var noModel   = document.getElementById('no-model');
+    var notFound  = document.getElementById('not-found');
+    var infoPanel = document.getElementById('info-panel');
+
+    /* ── Función para expandir/colapsar info ──────────────────────── */
+    function toggleInfo() {
+      infoPanel.classList.toggle('expanded');
+    }
+
+    /* ── Poblar panel de información ──────────────────────────────── */
+    function fillInfo(p) {
+      document.title = p.nombre + ' · Museo Seminario';
+      document.getElementById('ih-nombre').textContent  = p.nombre;
+      document.getElementById('ih-material').textContent = p.material || '';
+      document.getElementById('ib-desc').textContent    = p.descripcion || '';
+
+      var meta = document.getElementById('ib-meta');
+      var rows = [];
+      if (p.material) rows.push(['Material', p.material]);
+      if (p.periodo)  rows.push(['Período',  p.periodo]);
+      if (p.donante)  rows.push(['Donante',  p.donante]);
+
+      meta.innerHTML = rows.map(function(r) {
+        return '<div class="meta-item"><span class="ml">' + r[0] + '</span><span class="mv">' + r[1] + '</span></div>';
+      }).join('');
+    }
+
+    /* ── Pieza no encontrada ──────────────────────────────────────── */
+    if (!piece) {
+      loading.classList.add('hidden');
+      notFound.style.display = 'flex';
+      infoPanel.style.display = 'none';
+
+    /* ── Pieza sin modelo aún ─────────────────────────────────────── */
+    } else if (!piece.modelUrl) {
+      loading.classList.add('hidden');
+      noModel.style.display = 'flex';
+      fillInfo(piece);
+      infoPanel.classList.add('expanded');
+
+    /* ── Pieza con modelo .glb ────────────────────────────────────── */
+    } else {
+      mv.style.display = 'block';
+      mv.setAttribute('src', piece.modelUrl);
+      if (piece.modelUrlIos) mv.setAttribute('ios-src', piece.modelUrlIos);
+
+      fillInfo(piece);
+
+      mv.addEventListener('load', function() {
+        loading.classList.add('hidden');
+      });
+
+      mv.addEventListener('error', function() {
+        loading.classList.add('hidden');
+        noModel.style.display = 'flex';
+        infoPanel.classList.add('expanded');
+      });
+
+      // Timeout de seguridad: si tarda más de 15s, ocultar loading igual
+      setTimeout(function() { loading.classList.add('hidden'); }, 15000);
+    }
+  </script>
+</body>
+</html>

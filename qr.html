@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Códigos QR · Museo Seminario</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- QRCode.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Raleway:wght@300;400;500;600&display=swap');
+
+    :root {
+      --gold:   #d4af37;
+      --gold-l: #f0d060;
+      --bg:     #0b0c0e;
+      --dark:   #13151a;
+      --border: rgba(212,175,55,0.30);
+      --text:   #ddd3c0;
+      --sub:    #a99e8c;
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html, body {
+      font-family:'Raleway','Segoe UI',sans-serif;
+      background:var(--bg); color:var(--text);
+      min-height:100vh;
+    }
+
+    /* ── NAVBAR ──────────────────────────────────────────────────── */
+    .navbar {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:.85rem 2.5rem;
+      background:rgba(8,9,11,0.97);
+      border-bottom:1px solid var(--border);
+      position:sticky; top:0; z-index:100;
+    }
+    .nav-brand h1 {
+      font-family:'Cormorant Garamond',Georgia,serif;
+      color:var(--gold); font-size:1.65rem; letter-spacing:.08em;
+    }
+    .nav-brand span {
+      font-size:.70rem; color:var(--sub); display:block;
+      letter-spacing:.04em; text-transform:uppercase;
+    }
+    .nav-menu { display:flex; gap:1.5rem; list-style:none; align-items:center; }
+    .nav-menu a {
+      color:#ccc; text-decoration:none; font-size:.85rem;
+      font-weight:500; text-transform:uppercase; letter-spacing:.05em;
+      transition:color .2s;
+    }
+    .nav-menu a:hover { color:var(--gold); }
+
+    /* ── CONTENIDO ───────────────────────────────────────────────── */
+    .page-wrap { max-width:1200px; margin:0 auto; padding:2.5rem 2rem 4rem; }
+
+    .page-header { text-align:center; margin-bottom:2.5rem; }
+    .page-header h2 {
+      font-family:'Cormorant Garamond',Georgia,serif;
+      color:var(--gold); font-size:2.6rem; margin-bottom:.4rem;
+    }
+    .page-header p { color:var(--sub); font-size:.85rem; letter-spacing:.05em; }
+
+    /* ── CONFIGURACIÓN ───────────────────────────────────────────── */
+    .config-box {
+      background:#13151a; border:1px solid var(--border);
+      border-radius:10px; padding:1.5rem 2rem;
+      margin-bottom:2.5rem;
+      display:flex; flex-wrap:wrap; align-items:flex-end; gap:1.2rem;
+    }
+    .config-box label {
+      display:flex; flex-direction:column; gap:.4rem;
+      flex:1; min-width:280px;
+    }
+    .config-box label span {
+      font-size:.75rem; color:var(--sub);
+      text-transform:uppercase; letter-spacing:.05em;
+    }
+    .config-box input {
+      background:#0b0c0e; border:1px solid var(--border);
+      color:var(--text); padding:.6rem 1rem;
+      border-radius:6px; font-size:.88rem; font-family:inherit;
+      transition:border-color .2s;
+    }
+    .config-box input:focus { outline:none; border-color:var(--gold); }
+
+    .btn-gold {
+      background:var(--gold); color:#000;
+      border:none; padding:.7rem 1.8rem;
+      border-radius:6px; font-size:.88rem; font-weight:700;
+      cursor:pointer; letter-spacing:.04em;
+      display:flex; align-items:center; gap:.5rem;
+      transition:background .2s, transform .15s;
+      white-space:nowrap;
+    }
+    .btn-gold:hover { background:var(--gold-l); transform:translateY(-1px); }
+
+    .btn-outline {
+      background:transparent; color:var(--gold);
+      border:1.5px solid var(--gold);
+      padding:.65rem 1.5rem; border-radius:6px;
+      font-size:.85rem; font-weight:600;
+      cursor:pointer; display:flex; align-items:center; gap:.5rem;
+      transition:all .2s; white-space:nowrap;
+    }
+    .btn-outline:hover { background:rgba(212,175,55,.08); }
+
+    /* ── GRID DE QR ──────────────────────────────────────────────── */
+    #qr-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));
+      gap:1.8rem;
+    }
+
+    .qr-card {
+      background:#13151a;
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:1.5rem;
+      display:flex; flex-direction:column; align-items:center;
+      gap:1rem; text-align:center;
+      transition:border-color .2s, box-shadow .2s;
+    }
+    .qr-card:hover {
+      border-color:var(--gold);
+      box-shadow:0 8px 24px rgba(212,175,55,.12);
+    }
+
+    .qr-badge {
+      font-size:.65rem; color:var(--sub);
+      text-transform:uppercase; letter-spacing:.08em;
+      background:rgba(212,175,55,.08);
+      border:1px solid rgba(212,175,55,.2);
+      padding:.2rem .7rem; border-radius:12px;
+    }
+
+    .qr-wrap {
+      background:#ffffff;
+      padding:12px;
+      border-radius:8px;
+      display:inline-block;
+    }
+
+    .qr-nombre {
+      font-family:'Cormorant Garamond',Georgia,serif;
+      color:var(--gold); font-size:1.1rem; font-weight:600;
+      line-height:1.2;
+    }
+    .qr-material {
+      color:var(--sub); font-size:.75rem;
+    }
+    .qr-url {
+      color:rgba(212,175,55,.45); font-size:.62rem;
+      word-break:break-all; line-height:1.4;
+    }
+
+    /* Estado: sin modelo */
+    .qr-card.no-model .qr-badge {
+      background:rgba(255,120,50,.08);
+      border-color:rgba(255,120,50,.3);
+      color:#cc7740;
+    }
+
+    /* ── MENSAJE VACÍO ───────────────────────────────────────────── */
+    #empty-msg {
+      text-align:center; padding:4rem 2rem;
+      color:var(--sub); display:none;
+    }
+    #empty-msg i { font-size:2.5rem; margin-bottom:1rem; display:block; opacity:.4; }
+
+    /* ── PRINT ───────────────────────────────────────────────────── */
+    @media print {
+      body { background:#fff; color:#000; }
+      .navbar, .config-box, .btn-gold, .btn-outline, .page-header p, .qr-url { display:none !important; }
+      .page-header h2 { color:#000; font-size:1.8rem; margin-bottom:.5rem; }
+      .page-wrap { padding:1cm; }
+      #qr-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap:1cm;
+      }
+      .qr-card {
+        background:#fff; border:1.5px solid #ccc;
+        break-inside:avoid; page-break-inside:avoid;
+        padding:1cm;
+      }
+      .qr-nombre { color:#000; font-size:14pt; }
+      .qr-material { color:#555; }
+      .qr-badge { color:#555; background:none; border-color:#aaa; }
+      .qr-wrap { padding:8px; border:1px solid #ddd; }
+      .qr-url { display:block !important; color:#777; font-size:7pt; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <h1>MUSEO SEMINARIO</h1>
+      <span>Diocesano de Cristo Sacerdote</span>
+    </div>
+    <ul class="nav-menu">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="coleccion.html">Colección</a></li>
+      <li><a href="recorrido.html">Recorrido Virtual</a></li>
+      <li><a href="sobre-nosotros.html">Sobre Nosotros</a></li>
+    </ul>
+  </nav>
+
+  <div class="page-wrap">
+
+    <!-- HEADER -->
+    <div class="page-header">
+      <h2>Códigos QR · Realidad Aumentada</h2>
+      <p>Imprime estos códigos y pégalos junto a cada pieza en el colegio</p>
+    </div>
+
+    <!-- CONFIGURACIÓN -->
+    <div class="config-box">
+      <label>
+        <span><i class="fas fa-link"></i> &nbsp;URL base del sitio</span>
+        <input type="text" id="base-url"
+          placeholder="https://coronel208.github.io/museo.seminario"
+          value="https://coronel208.github.io/museo.seminario">
+      </label>
+      <button class="btn-gold" onclick="generarTodos()">
+        <i class="fas fa-qrcode"></i> Generar QR
+      </button>
+      <button class="btn-outline" onclick="window.print()">
+        <i class="fas fa-print"></i> Imprimir
+      </button>
+    </div>
+
+    <!-- GRID -->
+    <div id="qr-grid"></div>
+    <div id="empty-msg">
+      <i class="fas fa-box-open"></i>
+      No hay piezas en el catálogo todavía.
+    </div>
+
+  </div>
+
+  <script src="js/catalog.js"></script>
+
+  <script>
+    function generarTodos() {
+      var baseUrl = (document.getElementById('base-url').value || '').replace(/\/$/, '');
+      var grid    = document.getElementById('qr-grid');
+      var empty   = document.getElementById('empty-msg');
+
+      grid.innerHTML = '';
+
+      if (!MUSEUM_CATALOG || MUSEUM_CATALOG.length === 0) {
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      MUSEUM_CATALOG.forEach(function(piece) {
+        var arUrl = baseUrl + '/ar.html?id=' + encodeURIComponent(piece.id);
+        var hasModel = !!piece.modelUrl;
+
+        // Tarjeta
+        var card = document.createElement('div');
+        card.className = 'qr-card' + (hasModel ? '' : ' no-model');
+
+        // Badge de estado
+        var badge = document.createElement('div');
+        badge.className = 'qr-badge';
+        badge.textContent = hasModel ? '✓ Modelo disponible' : '⏳ Sin modelo aún';
+        card.appendChild(badge);
+
+        // QR
+        var qrWrap = document.createElement('div');
+        qrWrap.className = 'qr-wrap';
+        var qrDiv = document.createElement('div');
+        qrWrap.appendChild(qrDiv);
+        card.appendChild(qrWrap);
+
+        new QRCode(qrDiv, {
+          text: arUrl,
+          width: 180,
+          height: 180,
+          colorDark:  '#000000',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+
+        // Nombre
+        var nombre = document.createElement('div');
+        nombre.className = 'qr-nombre';
+        nombre.textContent = piece.nombre;
+        card.appendChild(nombre);
+
+        // Material
+        if (piece.material) {
+          var mat = document.createElement('div');
+          mat.className = 'qr-material';
+          mat.textContent = piece.material;
+          card.appendChild(mat);
+        }
+
+        // URL (visible en print)
+        var url = document.createElement('div');
+        url.className = 'qr-url';
+        url.textContent = arUrl;
+        card.appendChild(url);
+
+        grid.appendChild(card);
+      });
+    }
+
+    // Generar automáticamente al cargar
+    window.addEventListener('DOMContentLoaded', generarTodos);
+  </script>
+
+</body>
+</html>
