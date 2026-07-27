@@ -7,7 +7,13 @@ import * as THREE from 'three';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 import { OrbitControls }       from 'three/addons/controls/OrbitControls.js';
 import { PIECES, getPieceById, buildArtifact } from './pieces-data.js';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { GLTFLoader }  from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+
+/* ── Draco loader ────────────────────────────────────────────────── */
+var _draco = new DRACOLoader();
+_draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+function makeGLTF() { var l = new GLTFLoader(); l.setDRACOLoader(_draco); return l; }
 
 /* ── Loading bar helpers ─────────────────────────────────────────── */
 var lsEl     = document.getElementById('loading-screen');
@@ -413,6 +419,8 @@ var LAYOUT = [
 ];
 
 var interactables = [];
+var glbPending = LAYOUT.filter(function(c) { return c.piece.modelUrl; }).length;
+function glbDone() { if (--glbPending <= 0) hideLs(); }
 
 LAYOUT.forEach(function(cfg) {
   var piece = cfg.piece, x = cfg.x, z = cfg.z;
@@ -467,10 +475,7 @@ LAYOUT.forEach(function(cfg) {
   artifact.userData.pieceId = piece.id;
   grp.add(artifact);
   if (piece.modelUrl) {
-    var ph = buildArtifact(piece, 0.62);
-    artifact.add(ph);
-    new GLTFLoader().load(piece.modelUrl, function(gltf) {
-      artifact.remove(ph);
+    makeGLTF().load(piece.modelUrl, function(gltf) {
       var m = gltf.scene;
       var bbox = new THREE.Box3().setFromObject(m);
       var sz   = bbox.getSize(new THREE.Vector3());
@@ -480,7 +485,8 @@ LAYOUT.forEach(function(cfg) {
       var ctr  = bbox.getCenter(new THREE.Vector3());
       m.position.set(-ctr.x * sc, -bbox.min.y * sc, -ctr.z * sc);
       artifact.add(m);
-    });
+      glbDone();
+    }, undefined, function() { glbDone(); });
   } else {
     artifact.add(buildArtifact(piece, 0.62));
   }
@@ -861,6 +867,27 @@ var btnM3d      = document.getElementById('pm-btn-3d');
 var btnMImg     = document.getElementById('pm-btn-img');
 var btnMVid     = document.getElementById('pm-btn-vid');
 
+// Modal loading overlay
+(function() {
+  var s = document.createElement('style');
+  s.textContent = '@keyframes glb-sw{0%{left:-45%}100%{left:100%}}';
+  document.head.appendChild(s);
+})();
+var _pmLoadOv = null;
+function showPmLoad() {
+  if (!_pmLoadOv) {
+    _pmLoadOv = document.createElement('div');
+    _pmLoadOv.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem;background:#0d0f14;z-index:5;';
+    _pmLoadOv.innerHTML = '<span style="color:#a99e8c;font-size:.78rem;letter-spacing:.05em;">Cargando modelo 3D…</span>'
+      + '<div style="width:160px;height:2px;background:rgba(212,175,55,.15);border-radius:2px;overflow:hidden;position:relative">'
+      + '<div style="position:absolute;height:100%;width:45%;background:linear-gradient(90deg,#c8a832,#f0d060);border-radius:2px;animation:glb-sw 1.3s linear infinite"></div></div>';
+    pmCanvas.parentElement.style.position = 'relative';
+    pmCanvas.parentElement.appendChild(_pmLoadOv);
+  }
+  _pmLoadOv.style.display = 'flex';
+}
+function hidePmLoad() { if (_pmLoadOv) _pmLoadOv.style.display = 'none'; }
+
 // Init modal 3D renderer — same bright lighting as collection
 mSc  = new THREE.Scene(); mSc.background = new THREE.Color(0x0d0f14);
 mCam = new THREE.PerspectiveCamera(42, 1, 0.05, 80); mCam.position.set(0, 0.5, 3);
@@ -1022,9 +1049,9 @@ function openPieceModal(pieceId) {
   mMesh = new THREE.Group();
   mSc.add(mMesh);
   if (piece.modelUrl) {
-    mMesh.add(buildArtifact(piece, 1.05));
-    new GLTFLoader().load(piece.modelUrl, function(gltf) {
-      while (mMesh.children.length) mMesh.remove(mMesh.children[0]);
+    showPmLoad();
+    makeGLTF().load(piece.modelUrl, function(gltf) {
+      hidePmLoad();
       var m = gltf.scene;
       var bbox = new THREE.Box3().setFromObject(m);
       var sz   = bbox.getSize(new THREE.Vector3());
@@ -1036,6 +1063,7 @@ function openPieceModal(pieceId) {
       mMesh.add(m);
     });
   } else {
+    hidePmLoad();
     mMesh.add(buildArtifact(piece, 1.05));
   }
 
@@ -1143,5 +1171,5 @@ function tick() {
   renderer.render(scene, camera);
 }
 
-hideLs();
+if (glbPending <= 0) hideLs();
 tick();

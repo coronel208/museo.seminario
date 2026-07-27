@@ -1,7 +1,33 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { GLTFLoader }  from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { PIECES, getPieceById, buildArtifact } from './pieces-data.js';
+
+var _draco = new DRACOLoader();
+_draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+function makeGLTF() { var l = new GLTFLoader(); l.setDRACOLoader(_draco); return l; }
+
+/* ── Loading overlay for modal 3D ───────────────────────────────── */
+(function() {
+  var s = document.createElement('style');
+  s.textContent = '@keyframes glb-sw{0%{left:-45%}100%{left:100%}}';
+  document.head.appendChild(s);
+})();
+var _mLoadOv = null;
+function showMLoad() {
+  if (!_mLoadOv) {
+    _mLoadOv = document.createElement('div');
+    _mLoadOv.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem;background:#0d0f14;z-index:5;';
+    _mLoadOv.innerHTML = '<span style="color:#a99e8c;font-size:.78rem;letter-spacing:.05em;">Cargando modelo 3D…</span>'
+      + '<div style="width:160px;height:2px;background:rgba(212,175,55,.15);border-radius:2px;overflow:hidden;position:relative">'
+      + '<div style="position:absolute;height:100%;width:45%;background:linear-gradient(90deg,#c8a832,#f0d060);border-radius:2px;animation:glb-sw 1.3s linear infinite"></div></div>';
+    mCanvas.parentElement.style.position = 'relative';
+    mCanvas.parentElement.appendChild(_mLoadOv);
+  }
+  _mLoadOv.style.display = 'flex';
+}
+function hideMLoad() { if (_mLoadOv) _mLoadOv.style.display = 'none'; }
 
 /* ── Build card grid ─────────────────────────────────────────────── */
 var grid = document.getElementById('pieces-grid');
@@ -45,9 +71,7 @@ function spawnPreview(piece) {
   meshGroup.position.y = -0.05;
   sc.add(meshGroup);
   if (piece.modelUrl) {
-    meshGroup.add(buildArtifact(piece, 0.92));
-    new GLTFLoader().load(piece.modelUrl, function(gltf) {
-      while (meshGroup.children.length) meshGroup.remove(meshGroup.children[0]);
+    makeGLTF().load(piece.modelUrl, function(gltf) {
       var m = gltf.scene;
       var bbox = new THREE.Box3().setFromObject(m);
       var sz   = bbox.getSize(new THREE.Vector3());
@@ -226,9 +250,9 @@ function openModal(pieceId) {
   mMesh = new THREE.Group();
   mSc.add(mMesh);
   if (currentPiece.modelUrl) {
-    mMesh.add(buildArtifact(currentPiece, 1.05));
-    new GLTFLoader().load(currentPiece.modelUrl, function(gltf) {
-      while (mMesh.children.length) mMesh.remove(mMesh.children[0]);
+    showMLoad();
+    makeGLTF().load(currentPiece.modelUrl, function(gltf) {
+      hideMLoad();
       var m = gltf.scene;
       var bbox = new THREE.Box3().setFromObject(m);
       var sz   = bbox.getSize(new THREE.Vector3());
@@ -240,6 +264,7 @@ function openModal(pieceId) {
       mMesh.add(m);
     });
   } else {
+    hideMLoad();
     mMesh.add(buildArtifact(currentPiece, 1.05));
   }
 
