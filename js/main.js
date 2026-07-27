@@ -45,7 +45,9 @@ function spawnPreview(piece) {
   meshGroup.position.y = -0.05;
   sc.add(meshGroup);
   if (piece.modelUrl) {
+    meshGroup.add(buildArtifact(piece, 0.92));
     new GLTFLoader().load(piece.modelUrl, function(gltf) {
+      while (meshGroup.children.length) meshGroup.remove(meshGroup.children[0]);
       var m = gltf.scene;
       var bbox = new THREE.Box3().setFromObject(m);
       var sz   = bbox.getSize(new THREE.Vector3());
@@ -145,13 +147,16 @@ function buildDots() {
 }
 
 function goSlide(i) {
-  var n = currentPiece.imagenes.length;
+  var n   = currentPiece.imagenes.length;
   slideIndex = ((i % n) + n) % n;
-  slideImg.style.opacity = '0';
-  setTimeout(function() {
-    slideImg.src = currentPiece.imagenes[slideIndex];
-    slideImg.style.opacity = '1';
-  }, 170);
+  var url = currentPiece.imagenes[slideIndex];
+  var img = new Image();
+  img.onload = function() {
+    slideImg.style.opacity = '0';
+    setTimeout(function() { slideImg.src = url; slideImg.style.opacity = '1'; }, 60);
+  };
+  img.src = url;
+  if (img.complete) img.onload();
   buildDots();
 }
 
@@ -207,6 +212,9 @@ function openModal(pieceId) {
       return '<span class="mt"><span class="mt-label">' + label + '</span><span class="mt-value">' + value + '</span></span>';
     }).join('');
 
+  /* preload all images so el slide sea instantáneo */
+  currentPiece.imagenes.forEach(function(url) { new Image().src = url; });
+
   /* setup slideshow */
   slideIndex = 0;
   slideImg.src = currentPiece.imagenes[0];
@@ -218,7 +226,9 @@ function openModal(pieceId) {
   mMesh = new THREE.Group();
   mSc.add(mMesh);
   if (currentPiece.modelUrl) {
+    mMesh.add(buildArtifact(currentPiece, 1.05));
     new GLTFLoader().load(currentPiece.modelUrl, function(gltf) {
+      while (mMesh.children.length) mMesh.remove(mMesh.children[0]);
       var m = gltf.scene;
       var bbox = new THREE.Box3().setFromObject(m);
       var sz   = bbox.getSize(new THREE.Vector3());

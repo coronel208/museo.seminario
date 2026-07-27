@@ -322,11 +322,32 @@ function buildVasija(piece) {
   return g;
 }
 
+function buildVolante(piece) {
+  var g   = new THREE.Group();
+  var mat = makeMat(piece);
+  var drk = new THREE.MeshStandardMaterial({ color: 0x4a2a10, roughness: 0.95 });
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.44, 0.44, 0.13, 48), mat));
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.18, 20), drk));
+  [0.18, 0.28, 0.38].forEach(function(r) {
+    var ring = new THREE.Mesh(new THREE.TorusGeometry(r, 0.009, 6, 40), drk);
+    ring.rotation.x = Math.PI / 2;
+    g.add(ring);
+  });
+  for (var i = 0; i < 8; i++) {
+    var a   = (i / 8) * Math.PI * 2;
+    var dot = new THREE.Mesh(new THREE.SphereGeometry(0.025, 6, 5), drk);
+    dot.position.set(Math.cos(a) * 0.33, 0.07, Math.sin(a) * 0.33);
+    g.add(dot);
+  }
+  return g;
+}
+
 var BUILDERS = {
-  mascara: buildMask,
-  collar:  buildCollar,
-  poporo:  buildPoporo,
-  vasija:  buildVasija
+  mascara:           buildMask,
+  collar:            buildCollar,
+  poporo:            buildPoporo,
+  vasija:            buildVasija,
+  'volante-de-uso':  buildVolante
 };
 
 export function buildArtifact(piece, scale) {

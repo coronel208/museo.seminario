@@ -467,7 +467,10 @@ LAYOUT.forEach(function(cfg) {
   artifact.userData.pieceId = piece.id;
   grp.add(artifact);
   if (piece.modelUrl) {
+    var ph = buildArtifact(piece, 0.62);
+    artifact.add(ph);
     new GLTFLoader().load(piece.modelUrl, function(gltf) {
+      artifact.remove(ph);
       var m = gltf.scene;
       var bbox = new THREE.Box3().setFromObject(m);
       var sz   = bbox.getSize(new THREE.Vector3());
@@ -475,7 +478,6 @@ LAYOUT.forEach(function(cfg) {
       var sc   = 0.85 / maxD;
       m.scale.setScalar(sc);
       var ctr  = bbox.getCenter(new THREE.Vector3());
-      // center horizontally, sit on platform (bottom at y=0)
       m.position.set(-ctr.x * sc, -bbox.min.y * sc, -ctr.z * sc);
       artifact.add(m);
     });
@@ -894,10 +896,16 @@ function buildMDots() {
   });
 }
 function goMSlide(i) {
-  var n = currentPiece.imagenes.length;
+  var n   = currentPiece.imagenes.length;
   mSlideIdx = ((i % n) + n) % n;
-  pmSlideImg.style.opacity = '0';
-  setTimeout(function() { pmSlideImg.src = currentPiece.imagenes[mSlideIdx]; pmSlideImg.style.opacity = '1'; }, 170);
+  var url = currentPiece.imagenes[mSlideIdx];
+  var img = new Image();
+  img.onload = function() {
+    pmSlideImg.style.opacity = '0';
+    setTimeout(function() { pmSlideImg.src = url; pmSlideImg.style.opacity = '1'; }, 60);
+  };
+  img.src = url;
+  if (img.complete) img.onload();
   buildMDots();
 }
 pmSlidePrev.addEventListener('click', function() { goMSlide(mSlideIdx - 1); });
@@ -1005,6 +1013,7 @@ function openPieceModal(pieceId) {
       return '<span class="mt-tag"><span class="mt-label">' + label + '</span><span class="mt-value">' + value + '</span></span>';
     }).join('');
 
+  piece.imagenes.forEach(function(url) { new Image().src = url; });
   mSlideIdx = 0;
   pmSlideImg.src = piece.imagenes[0]; pmSlideImg.style.opacity = '1';
   buildMDots();
@@ -1013,7 +1022,9 @@ function openPieceModal(pieceId) {
   mMesh = new THREE.Group();
   mSc.add(mMesh);
   if (piece.modelUrl) {
+    mMesh.add(buildArtifact(piece, 1.05));
     new GLTFLoader().load(piece.modelUrl, function(gltf) {
+      while (mMesh.children.length) mMesh.remove(mMesh.children[0]);
       var m = gltf.scene;
       var bbox = new THREE.Box3().setFromObject(m);
       var sz   = bbox.getSize(new THREE.Vector3());
