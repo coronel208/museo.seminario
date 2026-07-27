@@ -74,10 +74,10 @@ export const PIECES = [
   // ── VOLANTE DE USO (pieza real de la colección) ───────────────────
   {
     id: 'volante-de-uso',
-    nombre: 'Volante de Uso',
-    procedencia: 'Colección Escolar · Período prehispánico',
-    descripcion: 'Objeto cerámico circular utilizado como peso para el huso en la actividad del hilado. Su función era mantener el movimiento giratorio del huso para torcer fibras vegetales o animales y obtener hilo. Presenta decoraciones geométricas grabadas en bajo relieve que revelan la destreza artesanal de su fabricante.',
-    metadata: 'Material: Cerámica · Técnica: Modelado a mano · Período: Prehispánico · Colección: Escolar',
+    nombre: 'Volante de Huso (Fusayola)',
+    procedencia: 'Cultura Calima, Valle del Cauca · Período Ilama (1600 a.C. – 100 d.C.)',
+    descripcion: 'Fusayola o volante de huso prehispánico de la región Calima. Presenta morfología bicóncava con perforación central para montaje en varillas de huso destinadas al hilado. Decorada con incisiones de grecas escalonadas, punteado perimetral y líneas radiales, características de las tradiciones alfareras tempranas del suroccidente colombiano. Estado de conservación excelente.',
+    metadata: 'Material: Cerámica · Técnica: Pasta fina, engobe claro · Dimensiones: ⌀ 4.5 × 2.3 cm · Decoración: Incisión geométrica · Estado: Completo',
     color: 0x9b6b3c, roughness: 0.88, metalness: 0.04,
     imagenes: [
       'images/volante-de-uso-1.jpg',

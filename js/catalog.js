@@ -28,10 +28,10 @@ var MUSEUM_CATALOG = [
   // ── VOLANTE DE USO ────────────────────────────────────────────────
   {
     id: 'volante-de-uso',
-    nombre: 'Volante de Uso',
-    descripcion: 'Objeto cerámico circular utilizado como peso para el huso en la actividad del hilado. Su función era mantener el movimiento giratorio del huso para torcer fibras vegetales o animales y obtener hilo. Presenta decoraciones geométricas grabadas que revelan la destreza artesanal de su fabricante.',
+    nombre: 'Volante de Huso (Fusayola)',
+    descripcion: 'Fusayola o volante de huso prehispánico de la región Calima. Presenta morfología bicóncava con perforación central para montaje en varillas de huso destinadas al hilado. Decorada con incisiones de grecas escalonadas, punteado perimetral y líneas radiales, características estilísticas de las tradiciones alfareras tempranas del suroccidente colombiano. Estado de conservación excelente, con desgaste menor por uso en las superficies de fricción.',
     material: 'Cerámica',
-    periodo: 'Período prehispánico',
+    periodo: 'Período Ilama (1600 a.C. – 100 d.C.)',
     donante: '',
     modelUrl: 'models/volante-de-uso.glb',
     imagenes: [
