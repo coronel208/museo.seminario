@@ -55,7 +55,34 @@ var MUSEUM_CATALOG = [
     periodo: 'Período Herrera a Tardío (500 a.C. – 1600 d.C.)',
     donante: '',
     modelUrl: 'models/volante-de-huso-2.glb',
-    imagenes: [],
+    imagenes: [
+      'images/volante-de-huso-2-1.jpg',
+      'images/volante-de-huso-2-2.jpg',
+      'images/volante-de-huso-2-3.jpg',
+      'images/volante-de-huso-2-4.jpg',
+      'images/volante-de-huso-2-5.jpg',
+      'images/volante-de-huso-2-6.jpg',
+      'images/volante-de-huso-2-7.jpg'
+    ],
+    video: null
+  },
+
+  // ── CUENCO MINIATURA · Tradición Malagana ────────────────────────
+  {
+    id: 'cuenco-1',
+    nombre: 'Cuenco Miniatura con Engobe Rojo',
+    descripcion: 'Cuenco cerámico miniatura de morfología semiesférica vinculado tipológicamente a contextos funerarios del suroccidente colombiano, asociado con la tradición Malagana en el Valle del Cauca. Presenta cuerpo subglobular, base convexa y acabado con engobe rojo característico de la región. Uso ritual u ofrendante dentro de ajuares funerarios tempranos.',
+    material: 'Cerámica',
+    periodo: 'Período Malagana (200 a.C. – 400 d.C.)',
+    donante: '',
+    modelUrl: 'models/cuenco-1.glb',
+    imagenes: [
+      'images/cuenco-1-1.jpg',
+      'images/cuenco-1-2.jpg',
+      'images/cuenco-1-3.jpg',
+      'images/cuenco-1-4.jpg',
+      'images/cuenco-1-5.jpg'
+    ],
     video: null
   }
 

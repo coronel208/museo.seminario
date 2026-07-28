@@ -32,9 +32,37 @@ export const PIECES = [
     descripcion: 'Fusayola o volante de huso de morfología discoidal simple fabricada en cerámica utilitaria. Presenta perforación central cilíndrica para el paso del eje del huso, con desgaste superficial generalizado y pátina de alteración edáfica. Artefacto común en contextos domésticos de los Andes colombianos asociados a la actividad textil prehispánica y colonial temprana. La pieza se encuentra completa a pesar del desgaste acumulado.',
     metadata: 'Material: Cerámica · Técnica: Pasta semi-gruesa, cocción oxidante · Dimensiones: ⌀ 4.4 × 2.4 cm · Estado: Completo',
     color: 0x8B3A1A, roughness: 0.90, metalness: 0.02,
-    imagenes: [],
+    imagenes: [
+      'images/volante-de-huso-2-1.jpg',
+      'images/volante-de-huso-2-2.jpg',
+      'images/volante-de-huso-2-3.jpg',
+      'images/volante-de-huso-2-4.jpg',
+      'images/volante-de-huso-2-5.jpg',
+      'images/volante-de-huso-2-6.jpg',
+      'images/volante-de-huso-2-7.jpg'
+    ],
     video: null,
     modelUrl: 'models/volante-de-huso-2.glb',
+    restY: 1.19
+  },
+
+  // ── CUENCO MINIATURA · Tradición Malagana ────────────────────────
+  {
+    id: 'cuenco-1',
+    nombre: 'Cuenco Miniatura con Engobe Rojo',
+    procedencia: 'Cultura Calima (Malagana), Valle del Cauca · Período Malagana (200 a.C. – 400 d.C.)',
+    descripcion: 'Cuenco cerámico miniatura de morfología semiesférica vinculado tipológicamente a contextos funerarios del suroccidente colombiano, asociado con la tradición Malagana en el Valle del Cauca. Presenta cuerpo subglobular, base convexa y acabado con engobe rojo característico de la región. El estado de conservación muestra desgaste superficial moderado y pátinas de enterramiento compatibles con contextos de fosa. Uso ritual u ofrendante dentro de ajuares funerarios tempranos.',
+    metadata: 'Material: Cerámica · Técnica: Pasta fina, cocción oxidante · Dimensiones: ⌀ 9.5 × 5.8 cm · Decoración: Engobe rojo monocromo · Estado: Completo',
+    color: 0x8B2010, roughness: 0.85, metalness: 0.03,
+    imagenes: [
+      'images/cuenco-1-1.jpg',
+      'images/cuenco-1-2.jpg',
+      'images/cuenco-1-3.jpg',
+      'images/cuenco-1-4.jpg',
+      'images/cuenco-1-5.jpg'
+    ],
+    video: null,
+    modelUrl: 'models/cuenco-1.glb',
     restY: 1.19
   }
 
@@ -73,9 +101,22 @@ function buildVolante(piece) {
   return g;
 }
 
+function buildCuenco(piece) {
+  var g   = new THREE.Group();
+  var mat = makeMat(piece);
+  var pts = [];
+  for (var i = 0; i <= 14; i++) {
+    var a = (i / 14) * Math.PI * 0.65;
+    pts.push(new THREE.Vector2(Math.sin(a) * 0.48, -Math.cos(a) * 0.32 + 0.08));
+  }
+  g.add(new THREE.Mesh(new THREE.LatheGeometry(pts, 32), mat));
+  return g;
+}
+
 var BUILDERS = {
   'volante-de-uso':    buildVolante,
-  'volante-de-huso-2': buildVolante
+  'volante-de-huso-2': buildVolante,
+  'cuenco-1':          buildCuenco
 };
 
 export function buildArtifact(piece, scale) {

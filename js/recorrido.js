@@ -411,7 +411,8 @@ prog(70, 'Instalando vitrinas…');
 
 var LAYOUT = [
   { piece: getPieceById('volante-de-uso'),    x: -3.0, z: -1 },
-  { piece: getPieceById('volante-de-huso-2'), x:  3.0, z: -1 }
+  { piece: getPieceById('volante-de-huso-2'), x:  3.0, z: -1 },
+  { piece: getPieceById('cuenco-1'),          x:  0.0, z: -5 }
 ];
 
 var interactables = [];
