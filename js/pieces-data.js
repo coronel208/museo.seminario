@@ -64,6 +64,26 @@ export const PIECES = [
     video: null,
     modelUrl: 'models/cuenco-1.glb',
     restY: 1.19
+  },
+
+  // ── JARRÓN 1 · Cultura Calima Ilama ──────────────────────────────
+  {
+    id: 'jarron-1',
+    nombre: 'Vasija Globular con Cuello Cilíndrico',
+    procedencia: 'Cultura Calima Ilama, Valle del Cauca · Período Ilama (1500 a.C. – 100 a.C.)',
+    descripcion: 'Vasija cerámica globular con cuello cilíndrico e incisiones horizontales finas. Presenta engobe rojo-naranja característico de la alfarería fina de la tradición Calima Ilama del suroccidente colombiano. El cuerpo globular y el tratamiento inciso en el cuello son indicadores morfotecnológicos del período Ilama. Estado de conservación general bueno con desgastes superficiales propios de tafonomía de entierro.',
+    metadata: 'Material: Cerámica · Técnica: Pasta fina oxidante, desgrasante de cuarzo · Dimensiones: 18 × ⌀ 15 cm · Decoración: Incisión horizontal en cuello, engobe rojo-naranja · Estado: Completo',
+    color: 0x7A2A0A, roughness: 0.87, metalness: 0.03,
+    imagenes: [
+      'images/jarron-1-1.jpg',
+      'images/jarron-1-2.jpg',
+      'images/jarron-1-3.jpg',
+      'images/jarron-1-4.jpg',
+      'images/jarron-1-5.jpg'
+    ],
+    video: null,
+    modelUrl: 'models/jarron-1.glb',
+    restY: 1.19
   }
 
 ];
@@ -113,10 +133,30 @@ function buildCuenco(piece) {
   return g;
 }
 
+function buildJarron(piece) {
+  var g   = new THREE.Group();
+  var mat = makeMat(piece);
+  var pts = [
+    new THREE.Vector2(0,    -0.55),
+    new THREE.Vector2(0.08, -0.52),
+    new THREE.Vector2(0.42, -0.30),
+    new THREE.Vector2(0.48,  0.00),
+    new THREE.Vector2(0.42,  0.28),
+    new THREE.Vector2(0.22,  0.38),
+    new THREE.Vector2(0.14,  0.44),
+    new THREE.Vector2(0.13,  0.58),
+    new THREE.Vector2(0.16,  0.62),
+    new THREE.Vector2(0.16,  0.70)
+  ];
+  g.add(new THREE.Mesh(new THREE.LatheGeometry(pts, 32), mat));
+  return g;
+}
+
 var BUILDERS = {
   'volante-de-uso':    buildVolante,
   'volante-de-huso-2': buildVolante,
-  'cuenco-1':          buildCuenco
+  'cuenco-1':          buildCuenco,
+  'jarron-1':          buildJarron
 };
 
 export function buildArtifact(piece, scale) {

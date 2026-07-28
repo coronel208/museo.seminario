@@ -86,6 +86,25 @@ var MUSEUM_CATALOG = [
     video: null
   }
 
+  // ── JARRÓN 1 · Cultura Calima Ilama ──────────────────────────────
+  ,{
+    id: 'jarron-1',
+    nombre: 'Vasija Globular con Cuello Cilíndrico',
+    descripcion: 'Vasija cerámica globular con cuello cilíndrico e incisiones horizontales finas. Presenta engobe rojo-naranja característico de la alfarería fina Calima Ilama. Morfología y técnica incisa en el cuello son indicadores del período Ilama del suroccidente colombiano.',
+    material: 'Cerámica',
+    periodo: 'Período Ilama (1500 a.C. – 100 a.C.)',
+    donante: '',
+    modelUrl: 'models/jarron-1.glb',
+    imagenes: [
+      'images/jarron-1-1.jpg',
+      'images/jarron-1-2.jpg',
+      'images/jarron-1-3.jpg',
+      'images/jarron-1-4.jpg',
+      'images/jarron-1-5.jpg'
+    ],
+    video: null
+  }
+
   // ── AGREGA MÁS PIEZAS AQUÍ ────────────────────────────────────────
   // Sigue el mismo patrón. El sistema soporta hasta 50 (o más).
 
