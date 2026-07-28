@@ -46,119 +46,15 @@ var MUSEUM_CATALOG = [
     video: null
   },
 
-  // ── PIEZA 002 ─────────────────────────────────────────────────────
+  // ── VOLANTE DE HUSO 2 · Tradición Muisca ─────────────────────────
   {
-    id: 'pieza-002',
-    nombre: 'Pieza 002',
-    descripcion: 'Descripción de la pieza. Aquí va la historia, origen y significado del objeto donado al museo.',
-    material: 'Por definir',
-    periodo: 'Por definir',
+    id: 'volante-de-huso-2',
+    nombre: 'Volante de Huso (Fusayola)',
+    descripcion: 'Fusayola o volante de huso de morfología discoidal simple fabricada en cerámica utilitaria. Presenta perforación central cilíndrica para el paso del eje del huso, con desgaste superficial generalizado y pátina de alteración edáfica. Artefacto común en contextos domésticos de los Andes colombianos asociados a la actividad textil prehispánica y colonial temprana.',
+    material: 'Cerámica',
+    periodo: 'Período Herrera a Tardío (500 a.C. – 1600 d.C.)',
     donante: '',
-    modelUrl: null,
-    imagenes: [],
-    video: null
-  },
-
-  // ── PIEZA 003 ─────────────────────────────────────────────────────
-  {
-    id: 'pieza-003',
-    nombre: 'Pieza 003',
-    descripcion: 'Descripción de la pieza. Aquí va la historia, origen y significado del objeto donado al museo.',
-    material: 'Por definir',
-    periodo: 'Por definir',
-    donante: '',
-    modelUrl: null,
-    imagenes: [],
-    video: null
-  },
-
-  // ── PIEZA 004 ─────────────────────────────────────────────────────
-  {
-    id: 'pieza-004',
-    nombre: 'Pieza 004',
-    descripcion: 'Descripción de la pieza. Aquí va la historia, origen y significado del objeto donado al museo.',
-    material: 'Por definir',
-    periodo: 'Por definir',
-    donante: '',
-    modelUrl: null,
-    imagenes: [],
-    video: null
-  },
-
-  // ── PIEZA 005 ─────────────────────────────────────────────────────
-  {
-    id: 'pieza-005',
-    nombre: 'Pieza 005',
-    descripcion: 'Descripción de la pieza. Aquí va la historia, origen y significado del objeto donado al museo.',
-    material: 'Por definir',
-    periodo: 'Por definir',
-    donante: '',
-    modelUrl: null,
-    imagenes: [],
-    video: null
-  },
-
-  // ── PIEZA 006 ─────────────────────────────────────────────────────
-  {
-    id: 'pieza-006',
-    nombre: 'Pieza 006',
-    descripcion: 'Descripción de la pieza. Aquí va la historia, origen y significado del objeto donado al museo.',
-    material: 'Por definir',
-    periodo: 'Por definir',
-    donante: '',
-    modelUrl: null,
-    imagenes: [],
-    video: null
-  },
-
-  // ── PIEZA 007 ─────────────────────────────────────────────────────
-  {
-    id: 'pieza-007',
-    nombre: 'Pieza 007',
-    descripcion: 'Descripción de la pieza. Aquí va la historia, origen y significado del objeto donado al museo.',
-    material: 'Por definir',
-    periodo: 'Por definir',
-    donante: '',
-    modelUrl: null,
-    imagenes: [],
-    video: null
-  },
-
-  // ── PIEZA 008 ─────────────────────────────────────────────────────
-  {
-    id: 'pieza-008',
-    nombre: 'Pieza 008',
-    descripcion: 'Descripción de la pieza. Aquí va la historia, origen y significado del objeto donado al museo.',
-    material: 'Por definir',
-    periodo: 'Por definir',
-    donante: '',
-    modelUrl: null,
-    imagenes: [],
-    video: null
-  },
-
-  // ── PIEZA 009 ─────────────────────────────────────────────────────
-  {
-    id: 'pieza-009',
-    nombre: 'Pieza 009',
-    descripcion: 'Descripción de la pieza. Aquí va la historia, origen y significado del objeto donado al museo.',
-    material: 'Por definir',
-    periodo: 'Por definir',
-    donante: '',
-    modelUrl: null,
-    imagenes: [],
-    video: null
-  },
-
-  // ── PIEZA 010 ─────────────────────────────────────────────────────
-  {
-    id: 'pieza-010',
-    nombre: 'Pieza 010',
-    descripcion: 'Descripción de la pieza. Aquí va la historia, origen y significado del objeto donado al museo.',
-    material: 'Por definir',
-    periodo: 'Por definir',
-    donante: '',
-    modelUrl: null,
+    modelUrl: 'models/volante-de-huso-2.glb',
     imagenes: [],
     video: null
   }

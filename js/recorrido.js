@@ -409,13 +409,9 @@ prog(58, 'Montando letrero del museo…');
 /* ── Display cases (vitrinas) ────────────────────────────────────── */
 prog(70, 'Instalando vitrinas…');
 
-// Pair 1 at z=0, Pair 2 at z=-6. Mural will be at z=3 (left wall).
-// Distances: spawn(21)→arch(11)=10, arch(11)→mural(5)=6, mural(5)→vitrina1(-1)=6, vitrina1(-1)→vitrina2(-7)=6
 var LAYOUT = [
-  { piece: PIECES[0], x: -3.0, z:  -1 },   // Máscara Funeraria
-  { piece: PIECES[1], x:  3.0, z:  -1 },   // Collar de Cuentas
-  { piece: PIECES[2], x: -3.0, z:  -7 },   // Poporo Ceremonial
-  { piece: PIECES[4], x:  3.0, z:  -7 }    // Volante de Uso (pieza real)
+  { piece: getPieceById('volante-de-uso'),    x: -3.0, z: -1 },
+  { piece: getPieceById('volante-de-huso-2'), x:  3.0, z: -1 }
 ];
 
 var interactables = [];
