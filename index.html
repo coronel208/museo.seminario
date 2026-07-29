@@ -13,6 +13,9 @@
       <h1>MUSEO SEMINARIO</h1>
       <span>Diocesano de Cristo Sacerdote</span>
     </div>
+    <button class="nav-toggle" aria-label="Menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
     <ul class="nav-menu">
       <li><a href="index.html" class="active">Inicio</a></li>
       <li><a href="coleccion.html">Colección</a></li>
@@ -39,5 +42,12 @@
   <footer>
     <p>© 2026 Museo Seminario Diocesano de Cristo Sacerdote · Colección Malagana</p>
   </footer>
+  <script>
+    document.querySelector('.nav-toggle').addEventListener('click', function() {
+      this.classList.toggle('open');
+      this.setAttribute('aria-expanded', this.classList.contains('open'));
+      document.querySelector('.nav-menu').classList.toggle('open');
+    });
+  </script>
 </body>
 </html>

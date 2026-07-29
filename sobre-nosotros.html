@@ -13,6 +13,9 @@
       <h1>MUSEO SEMINARIO</h1>
       <span>Diocesano de Cristo Sacerdote</span>
     </div>
+    <button class="nav-toggle" aria-label="Menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
     <ul class="nav-menu">
       <li><a href="index.html">Inicio</a></li>
       <li><a href="coleccion.html">Colección</a></li>
@@ -31,12 +34,28 @@
         <h4>Misión</h4>
         <p>Preservar, investigar y difundir el patrimonio arqueológico y cultural de la región, haciendo accesible nuestra historia a través de tecnología digital de vanguardia.</p>
         <h4>Ubicación</h4>
-        <p><i class="fas fa-map-marker-alt" style="color:var(--dorado)"></i> Calle 10 # 5-23, Palmira, Valle del Cauca, Colombia.</p>
+        <p><i class="fas fa-map-marker-alt" style="color:var(--gold)"></i> Calle 10 # 5-23, Palmira, Valle del Cauca, Colombia.</p>
         <h4>Contacto</h4>
         <p>
-          <i class="fas fa-envelope" style="color:var(--dorado)"></i> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="472a323422280734222a2e2926352e2824352e34332834262422352328332269222332692428">[email&#160;protected]</a><br>
-          <i class="fas fa-phone" style="color:var(--dorado)"></i> +57 (2) 123 4567
+          <i class="fas fa-envelope" style="color:var(--gold)"></i> museoeseminario@gmail.com<br>
+          <i class="fas fa-phone" style="color:var(--gold)"></i> +57 (2) 123 4567
         </p>
       </div>
       <div class="about-image">
         <img src="https://images.pexels.com/photos/2079438/pexels-photo-2079438.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Seminario">
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 Museo Seminario Diocesano de Cristo Sacerdote · Colección Malagana</p>
+  </footer>
+  <script>
+    document.querySelector('.nav-toggle').addEventListener('click', function() {
+      this.classList.toggle('open');
+      this.setAttribute('aria-expanded', this.classList.contains('open'));
+      document.querySelector('.nav-menu').classList.toggle('open');
+    });
+  </script>
+</body>
+</html>

@@ -27,6 +27,20 @@ html, body { font-family:'Raleway','Segoe UI',sans-serif; background:var(--bg); 
 .nav-menu a.active, .nav-menu a:hover { color:var(--gold); }
 .btn-recorrido { background:var(--gold)!important; color:#000!important; padding:.4rem 1.1rem; border-radius:25px; font-weight:700!important; }
 
+/* ── HAMBURGER TOGGLE ───────────────────────────────────────────── */
+.nav-toggle {
+  display:none; flex-direction:column; justify-content:center; align-items:center;
+  gap:5px; background:none; border:1px solid var(--border); border-radius:6px;
+  padding:8px 10px; cursor:pointer; -webkit-tap-highlight-color:transparent;
+}
+.nav-toggle span {
+  display:block; width:22px; height:2px; background:var(--gold);
+  border-radius:2px; transition:transform .25s, opacity .25s;
+}
+.nav-toggle.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+.nav-toggle.open span:nth-child(2) { opacity:0; transform:scaleX(0); }
+.nav-toggle.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+
 /* ── HERO ───────────────────────────────────────────────────── */
 .hero-page {
   display:flex; align-items:center; justify-content:center;
@@ -253,12 +267,36 @@ footer { text-align:center; padding:2rem; border-top:1px solid #1e2025; color:va
 
 /* ── RESPONSIVE ─────────────────────────────────────────────── */
 @media (max-width:768px) {
-  .navbar { flex-direction:column; gap:.8rem; padding:.8rem 1rem; }
-  .nav-menu { flex-wrap:wrap; justify-content:center; gap:.8rem; }
-  .hero-content h2 { font-size:2.2rem; }
+  /* Hamburger activado */
+  .nav-toggle { display:flex; }
+  .navbar { padding:.75rem 1rem; position:relative; }
+  .nav-menu {
+    display:none; flex-direction:column; width:100%;
+    padding:.5rem 0; gap:.1rem;
+    border-top:1px solid var(--border); margin-top:.6rem;
+  }
+  .nav-menu.open { display:flex; }
+  .nav-menu li { width:100%; }
+  .nav-menu a { display:block; padding:.65rem .6rem; border-radius:6px; }
+  .nav-menu a:hover, .nav-menu a.active { background:rgba(212,175,55,.07); }
+  .btn-recorrido { display:inline-flex!important; width:fit-content; margin:.2rem .6rem; }
+
+  /* Hero */
+  .hero-content h2 { font-size:2rem; }
+  .hero-content p  { font-size:.95rem; }
+  .hero-page { padding:1.5rem 1rem; gap:2rem; }
+  .hero-image img  { max-height:240px; }
+
+  /* Cards grid */
+  .grid-cards { padding:.75rem; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); }
+
+  /* Modals — stacked vertically */
   .modal-body, .pm-body { flex-direction:column; }
   .modal-viewer, .pm-viewer { flex:none; height:45%; }
-  .modal-info, .pm-info { border-left:none; border-top:1px solid #1e2025; }
+  .modal-info, .pm-info { border-left:none; border-top:1px solid #1e2025; min-width:unset; }
+  .modal-content { height:94vh; width:97%; }
+
+  /* About */
   .about-container { flex-direction:column; }
-  .grid-cards { padding:1rem; }
+  .page-title { font-size:2rem; }
 }

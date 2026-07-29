@@ -52,6 +52,38 @@
     }
     .nav-menu a:hover { color:var(--gold); }
 
+    /* Hamburger */
+    .nav-toggle {
+      display:none; flex-direction:column; justify-content:center; align-items:center;
+      gap:5px; background:none; border:1px solid rgba(212,175,55,.30); border-radius:6px;
+      padding:8px 10px; cursor:pointer; -webkit-tap-highlight-color:transparent;
+    }
+    .nav-toggle span { display:block; width:22px; height:2px; background:var(--gold); border-radius:2px; transition:transform .25s,opacity .25s; }
+    .nav-toggle.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+    .nav-toggle.open span:nth-child(2) { opacity:0; transform:scaleX(0); }
+    .nav-toggle.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+
+    @media (max-width:768px) {
+      .nav-toggle { display:flex; }
+      .navbar { padding:.75rem 1rem; position:relative; }
+      .nav-menu {
+        display:none; flex-direction:column; width:100%;
+        padding:.5rem 0; gap:.1rem;
+        border-top:1px solid rgba(212,175,55,.30); margin-top:.6rem;
+      }
+      .nav-menu.open { display:flex; }
+      .nav-menu li { width:100%; }
+      .nav-menu a { display:block; padding:.65rem .6rem; border-radius:6px; }
+    }
+
+    /* Descripción en QR card */
+    .qr-desc {
+      color:var(--sub); font-size:.72rem; line-height:1.5;
+      display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical;
+      overflow:hidden; text-align:left; width:100%;
+    }
+    .qr-periodo { color:rgba(212,175,55,.65); font-size:.68rem; font-style:italic; }
+
     /* ── CONTENIDO ───────────────────────────────────────────────── */
     .page-wrap { max-width:1200px; margin:0 auto; padding:2.5rem 2rem 4rem; }
 
@@ -200,6 +232,9 @@
       <h1>MUSEO SEMINARIO</h1>
       <span>Diocesano de Cristo Sacerdote</span>
     </div>
+    <button class="nav-toggle" aria-label="Menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
     <ul class="nav-menu">
       <li><a href="index.html">Inicio</a></li>
       <li><a href="coleccion.html">Colección</a></li>
@@ -301,6 +336,22 @@
           card.appendChild(mat);
         }
 
+        // Periodo
+        if (piece.periodo) {
+          var per = document.createElement('div');
+          per.className = 'qr-periodo';
+          per.textContent = piece.periodo;
+          card.appendChild(per);
+        }
+
+        // Descripcion
+        if (piece.descripcion) {
+          var desc = document.createElement('div');
+          desc.className = 'qr-desc';
+          desc.textContent = piece.descripcion;
+          card.appendChild(desc);
+        }
+
         // URL (visible en print)
         var url = document.createElement('div');
         url.className = 'qr-url';
@@ -313,6 +364,12 @@
 
     // Generar automáticamente al cargar
     window.addEventListener('DOMContentLoaded', generarTodos);
+
+    document.querySelector('.nav-toggle').addEventListener('click', function() {
+      this.classList.toggle('open');
+      this.setAttribute('aria-expanded', this.classList.contains('open'));
+      document.querySelector('.nav-menu').classList.toggle('open');
+    });
   </script>
 
 </body>

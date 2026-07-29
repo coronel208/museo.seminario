@@ -51,9 +51,10 @@ gl.height = VH();
 gl.style.width  = VW() + 'px';
 gl.style.height = VH() + 'px';
 
-var renderer = new THREE.WebGLRenderer({ canvas: gl, antialias: true });
+var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth <= 768;
+var renderer = new THREE.WebGLRenderer({ canvas: gl, antialias: !isMobile, powerPreference: 'high-performance' });
 renderer.setSize(VW(), VH());
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));  // 1.5 max — big fps gain on HiDPI
+renderer.setPixelRatio(isMobile ? Math.min(window.devicePixelRatio, 1.0) : Math.min(window.devicePixelRatio, 1.5));
 renderer.shadowMap.enabled = false;  // shadows off — ambient+point lights do the job cheaply
 renderer.toneMapping        = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;

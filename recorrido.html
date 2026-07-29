@@ -60,6 +60,31 @@
     #crosshair .dot { position:absolute; width:4px; height:4px; background:#d4af37; border-radius:50%; top:8px; left:8px; }
     #hint-label { display:none; position:fixed; bottom:72px; left:50%; transform:translateX(-50%); background:rgba(212,175,55,.13); border:1px solid #d4af37; color:#d4af37; padding:5px 15px; border-radius:22px; font-size:.8rem; pointer-events:none; white-space:nowrap; z-index:300; }
 
+    /* ── NAV HAMBURGER ── */
+    .nb-toggle {
+      display:none; flex-direction:column; justify-content:center; align-items:center;
+      gap:5px; background:none; border:1px solid rgba(212,175,55,.30); border-radius:6px;
+      padding:7px 9px; cursor:pointer; -webkit-tap-highlight-color:transparent;
+    }
+    .nb-toggle span { display:block; width:20px; height:2px; background:#d4af37; border-radius:2px; transition:transform .25s,opacity .25s; }
+    .nb-toggle.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+    .nb-toggle.open span:nth-child(2) { opacity:0; transform:scaleX(0); }
+    .nb-toggle.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+    @media (max-width:768px) {
+      .nb-toggle { display:flex; }
+      #top-nav { flex-wrap:wrap; height:auto; padding:.6rem 1rem; }
+      .nb-menu {
+        display:none; flex-direction:column; width:100%;
+        padding:.4rem 0; gap:.1rem;
+        border-top:1px solid rgba(212,175,55,.25); margin-top:.5rem;
+        background:rgba(8,9,11,.98);
+      }
+      .nb-menu.open { display:flex; }
+      .nb-menu li { width:100%; }
+      .nb-menu a { display:block; padding:.6rem .4rem; }
+      #gl-canvas { top:auto; }
+    }
+
     /* ── D-PAD ── */
     #dpad { display:none; position:fixed; bottom:28px; left:50%; transform:translateX(-50%); z-index:300; touch-action:none; user-select:none; }
     .dpad-grid { display:grid; grid-template-columns:56px 56px 56px; grid-template-rows:56px 56px 56px; gap:5px; }
@@ -135,6 +160,9 @@
   <!-- NAV -->
   <nav id="top-nav">
     <div class="nb-brand"><h1>MUSEO SEMINARIO</h1><span>Diocesano de Cristo Sacerdote</span></div>
+    <button class="nb-toggle" aria-label="Menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
     <ul class="nb-menu">
       <li><a href="index.html">Inicio</a></li>
       <li><a href="coleccion.html">Colección</a></li>
@@ -246,6 +274,13 @@
     </div>
   </div>
 
+  <script>
+    document.querySelector('.nb-toggle').addEventListener('click', function() {
+      this.classList.toggle('open');
+      this.setAttribute('aria-expanded', this.classList.contains('open'));
+      document.querySelector('.nb-menu').classList.toggle('open');
+    });
+  </script>
   <script type="module" src="js/recorrido.js"></script>
 
   <!-- Malagana cultural mural modal -->
