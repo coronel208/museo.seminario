@@ -105,6 +105,27 @@ export const PIECES = [
     video: null,
     modelUrl: 'models/cuenco-2.glb',
     restY: 1.19
+  },
+
+  // ── CUENCO GLOBULAR CON ASAS · Calima Sonso ──────────────────────
+  {
+    id: 'cuenco-asas',
+    nombre: 'Cuenco Globular con Asas Laterales',
+    procedencia: 'Cultura Calima, Valle del Cauca · Período Sonso',
+    descripcion: 'Cuenco cerámico completo de morfología globular con dos asas opuestas, característico del período Sonso Calima. Pasta semigruesa con desgrasante de cuarzo y tiesto molido, cocción oxidante. Acabado superficial alisado con engobe rojizo (Munsell 10R 5/6). Manufactura utilitaria doméstica. Estado de conservación con desgaste moderado por uso y trazas de intemperismo tafonómico.',
+    metadata: 'Material: Cerámica · Técnica: Pasta semigruesa, engobe rojizo · Dimensiones: Alt. 8 × ⌀ 19.1 cm · Estado: Completo · Registro ICANH',
+    color: 0x8B4020, roughness: 0.90, metalness: 0.02,
+    imagenes: [
+      'images/cuenco-asas-1.jpg',
+      'images/cuenco-asas-2.jpg',
+      'images/cuenco-asas-3.jpg',
+      'images/cuenco-asas-4.jpg',
+      'images/cuenco-asas-5.jpg',
+      'images/cuenco-asas-6.jpg'
+    ],
+    video: null,
+    modelUrl: 'models/cuenco-asas.glb',
+    restY: 1.19
   }
 
 ];
@@ -196,12 +217,31 @@ function buildCopa(piece) {
   return g;
 }
 
+function buildCuencoAsas(piece) {
+  var g   = new THREE.Group();
+  var mat = makeMat(piece);
+  var pts = [];
+  for (var i = 0; i <= 14; i++) {
+    var a = (i / 14) * Math.PI * 0.88;
+    pts.push(new THREE.Vector2(Math.sin(a) * 0.52, -Math.cos(a) * 0.44 + 0.04));
+  }
+  g.add(new THREE.Mesh(new THREE.LatheGeometry(pts, 14), mat));
+  [-1, 1].forEach(function(side) {
+    var h = new THREE.Mesh(new THREE.TorusGeometry(0.10, 0.032, 5, 10), mat);
+    h.position.set(side * 0.56, 0.06, 0);
+    h.rotation.y = Math.PI / 2;
+    g.add(h);
+  });
+  return g;
+}
+
 var BUILDERS = {
   'volante-de-uso':    buildVolante,
   'volante-de-huso-2': buildVolante,
   'cuenco-1':          buildCuenco,
   'jarron-1':          buildJarron,
-  'cuenco-2':          buildCopa
+  'cuenco-2':          buildCopa,
+  'cuenco-asas':       buildCuencoAsas
 };
 
 export function buildArtifact(piece, scale) {

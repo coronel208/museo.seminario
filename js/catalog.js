@@ -140,6 +140,29 @@ var MUSEUM_CATALOG = [
     video: null
   }
 
+  // ── CUENCO GLOBULAR CON ASAS · Calima Sonso ──────────────────────
+  ,{
+    id: 'cuenco-asas',
+    nombre: 'Cuenco Globular con Asas Laterales',
+    descripcion: 'Cuenco cerámico completo de morfología globular con dos asas opuestas, característico de las fases tardías de la región Calima (período Sonso). Presenta pasta de textura semigruesa con inclusiones visibles de desgrasante de cuarzo y tiesto molido, cocción en atmósfera oxidante y acabado superficial alisado con restos de engobe rojizo (Munsell 10R 5/6). Manufactura utilitaria orientada a actividades domésticas cotidianas. Estado de conservación con desgaste moderado por uso y trazas de intemperismo tafonómico compatibles con depósitos superficiales o contextos excavados en matriz arcillosa.',
+    material: 'Cerámica',
+    cultura: 'Cultura Calima · Valle del Cauca',
+    periodo: 'Período Sonso',
+    tecnica: 'Pasta semigruesa, desgrasante de cuarzo y tiesto molido, atmósfera oxidante, engobe rojizo alisado',
+    dimensiones: 'Alt. 8 cm · ⌀ 19.1 cm · Peso no registrado',
+    donante: '',
+    modelUrl: 'models/cuenco-asas.glb',
+    imagenes: [
+      'images/cuenco-asas-1.jpg',
+      'images/cuenco-asas-2.jpg',
+      'images/cuenco-asas-3.jpg',
+      'images/cuenco-asas-4.jpg',
+      'images/cuenco-asas-5.jpg',
+      'images/cuenco-asas-6.jpg'
+    ],
+    video: null
+  }
+
   // ── AGREGA MÁS PIEZAS AQUÍ ────────────────────────────────────────
   // Sigue el mismo patrón. El sistema soporta hasta 50 (o más).
 
