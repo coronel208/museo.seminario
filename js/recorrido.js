@@ -409,11 +409,12 @@ prog(58, 'Montando letrero del museo…');
 /* ── Display cases (vitrinas) ────────────────────────────────────── */
 prog(70, 'Instalando vitrinas…');
 
+// 4 vitrinas por sección, pared izquierda (x=-3) y derecha (x=3), 2 filas separadas 8u
 var LAYOUT = [
-  { piece: getPieceById('volante-de-uso'),    x: -3.0, z: -1 },
-  { piece: getPieceById('volante-de-huso-2'), x:  3.0, z: -1 },
-  { piece: getPieceById('cuenco-1'),          x:  0.0, z: -5 },
-  { piece: getPieceById('jarron-1'),          x: -3.0, z: -5 }
+  { piece: getPieceById('volante-de-uso'),    x: -3.0, z:  0 },
+  { piece: getPieceById('volante-de-huso-2'), x:  3.0, z:  0 },
+  { piece: getPieceById('cuenco-1'),          x: -3.0, z: -8 },
+  { piece: getPieceById('jarron-1'),          x:  3.0, z: -8 }
 ];
 
 var interactables = [];
@@ -501,19 +502,30 @@ LAYOUT.forEach(function(cfg) {
   lctx.strokeStyle = '#f0c840'; lctx.lineWidth = 5; lctx.strokeRect(4, 4, 632, 192);
   lctx.strokeStyle = 'rgba(240,200,64,0.5)'; lctx.lineWidth = 2; lctx.strokeRect(14, 14, 612, 172);
   lctx.textAlign = 'center';
-  // Main title — auto-fit font size for long names
-  var titleFontSize = piece.nombre.length > 18 ? 36 : piece.nombre.length > 14 ? 44 : 52;
+  // Title — auto-shrink font until it fits, then word-wrap to 2 lines if still too wide
+  var tf = 46;
+  lctx.font = 'Bold ' + tf + 'px Georgia,serif';
+  while (lctx.measureText(piece.nombre).width > 590 && tf > 26) { tf -= 2; lctx.font = 'Bold ' + tf + 'px Georgia,serif'; }
   lctx.shadowColor = 'rgba(255,220,80,0.95)'; lctx.shadowBlur = 16;
-  lctx.fillStyle = '#ffffff'; lctx.font = 'Bold ' + titleFontSize + 'px Georgia,serif';
-  lctx.fillText(piece.nombre, 320, titleFontSize > 44 ? 86 : 82);
+  lctx.fillStyle = '#ffffff';
+  var locY = 138, dateY = 172;
+  if (lctx.measureText(piece.nombre).width > 590) {
+    var ws = piece.nombre.split(' '), h = Math.ceil(ws.length / 2);
+    tf = 34; lctx.font = 'Bold ' + tf + 'px Georgia,serif';
+    lctx.fillText(ws.slice(0, h).join(' '), 320, 60);
+    lctx.fillText(ws.slice(h).join(' '), 320, 60 + tf + 6);
+    locY = 148; dateY = 178;
+  } else {
+    lctx.fillText(piece.nombre, 320, 82);
+  }
   // Location line
   lctx.shadowColor = 'rgba(240,200,64,0.6)'; lctx.shadowBlur = 8;
-  lctx.fillStyle = '#f0e080'; lctx.font = 'Bold 27px Georgia';
-  lctx.fillText(piece.procedencia.split('·')[0].trim(), 320, 132);
+  lctx.fillStyle = '#f0e080'; lctx.font = 'Bold 23px Georgia';
+  lctx.fillText(piece.procedencia.split('·')[0].trim(), 320, locY);
   lctx.shadowBlur = 0;
   // Date
   var dp = piece.procedencia.split('·')[1];
-  if (dp) { lctx.fillStyle='rgba(240,200,80,0.75)'; lctx.font='22px Georgia'; lctx.fillText('· '+dp.trim()+' ·', 320, 168); }
+  if (dp) { lctx.fillStyle='rgba(240,200,80,0.75)'; lctx.font='20px Georgia'; lctx.fillText('· '+dp.trim()+' ·', 320, dateY); }
 
   var lblTex = new THREE.CanvasTexture(lc);
   // CORRECTED rotation: right side (x>0) normal must face -X (toward corridor center)
