@@ -787,35 +787,54 @@ document.addEventListener('keyup', function(e) {
   if (e.code==='KeyD'||e.code==='ArrowRight') kb.d = false;
 });
 
-/* ── Mobile D-Pad ────────────────────────────────────────────────── */
+/* ── Mobile Joystick (nipplejs) ──────────────────────────────────── */
 var mb = { w: false, s: false, a: false, d: false };
-function bindBtn(id, key) {
-  var el = document.getElementById(id);
-  if (!el) return;
-  el.addEventListener('touchstart', function(e){ e.preventDefault(); mb[key]=true;  }, { passive: false });
-  el.addEventListener('touchend',   function(e){ e.preventDefault(); mb[key]=false; }, { passive: false });
-  el.addEventListener('touchcancel',function(){ mb[key]=false; });
-  el.addEventListener('mousedown',  function(){ mb[key]=true;  });
-  el.addEventListener('mouseup',    function(){ mb[key]=false; });
-  el.addEventListener('mouseleave', function(){ mb[key]=false; });
+var joystickZone = document.getElementById('joystick-zone');
+if (joystickZone && typeof nipplejs !== 'undefined') {
+  var joy = nipplejs.create({
+    zone: joystickZone,
+    mode: 'static',
+    position: { left: '65px', top: '65px' },
+    color: 'rgba(212,175,55,0.75)',
+    size: 110,
+    threshold: 0.08
+  });
+  joy.on('move', function(evt, data) {
+    mb.w = mb.s = mb.a = mb.d = false;
+    var a = data.angle.degree;  // 0=right, 90=up, 180=left, 270=down
+    if (data.distance < 8) return;
+    mb.w = (a > 45  && a <= 135);
+    mb.s = (a > 225 && a <= 315);
+    mb.a = (a > 135 && a <= 225);
+    mb.d = (a <= 45 || a >  315);
+  });
+  joy.on('end', function() { mb.w = mb.s = mb.a = mb.d = false; });
 }
-bindBtn('dp-up','w'); bindBtn('dp-down','s');
-bindBtn('dp-left','a'); bindBtn('dp-right','d');
 
-// Touch-look (drag screen to look around on mobile)
+// Touch-look (drag canvas to look — ignore joystick area)
 var tLook = null;
+var JOYSTICK_RADIUS = 130;
+function isInJoystick(x, y) {
+  var jz = joystickZone;
+  if (!jz) return false;
+  var r = jz.getBoundingClientRect();
+  return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+}
 gl.addEventListener('touchstart', function(e) {
-  if (e.target.classList.contains('dp-btn')) return;
-  if (e.touches.length === 1) tLook = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  var t = e.touches[0];
+  if (isInJoystick(t.clientX, t.clientY)) return;
+  if (e.touches.length === 1) tLook = { x: t.clientX, y: t.clientY };
 }, { passive: true });
 gl.addEventListener('touchmove', function(e) {
-  if (!tLook || e.target.classList.contains('dp-btn')) return;
-  var dx = e.touches[0].clientX - tLook.x;
-  var dy = e.touches[0].clientY - tLook.y;
+  if (!tLook) return;
+  var t = e.touches[0];
+  if (isInJoystick(t.clientX, t.clientY)) return;
+  var dx = t.clientX - tLook.x;
+  var dy = t.clientY - tLook.y;
   camera.rotation.order = 'YXZ';
-  camera.rotation.y -= dx * 0.0028;
-  camera.rotation.x = Math.max(-Math.PI/2.1, Math.min(Math.PI/2.1, camera.rotation.x - dy * 0.0028));
-  tLook = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  camera.rotation.y -= dx * 0.003;
+  camera.rotation.x = Math.max(-Math.PI/2.1, Math.min(Math.PI/2.1, camera.rotation.x - dy * 0.003));
+  tLook = { x: t.clientX, y: t.clientY };
 }, { passive: true });
 gl.addEventListener('touchend', function() { tLook = null; });
 

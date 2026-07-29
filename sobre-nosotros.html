@@ -23,6 +23,7 @@
       <li><a href="sobre-nosotros.html" class="active">Sobre Nosotros</a></li>
     </ul>
   </nav>
+  <div class="nav-overlay" id="nav-overlay"></div>
 
   <main class="page-content">
     <h2 class="page-title">Sobre Nosotros</h2>
@@ -51,11 +52,16 @@
     <p>© 2026 Museo Seminario Diocesano de Cristo Sacerdote · Colección Malagana</p>
   </footer>
   <script>
-    document.querySelector('.nav-toggle').addEventListener('click', function() {
-      this.classList.toggle('open');
-      this.setAttribute('aria-expanded', this.classList.contains('open'));
-      document.querySelector('.nav-menu').classList.toggle('open');
-    });
+    (function(){
+      var toggle = document.querySelector('.nav-toggle');
+      var menu   = document.querySelector('.nav-menu');
+      var overlay= document.getElementById('nav-overlay');
+      function open(){ menu.classList.add('open'); overlay.classList.add('open'); toggle.classList.add('open'); toggle.setAttribute('aria-expanded','true'); document.body.style.overflow='hidden'; }
+      function close(){ menu.classList.remove('open'); overlay.classList.remove('open'); toggle.classList.remove('open'); toggle.setAttribute('aria-expanded','false'); document.body.style.overflow=''; }
+      toggle.addEventListener('click', function(){ menu.classList.contains('open') ? close() : open(); });
+      overlay.addEventListener('click', close);
+      menu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', close); });
+    })();
   </script>
 </body>
 </html>

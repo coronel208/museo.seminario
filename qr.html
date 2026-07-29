@@ -56,24 +56,42 @@
     .nav-toggle {
       display:none; flex-direction:column; justify-content:center; align-items:center;
       gap:5px; background:none; border:1px solid rgba(212,175,55,.30); border-radius:6px;
-      padding:8px 10px; cursor:pointer; -webkit-tap-highlight-color:transparent;
+      padding:8px 10px; cursor:pointer; -webkit-tap-highlight-color:transparent; z-index:10001;
     }
-    .nav-toggle span { display:block; width:22px; height:2px; background:var(--gold); border-radius:2px; transition:transform .25s,opacity .25s; }
+    .nav-toggle span { display:block; width:22px; height:2px; background:var(--gold); border-radius:2px; transition:transform .28s,opacity .22s; }
     .nav-toggle.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
     .nav-toggle.open span:nth-child(2) { opacity:0; transform:scaleX(0); }
     .nav-toggle.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
 
+    .nav-overlay {
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,.52); z-index:9998;
+    }
+    .nav-overlay.open { display:block; }
+
+    @media (max-width:1024px) { .nav-toggle { display:flex; } }
     @media (max-width:768px) {
-      .nav-toggle { display:flex; }
-      .navbar { padding:.75rem 1rem; position:relative; }
+      .navbar { padding:.75rem 1rem; backdrop-filter:none; -webkit-backdrop-filter:none; }
       .nav-menu {
-        display:none; flex-direction:column; width:100%;
-        padding:.5rem 0; gap:.1rem;
-        border-top:1px solid rgba(212,175,55,.30); margin-top:.6rem;
+        position:fixed; top:0; right:0;
+        width:min(290px,82vw); height:100%;
+        flex-direction:column; align-items:flex-start;
+        padding:72px 1.5rem 2rem; gap:4px;
+        background:rgba(8,9,11,0.99);
+        border-left:2px solid var(--gold);
+        z-index:9999;
+        transform:translateX(100%);
+        transition:transform .3s cubic-bezier(.25,.46,.45,.94);
+        overflow-y:auto; will-change:transform;
+        box-shadow:-8px 0 32px rgba(0,0,0,.6);
       }
-      .nav-menu.open { display:flex; }
+      .nav-menu.open { transform:translateX(0); }
       .nav-menu li { width:100%; }
-      .nav-menu a { display:block; padding:.65rem .6rem; border-radius:6px; }
+      .nav-menu a { display:block; padding:.85rem .6rem; font-size:1.1rem; border-bottom:1px solid rgba(212,175,55,.1); }
+      #qr-grid { grid-template-columns:1fr 1fr; gap:1rem; }
+    }
+    @media (max-width:480px) {
+      #qr-grid { grid-template-columns:1fr; }
     }
 
     /* Descripción en QR card */
@@ -242,6 +260,7 @@
       <li><a href="sobre-nosotros.html">Sobre Nosotros</a></li>
     </ul>
   </nav>
+  <div class="nav-overlay" id="nav-overlay"></div>
 
   <div class="page-wrap">
 
@@ -365,11 +384,16 @@
     // Generar automáticamente al cargar
     window.addEventListener('DOMContentLoaded', generarTodos);
 
-    document.querySelector('.nav-toggle').addEventListener('click', function() {
-      this.classList.toggle('open');
-      this.setAttribute('aria-expanded', this.classList.contains('open'));
-      document.querySelector('.nav-menu').classList.toggle('open');
-    });
+    (function(){
+      var toggle = document.querySelector('.nav-toggle');
+      var menu   = document.querySelector('.nav-menu');
+      var overlay= document.getElementById('nav-overlay');
+      function openM(){ menu.classList.add('open'); overlay.classList.add('open'); toggle.classList.add('open'); document.body.style.overflow='hidden'; }
+      function closeM(){ menu.classList.remove('open'); overlay.classList.remove('open'); toggle.classList.remove('open'); document.body.style.overflow=''; }
+      toggle.addEventListener('click', function(){ menu.classList.contains('open') ? closeM() : openM(); });
+      overlay.addEventListener('click', closeM);
+      menu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', closeM); });
+    })();
   </script>
 
 </body>

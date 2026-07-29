@@ -6,6 +6,7 @@
   <title>Recorrido Virtual · Museo Seminario</title>
   <link rel="stylesheet" href="css/estilo.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.10.1/nipplejs.min.js"></script>
   <script type="importmap">
     {"imports":{"three":"https://unpkg.com/three@0.158.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.158.0/examples/jsm/"}}
   </script>
@@ -64,34 +65,52 @@
     .nb-toggle {
       display:none; flex-direction:column; justify-content:center; align-items:center;
       gap:5px; background:none; border:1px solid rgba(212,175,55,.30); border-radius:6px;
-      padding:7px 9px; cursor:pointer; -webkit-tap-highlight-color:transparent;
+      padding:7px 9px; cursor:pointer; -webkit-tap-highlight-color:transparent; z-index:10001;
     }
-    .nb-toggle span { display:block; width:20px; height:2px; background:#d4af37; border-radius:2px; transition:transform .25s,opacity .25s; }
+    .nb-toggle span { display:block; width:20px; height:2px; background:#d4af37; border-radius:2px; transition:transform .28s,opacity .22s; }
     .nb-toggle.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
     .nb-toggle.open span:nth-child(2) { opacity:0; transform:scaleX(0); }
     .nb-toggle.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+    .nb-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.52); z-index:9998; }
+    .nb-overlay.open { display:block; }
+    @media (max-width:1024px) { .nb-toggle { display:flex; } }
     @media (max-width:768px) {
-      .nb-toggle { display:flex; }
-      #top-nav { flex-wrap:wrap; height:auto; padding:.6rem 1rem; }
+      #top-nav { padding:.6rem 1rem; backdrop-filter:none; -webkit-backdrop-filter:none; }
       .nb-menu {
-        display:none; flex-direction:column; width:100%;
-        padding:.4rem 0; gap:.1rem;
-        border-top:1px solid rgba(212,175,55,.25); margin-top:.5rem;
-        background:rgba(8,9,11,.98);
+        position:fixed; top:0; right:0;
+        width:min(290px,82vw); height:100%;
+        flex-direction:column; align-items:flex-start;
+        padding:72px 1.5rem 2rem; gap:4px;
+        background:rgba(8,9,11,0.99); border-left:2px solid #d4af37;
+        z-index:9999;
+        transform:translateX(100%);
+        transition:transform .3s cubic-bezier(.25,.46,.45,.94);
+        overflow-y:auto; will-change:transform;
+        box-shadow:-8px 0 32px rgba(0,0,0,.6);
       }
-      .nb-menu.open { display:flex; }
+      .nb-menu.open { transform:translateX(0); }
       .nb-menu li { width:100%; }
-      .nb-menu a { display:block; padding:.6rem .4rem; }
-      #gl-canvas { top:auto; }
+      .nb-menu a { display:block; padding:.85rem .6rem; font-size:1.05rem; border-bottom:1px solid rgba(212,175,55,.15); }
     }
 
-    /* ── D-PAD ── */
-    #dpad { display:none; position:fixed; bottom:28px; left:50%; transform:translateX(-50%); z-index:300; touch-action:none; user-select:none; }
-    .dpad-grid { display:grid; grid-template-columns:56px 56px 56px; grid-template-rows:56px 56px 56px; gap:5px; }
-    .dp-btn { background:rgba(212,175,55,.16); border:1.5px solid rgba(212,175,55,.5); border-radius:10px; color:#d4af37; font-size:1.35rem; display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent; }
-    .dp-btn:active { background:rgba(212,175,55,.48); }
-    #dp-up{grid-column:2;grid-row:1;} #dp-left{grid-column:1;grid-row:2;} #dp-right{grid-column:3;grid-row:2;} #dp-down{grid-column:2;grid-row:3;}
-    @media(pointer:coarse),(max-width:768px){ #dpad{display:block;} }
+    /* ── LANDSCAPE OVERLAY ── */
+    #landscape-prompt {
+      display:none; position:fixed; inset:0; z-index:99999;
+      background:#0b0c0e; flex-direction:column; align-items:center;
+      justify-content:center; gap:1.4rem; text-align:center; padding:2rem;
+    }
+    #landscape-prompt .lp-icon { font-size:3.2rem; color:#d4af37; animation:lp-rot 1.6s ease-in-out infinite; }
+    @keyframes lp-rot { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(90deg)} }
+    #landscape-prompt h3 { font-family:Georgia,serif; color:#d4af37; font-size:1.4rem; }
+    #landscape-prompt p  { color:#a99e8c; font-size:.85rem; max-width:240px; line-height:1.6; }
+    @media (orientation:portrait) and (max-width:900px) { #landscape-prompt { display:flex; } }
+
+    /* ── JOYSTICK ── */
+    #joystick-zone {
+      display:none; position:fixed; bottom:32px; left:32px;
+      width:130px; height:130px; z-index:300; touch-action:none; user-select:none;
+    }
+    @media(pointer:coarse),(max-width:900px){ #joystick-zone{display:block;} }
 
     /* ── PIECE MODAL (recorrido) ── */
     #piece-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.90); z-index:2000; align-items:center; justify-content:center; }
@@ -221,15 +240,18 @@
   <div id="crosshair"><div class="dot"></div></div>
   <div id="hint-label"><i class="fas fa-hand-pointer"></i> Clic para inspeccionar</div>
 
-  <!-- D-PAD -->
-  <div id="dpad">
-    <div class="dpad-grid">
-      <div class="dp-btn" id="dp-up">▲</div>
-      <div class="dp-btn" id="dp-left">◄</div>
-      <div class="dp-btn" id="dp-right">►</div>
-      <div class="dp-btn" id="dp-down">▼</div>
-    </div>
+  <!-- JOYSTICK -->
+  <div id="joystick-zone"></div>
+
+  <!-- LANDSCAPE PROMPT -->
+  <div id="landscape-prompt">
+    <div class="lp-icon"><i class="fas fa-mobile-alt"></i></div>
+    <h3>Gira tu dispositivo</h3>
+    <p>El recorrido virtual funciona mejor en modo horizontal</p>
   </div>
+
+  <!-- NAV OVERLAY -->
+  <div class="nb-overlay" id="nb-overlay"></div>
 
   <!-- PIECE MODAL -->
   <div id="piece-modal">
@@ -275,11 +297,16 @@
   </div>
 
   <script>
-    document.querySelector('.nb-toggle').addEventListener('click', function() {
-      this.classList.toggle('open');
-      this.setAttribute('aria-expanded', this.classList.contains('open'));
-      document.querySelector('.nb-menu').classList.toggle('open');
-    });
+    (function(){
+      var toggle  = document.querySelector('.nb-toggle');
+      var menu    = document.querySelector('.nb-menu');
+      var overlay = document.getElementById('nb-overlay');
+      function openM(){ menu.classList.add('open'); overlay.classList.add('open'); toggle.classList.add('open'); }
+      function closeM(){ menu.classList.remove('open'); overlay.classList.remove('open'); toggle.classList.remove('open'); }
+      toggle.addEventListener('click', function(){ menu.classList.contains('open') ? closeM() : openM(); });
+      overlay.addEventListener('click', closeM);
+      menu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', closeM); });
+    })();
   </script>
   <script type="module" src="js/recorrido.js"></script>
 
