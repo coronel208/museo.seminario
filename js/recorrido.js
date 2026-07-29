@@ -802,67 +802,99 @@ document.addEventListener('keyup', function(e) {
   if (e.code==='KeyD'||e.code==='ArrowRight') kb.d = false;
 });
 
-/* ── Mobile Joystick (DIY — lightweight) ────────────────────────── */
+/* ── Mobile Joystick + Touch-look (multi-touch) ──────────────────── */
 var mb = { w: false, s: false, a: false, d: false };
 var joystickZone = document.getElementById('joystick-zone');
-var joyThumb = document.getElementById('joy-thumb');
-var joyActive = false;
+var joyThumb     = document.getElementById('joy-thumb');
+var joyActive    = false;
 var joyCx = 0, joyCy = 0;
-var JOY_MAX = 38;
+var joyTouchId   = -1;
+var JOY_MAX      = 38;
+
+var tLook       = null;
+var lookTouchId = -1;
+var tapStart    = null;
+
+function isInJoystick(x, y) {
+  if (!joystickZone) return false;
+  var r = joystickZone.getBoundingClientRect();
+  return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+}
+
+function joyEnd() {
+  joyActive  = false;
+  joyTouchId = -1;
+  mb.w = mb.s = mb.a = mb.d = false;
+  if (joyThumb) joyThumb.style.transform = 'translate(-50%, -50%)';
+}
 
 if (joystickZone && ('ontouchstart' in window || navigator.maxTouchPoints > 0)) {
   joystickZone.addEventListener('touchstart', function(e) {
     e.preventDefault();
-    joyActive = true;
-    var r = joystickZone.getBoundingClientRect();
-    joyCx = r.left + r.width * 0.5;
-    joyCy = r.top  + r.height * 0.5;
+    for (var i = 0; i < e.changedTouches.length; i++) {
+      if (joyTouchId === -1) {
+        var ct = e.changedTouches[i];
+        joyTouchId = ct.identifier;
+        joyActive  = true;
+        var r = joystickZone.getBoundingClientRect();
+        joyCx = r.left + r.width  * 0.5;
+        joyCy = r.top  + r.height * 0.5;
+        break;
+      }
+    }
   }, { passive: false });
 
   joystickZone.addEventListener('touchmove', function(e) {
     e.preventDefault();
-    if (!joyActive) return;
-    var t = e.touches[0];
-    var dx = t.clientX - joyCx;
-    var dy = t.clientY - joyCy;
+    if (!joyActive || joyTouchId === -1) return;
+    var t = null;
+    for (var i = 0; i < e.touches.length; i++) {
+      if (e.touches[i].identifier === joyTouchId) { t = e.touches[i]; break; }
+    }
+    if (!t) return;
+    var dx   = t.clientX - joyCx;
+    var dy   = t.clientY - joyCy;
     var dist = Math.sqrt(dx * dx + dy * dy);
     if (dist > 0 && joyThumb) {
       var cx = Math.min(dist, JOY_MAX) / dist;
       joyThumb.style.transform = 'translate(calc(-50% + ' + (dx*cx).toFixed(1) + 'px), calc(-50% + ' + (dy*cx).toFixed(1) + 'px))';
     }
     if (dist < 8) { mb.w = mb.s = mb.a = mb.d = false; return; }
-    var angle = Math.atan2(-dy, dx) * 180 / Math.PI; // -180..180, 0=right, 90=up
+    var angle = Math.atan2(-dy, dx) * 180 / Math.PI;
     mb.w = (angle > 45  && angle <= 135);
     mb.s = (angle < -45 && angle >= -135);
     mb.a = (angle > 135 || angle < -135);
     mb.d = (angle >= -45 && angle <= 45);
   }, { passive: false });
 
-  function joyEnd() {
-    joyActive = false;
-    mb.w = mb.s = mb.a = mb.d = false;
-    if (joyThumb) joyThumb.style.transform = 'translate(-50%, -50%)';
-  }
-  joystickZone.addEventListener('touchend', joyEnd, { passive: true });
+  joystickZone.addEventListener('touchend', function(e) {
+    for (var i = 0; i < e.changedTouches.length; i++) {
+      if (e.changedTouches[i].identifier === joyTouchId) { joyEnd(); break; }
+    }
+  }, { passive: true });
   joystickZone.addEventListener('touchcancel', joyEnd, { passive: true });
 }
 
-// Touch-look (drag canvas to look — ignore joystick area)
-var tLook = null;
-function isInJoystick(x, y) {
-  if (!joystickZone) return false;
-  var r = joystickZone.getBoundingClientRect();
-  return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
-}
+// Canvas: look drag + tap to interact
 gl.addEventListener('touchstart', function(e) {
-  var t = e.touches[0];
-  if (isInJoystick(t.clientX, t.clientY)) return;
-  if (e.touches.length === 1) tLook = { x: t.clientX, y: t.clientY };
+  for (var i = 0; i < e.changedTouches.length; i++) {
+    var ct = e.changedTouches[i];
+    if (!isInJoystick(ct.clientX, ct.clientY) && lookTouchId === -1) {
+      lookTouchId = ct.identifier;
+      tLook       = { x: ct.clientX, y: ct.clientY };
+      tapStart    = { x: ct.clientX, y: ct.clientY, time: Date.now() };
+      break;
+    }
+  }
 }, { passive: true });
+
 gl.addEventListener('touchmove', function(e) {
-  if (!tLook) return;
-  var t = e.touches[0];
-  if (isInJoystick(t.clientX, t.clientY)) return;
+  if (lookTouchId === -1) return;
+  var t = null;
+  for (var i = 0; i < e.touches.length; i++) {
+    if (e.touches[i].identifier === lookTouchId) { t = e.touches[i]; break; }
+  }
+  if (!t || !tLook) return;
   var dx = t.clientX - tLook.x;
   var dy = t.clientY - tLook.y;
   camera.rotation.order = 'YXZ';
@@ -870,7 +902,44 @@ gl.addEventListener('touchmove', function(e) {
   camera.rotation.x = Math.max(-Math.PI/2.1, Math.min(Math.PI/2.1, camera.rotation.x - dy * 0.003));
   tLook = { x: t.clientX, y: t.clientY };
 }, { passive: true });
-gl.addEventListener('touchend', function() { tLook = null; });
+
+gl.addEventListener('touchend', function(e) {
+  for (var i = 0; i < e.changedTouches.length; i++) {
+    var ct = e.changedTouches[i];
+    if (ct.identifier === lookTouchId) {
+      // Tap detection: short press, minimal movement
+      if (tapStart && hasStarted && !modalOpen) {
+        var moved = Math.sqrt(Math.pow(ct.clientX - tapStart.x, 2) + Math.pow(ct.clientY - tapStart.y, 2));
+        var dur   = Date.now() - tapStart.time;
+        if (moved < 14 && dur < 320) {
+          var rect = gl.getBoundingClientRect();
+          var ndc  = new THREE.Vector2(
+            ((ct.clientX - rect.left) / rect.width)  * 2 - 1,
+            -((ct.clientY - rect.top)  / rect.height) * 2 + 1
+          );
+          raycaster.setFromCamera(ndc, camera);
+          var meshes = interactables.map(function(x) { return x.glassMesh; });
+          var hits   = raycaster.intersectObjects(meshes, false);
+          if (hits.length > 0 && hits[0].distance < 9) {
+            for (var j = 0; j < interactables.length; j++) {
+              if (interactables[j].glassMesh === hits[0].object) {
+                openPieceModal(interactables[j].pieceId); break;
+              }
+            }
+          } else {
+            var muralMeshes = murals.map(function(m) { return m.mesh; });
+            var mHits = raycaster.intersectObjects(muralMeshes, false);
+            if (mHits.length > 0 && mHits[0].distance < 9) openMalaganaModal();
+          }
+        }
+      }
+      tLook       = null;
+      lookTouchId = -1;
+      tapStart    = null;
+      break;
+    }
+  }
+});
 
 /* ── Raycaster ───────────────────────────────────────────────────── */
 var raycaster   = new THREE.Raycaster();

@@ -314,9 +314,12 @@
 
       var meta = document.getElementById('ib-meta');
       var rows = [];
-      if (p.material) rows.push(['Material', p.material]);
-      if (p.periodo)  rows.push(['Período',  p.periodo]);
-      if (p.donante)  rows.push(['Donante',  p.donante]);
+      if (p.cultura)     rows.push(['Cultura',      p.cultura]);
+      if (p.periodo)     rows.push(['Período',       p.periodo]);
+      if (p.material)    rows.push(['Material',      p.material]);
+      if (p.tecnica)     rows.push(['Técnica',       p.tecnica]);
+      if (p.dimensiones) rows.push(['Dimensiones',   p.dimensiones]);
+      if (p.donante)     rows.push(['Donante',        p.donante]);
 
       meta.innerHTML = rows.map(function(r) {
         return '<div class="meta-item"><span class="ml">' + r[0] + '</span><span class="mv">' + r[1] + '</span></div>';
