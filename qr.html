@@ -65,7 +65,7 @@
 
     .nav-overlay {
       display:none; position:fixed; inset:0;
-      background:rgba(0,0,0,.52); z-index:9998;
+      background:rgba(0,0,0,.52); z-index:99;
     }
     .nav-overlay.open { display:block; }
 
@@ -100,7 +100,10 @@
       display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical;
       overflow:hidden; text-align:left; width:100%;
     }
+    .qr-cultura { color:var(--gold); font-size:.70rem; font-weight:600; }
     .qr-periodo { color:rgba(212,175,55,.65); font-size:.68rem; font-style:italic; }
+    .qr-meta { color:var(--sub); font-size:.67rem; line-height:1.5; text-align:left; width:100%; border-top:1px solid rgba(212,175,55,.12); padding-top:.5rem; }
+    .qr-meta span { display:block; }
 
     /* ── CONTENIDO ───────────────────────────────────────────────── */
     .page-wrap { max-width:1200px; margin:0 auto; padding:2.5rem 2rem 4rem; }
@@ -348,12 +351,12 @@
         nombre.textContent = piece.nombre;
         card.appendChild(nombre);
 
-        // Material
-        if (piece.material) {
-          var mat = document.createElement('div');
-          mat.className = 'qr-material';
-          mat.textContent = piece.material;
-          card.appendChild(mat);
+        // Cultura
+        if (piece.cultura) {
+          var cult = document.createElement('div');
+          cult.className = 'qr-cultura';
+          cult.textContent = piece.cultura;
+          card.appendChild(cult);
         }
 
         // Periodo
@@ -370,6 +373,17 @@
           desc.className = 'qr-desc';
           desc.textContent = piece.descripcion;
           card.appendChild(desc);
+        }
+
+        // Ficha técnica (material, tecnica, dimensiones)
+        var hasMeta = piece.material || piece.tecnica || piece.dimensiones;
+        if (hasMeta) {
+          var meta = document.createElement('div');
+          meta.className = 'qr-meta';
+          if (piece.material)    { var s = document.createElement('span'); s.textContent = '📦 ' + piece.material; meta.appendChild(s); }
+          if (piece.tecnica)     { var s = document.createElement('span'); s.textContent = '🔧 ' + piece.tecnica; meta.appendChild(s); }
+          if (piece.dimensiones) { var s = document.createElement('span'); s.textContent = '📐 ' + piece.dimensiones; meta.appendChild(s); }
+          card.appendChild(meta);
         }
 
         // URL (visible en print)

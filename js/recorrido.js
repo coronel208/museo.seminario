@@ -761,16 +761,17 @@ if (isMobile) {
 }
 
 document.getElementById('btn-start').addEventListener('click', function() {
-  if (isMobile) {
-    // On mobile: no pointer lock — just hide start-prompt and start
+  var el = document.documentElement;
+  if (!document.fullscreenElement) {
+    var fsReq = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen;
+    if (fsReq) fsReq.call(el).catch(function() {});
+  }
+  if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+    // Mobile: no pointer lock — just hide start-prompt and start
     hasStarted = true;
     startPrompt.style.display = 'none';
     hudEl.style.display = 'none';
     return;
-  }
-  var el = document.documentElement;
-  if (!document.fullscreenElement && el.requestFullscreen) {
-    el.requestFullscreen().catch(function() {});
   }
   safeLock();
 });
@@ -809,7 +810,7 @@ var joyActive = false;
 var joyCx = 0, joyCy = 0;
 var JOY_MAX = 38;
 
-if (joystickZone && isMobile) {
+if (joystickZone && ('ontouchstart' in window || navigator.maxTouchPoints > 0)) {
   joystickZone.addEventListener('touchstart', function(e) {
     e.preventDefault();
     joyActive = true;
