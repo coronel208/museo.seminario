@@ -84,6 +84,27 @@ export const PIECES = [
     video: null,
     modelUrl: 'models/jarron-1.glb',
     restY: 1.19
+  },
+
+  // ── CUENCO 2 · Copa en Pedestal · Valle del Cauca ────────────────
+  {
+    id: 'cuenco-2',
+    nombre: 'Copa en Pedestal de Cerámica',
+    procedencia: 'Valle del Cauca, Colombia · Período Indeterminado (posiblemente Malagana)',
+    descripcion: 'Copa cerámica prehispánica en pedestal de paredes simples sin decoración incisa, atribuible al período Malagana de la región Calima. La pasta moderadamente burda y arenosa, con desgrasante de cuarzo y tiesto molido, es característica del complejo Malagana de la llanura aluvial del río Cauca. Presenta manchas tafonómicas por exposición al fuego o contacto con sedimentos reductores. La base muestra anotaciones de inventario museográfico.',
+    metadata: 'Material: Cerámica · Técnica: Pasta burda oxidante, desgrasante de cuarzo · Dimensiones: ⌀ 15.8 × 11.7 cm · Decoración: Ausente · Estado: Completo',
+    color: 0xA0603A, roughness: 0.88, metalness: 0.02,
+    imagenes: [
+      'images/cuenco-2-1.jpg',
+      'images/cuenco-2-2.jpg',
+      'images/cuenco-2-3.jpg',
+      'images/cuenco-2-4.jpg',
+      'images/cuenco-2-5.jpg',
+      'images/cuenco-2-6.jpg'
+    ],
+    video: null,
+    modelUrl: 'models/cuenco-2.glb',
+    restY: 1.19
   }
 
 ];
@@ -152,11 +173,35 @@ function buildJarron(piece) {
   return g;
 }
 
+function buildCopa(piece) {
+  var g   = new THREE.Group();
+  var mat = makeMat(piece);
+  // Bowl
+  var bowlPts = [];
+  for (var i = 0; i <= 12; i++) {
+    var a = (i / 12) * Math.PI * 0.68;
+    bowlPts.push(new THREE.Vector2(Math.sin(a) * 0.46, -Math.cos(a) * 0.34 + 0.22));
+  }
+  g.add(new THREE.Mesh(new THREE.LatheGeometry(bowlPts, 32), mat));
+  // Pedestal stem
+  var stemPts = [
+    new THREE.Vector2(0.08, -0.32),
+    new THREE.Vector2(0.10, -0.20),
+    new THREE.Vector2(0.07, -0.10),
+    new THREE.Vector2(0.07,  0.00)
+  ];
+  g.add(new THREE.Mesh(new THREE.LatheGeometry(stemPts, 16), mat));
+  // Base disc
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.22, 0.055, 24), mat));
+  return g;
+}
+
 var BUILDERS = {
   'volante-de-uso':    buildVolante,
   'volante-de-huso-2': buildVolante,
   'cuenco-1':          buildCuenco,
-  'jarron-1':          buildJarron
+  'jarron-1':          buildJarron,
+  'cuenco-2':          buildCopa
 };
 
 export function buildArtifact(piece, scale) {

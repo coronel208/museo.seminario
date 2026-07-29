@@ -105,6 +105,26 @@ var MUSEUM_CATALOG = [
     video: null
   }
 
+  // ── CUENCO 2 · Copa en Pedestal · Valle del Cauca ────────────────
+  ,{
+    id: 'cuenco-2',
+    nombre: 'Copa en Pedestal de Cerámica',
+    descripcion: 'Copa cerámica prehispánica en pedestal de paredes simples, atribuible al período Malagana de la región Calima. Pasta moderadamente burda con desgrasante de cuarzo y tiesto molido, característica del complejo Malagana de la llanura aluvial del río Cauca. Presenta manchas tafonómicas por exposición al fuego o sedimentos reductores.',
+    material: 'Cerámica',
+    periodo: 'Período Indeterminado (posiblemente Malagana)',
+    donante: '',
+    modelUrl: 'models/cuenco-2.glb',
+    imagenes: [
+      'images/cuenco-2-1.jpg',
+      'images/cuenco-2-2.jpg',
+      'images/cuenco-2-3.jpg',
+      'images/cuenco-2-4.jpg',
+      'images/cuenco-2-5.jpg',
+      'images/cuenco-2-6.jpg'
+    ],
+    video: null
+  }
+
   // ── AGREGA MÁS PIEZAS AQUÍ ────────────────────────────────────────
   // Sigue el mismo patrón. El sistema soporta hasta 50 (o más).
 
