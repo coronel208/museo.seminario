@@ -752,8 +752,22 @@ plc.addEventListener('unlock', function() {
   justClosed = false;
 });
 
+// Show correct controls in start-prompt
+if (isMobile) {
+  var spDesktop = document.getElementById('sp-desktop');
+  var spMobile  = document.getElementById('sp-mobile');
+  if (spDesktop) spDesktop.style.display = 'none';
+  if (spMobile)  spMobile.style.display  = 'block';
+}
+
 document.getElementById('btn-start').addEventListener('click', function() {
-  // Request fullscreen on first start (user interaction = browser allows it)
+  if (isMobile) {
+    // On mobile: no pointer lock — just hide start-prompt and start
+    hasStarted = true;
+    startPrompt.style.display = 'none';
+    hudEl.style.display = 'none';
+    return;
+  }
   var el = document.documentElement;
   if (!document.fullscreenElement && el.requestFullscreen) {
     el.requestFullscreen().catch(function() {});
@@ -787,37 +801,56 @@ document.addEventListener('keyup', function(e) {
   if (e.code==='KeyD'||e.code==='ArrowRight') kb.d = false;
 });
 
-/* ── Mobile Joystick (nipplejs) ──────────────────────────────────── */
+/* ── Mobile Joystick (DIY — lightweight) ────────────────────────── */
 var mb = { w: false, s: false, a: false, d: false };
 var joystickZone = document.getElementById('joystick-zone');
-if (joystickZone && typeof nipplejs !== 'undefined') {
-  var joy = nipplejs.create({
-    zone: joystickZone,
-    mode: 'static',
-    position: { left: '65px', top: '65px' },
-    color: 'rgba(212,175,55,0.75)',
-    size: 110,
-    threshold: 0.08
-  });
-  joy.on('move', function(evt, data) {
+var joyThumb = document.getElementById('joy-thumb');
+var joyActive = false;
+var joyCx = 0, joyCy = 0;
+var JOY_MAX = 38;
+
+if (joystickZone && isMobile) {
+  joystickZone.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    joyActive = true;
+    var r = joystickZone.getBoundingClientRect();
+    joyCx = r.left + r.width * 0.5;
+    joyCy = r.top  + r.height * 0.5;
+  }, { passive: false });
+
+  joystickZone.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+    if (!joyActive) return;
+    var t = e.touches[0];
+    var dx = t.clientX - joyCx;
+    var dy = t.clientY - joyCy;
+    var dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist > 0 && joyThumb) {
+      var cx = Math.min(dist, JOY_MAX) / dist;
+      joyThumb.style.transform = 'translate(calc(-50% + ' + (dx*cx).toFixed(1) + 'px), calc(-50% + ' + (dy*cx).toFixed(1) + 'px))';
+    }
+    if (dist < 8) { mb.w = mb.s = mb.a = mb.d = false; return; }
+    var angle = Math.atan2(-dy, dx) * 180 / Math.PI; // -180..180, 0=right, 90=up
+    mb.w = (angle > 45  && angle <= 135);
+    mb.s = (angle < -45 && angle >= -135);
+    mb.a = (angle > 135 || angle < -135);
+    mb.d = (angle >= -45 && angle <= 45);
+  }, { passive: false });
+
+  function joyEnd() {
+    joyActive = false;
     mb.w = mb.s = mb.a = mb.d = false;
-    var a = data.angle.degree;  // 0=right, 90=up, 180=left, 270=down
-    if (data.distance < 8) return;
-    mb.w = (a > 45  && a <= 135);
-    mb.s = (a > 225 && a <= 315);
-    mb.a = (a > 135 && a <= 225);
-    mb.d = (a <= 45 || a >  315);
-  });
-  joy.on('end', function() { mb.w = mb.s = mb.a = mb.d = false; });
+    if (joyThumb) joyThumb.style.transform = 'translate(-50%, -50%)';
+  }
+  joystickZone.addEventListener('touchend', joyEnd, { passive: true });
+  joystickZone.addEventListener('touchcancel', joyEnd, { passive: true });
 }
 
 // Touch-look (drag canvas to look — ignore joystick area)
 var tLook = null;
-var JOYSTICK_RADIUS = 130;
 function isInJoystick(x, y) {
-  var jz = joystickZone;
-  if (!jz) return false;
-  var r = jz.getBoundingClientRect();
+  if (!joystickZone) return false;
+  var r = joystickZone.getBoundingClientRect();
   return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
 }
 gl.addEventListener('touchstart', function(e) {
@@ -1135,6 +1168,11 @@ document.addEventListener('keydown', function(e) {
 
 /* ── Main game loop ──────────────────────────────────────────────── */
 var clock = new THREE.Clock();
+var _fwd   = new THREE.Vector3();
+var _right = new THREE.Vector3();
+var _up    = new THREE.Vector3(0, 1, 0);
+var _lastFrame = 0;
+var TARGET_INTERVAL = isMobile ? 33 : 0; // ~30fps on mobile, uncapped on desktop
 
 /* ── Malagana modal ─────────────────────────────────────────────── */
 var malaganaModal = document.getElementById('malagana-modal');
@@ -1163,21 +1201,25 @@ if (malaganaModal) {
   });
 }
 
-function tick() {
+function tick(now) {
   requestAnimationFrame(tick);
+  if (TARGET_INTERVAL > 0) {
+    if (now - _lastFrame < TARGET_INTERVAL) return;
+    _lastFrame = now;
+  }
   var dt    = Math.min(clock.getDelta(), 0.1);
   var SPEED = 5.2;
   var anyMove = kb.w || kb.s || kb.a || kb.d || mb.w || mb.s || mb.a || mb.d;
 
   if (anyMove) {
-    var fwd = new THREE.Vector3(); camera.getWorldDirection(fwd);
-    fwd.y = 0; fwd.normalize();
-    var right = new THREE.Vector3().crossVectors(fwd, new THREE.Vector3(0,1,0)).normalize();
+    camera.getWorldDirection(_fwd);
+    _fwd.y = 0; _fwd.normalize();
+    _right.crossVectors(_fwd, _up).normalize();
     var dx = 0, dz = 0;
-    if (kb.w||mb.w){ dx+=fwd.x; dz+=fwd.z; }
-    if (kb.s||mb.s){ dx-=fwd.x; dz-=fwd.z; }
-    if (kb.d||mb.d){ dx+=right.x; dz+=right.z; }
-    if (kb.a||mb.a){ dx-=right.x; dz-=right.z; }
+    if (kb.w||mb.w){ dx+=_fwd.x; dz+=_fwd.z; }
+    if (kb.s||mb.s){ dx-=_fwd.x; dz-=_fwd.z; }
+    if (kb.d||mb.d){ dx+=_right.x; dz+=_right.z; }
+    if (kb.a||mb.a){ dx-=_right.x; dz-=_right.z; }
     var len = Math.sqrt(dx*dx + dz*dz);
     if (len > 0) {
       var step = SPEED * dt / len;
@@ -1196,11 +1238,11 @@ function tick() {
   if (isLocked) checkHover();
 
   interactables.forEach(function(item) {
-    item.artifact.rotation.y += 0.005;
+    item.artifact.rotation.y += isMobile ? 0.004 : 0.005;
   });
 
   renderer.render(scene, camera);
 }
 
 if (glbPending <= 0) hideLs();
-tick();
+requestAnimationFrame(tick);

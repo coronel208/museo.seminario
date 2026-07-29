@@ -126,10 +126,10 @@ function buildVolante(piece) {
   var g   = new THREE.Group();
   var mat = makeMat(piece);
   var drk = new THREE.MeshStandardMaterial({ color: 0x4a2a10, roughness: 0.95 });
-  g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.44, 0.44, 0.13, 48), mat));
-  g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.18, 20), drk));
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.44, 0.44, 0.13, 18), mat));
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.18, 12), drk));
   [0.18, 0.28, 0.38].forEach(function(r) {
-    var ring = new THREE.Mesh(new THREE.TorusGeometry(r, 0.009, 6, 40), drk);
+    var ring = new THREE.Mesh(new THREE.TorusGeometry(r, 0.009, 5, 18), drk);
     ring.rotation.x = Math.PI / 2;
     g.add(ring);
   });
@@ -150,7 +150,7 @@ function buildCuenco(piece) {
     var a = (i / 14) * Math.PI * 0.65;
     pts.push(new THREE.Vector2(Math.sin(a) * 0.48, -Math.cos(a) * 0.32 + 0.08));
   }
-  g.add(new THREE.Mesh(new THREE.LatheGeometry(pts, 32), mat));
+  g.add(new THREE.Mesh(new THREE.LatheGeometry(pts, 14), mat));
   return g;
 }
 
@@ -169,7 +169,7 @@ function buildJarron(piece) {
     new THREE.Vector2(0.16,  0.62),
     new THREE.Vector2(0.16,  0.70)
   ];
-  g.add(new THREE.Mesh(new THREE.LatheGeometry(pts, 32), mat));
+  g.add(new THREE.Mesh(new THREE.LatheGeometry(pts, 14), mat));
   return g;
 }
 
@@ -182,7 +182,7 @@ function buildCopa(piece) {
     var a = (i / 12) * Math.PI * 0.68;
     bowlPts.push(new THREE.Vector2(Math.sin(a) * 0.46, -Math.cos(a) * 0.34 + 0.22));
   }
-  g.add(new THREE.Mesh(new THREE.LatheGeometry(bowlPts, 32), mat));
+  g.add(new THREE.Mesh(new THREE.LatheGeometry(bowlPts, 14), mat));
   // Pedestal stem
   var stemPts = [
     new THREE.Vector2(0.08, -0.32),
@@ -190,9 +190,9 @@ function buildCopa(piece) {
     new THREE.Vector2(0.07, -0.10),
     new THREE.Vector2(0.07,  0.00)
   ];
-  g.add(new THREE.Mesh(new THREE.LatheGeometry(stemPts, 16), mat));
+  g.add(new THREE.Mesh(new THREE.LatheGeometry(stemPts, 10), mat));
   // Base disc
-  g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.22, 0.055, 24), mat));
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.22, 0.055, 14), mat));
   return g;
 }
 
@@ -210,7 +210,7 @@ export function buildArtifact(piece, scale) {
   var mesh = fn
     ? fn(piece)
     : new THREE.Mesh(
-        new THREE.SphereGeometry(0.45, 24, 16),
+        new THREE.SphereGeometry(0.45, 14, 10),
         new THREE.MeshStandardMaterial({ color: piece.color, roughness: piece.roughness, metalness: piece.metalness })
       );
   mesh.scale.setScalar(scale);
