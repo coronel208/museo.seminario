@@ -163,24 +163,25 @@ var MUSEUM_CATALOG = [
     video: null
   }
 
-  // ── JARRÓN 2 · Cultura Calima ────────────────────────────────────
+  // ── JARRÓN 3 · Vasija Globular con Asas Tubulares ────────────────
   ,{
-    id: 'jarron-2',
-    nombre: 'Vasija Globular con Cuello Corto',
-    descripcion: 'Vasija cerámica de cuerpo globular achatado y cuello corto evertido, propia de las tradiciones alfareras del suroccidente colombiano. Presenta pasta compacta con desgrasante de cuarzo fino, cocción oxidante y acabado alisado. Las proporciones volumétricas y el tratamiento de superficie son indicadores de producción doméstica utilitaria. Estado de conservación general bueno con desgaste superficial propio del uso cotidiano.',
+    id: 'jarron-3',
+    nombre: 'Vasija Globular con Asas Tubulares',
+    descripcion: 'Vasija cerámica globular pequeña con cuello corto y asas laterales perforadas (tubulares), típica de contextos domésticos tardíos del suroccidente colombiano. Presenta pasta mediana con desgrasante de cuarzo y arena fina, cocción oxidante con núcleo visible y acabado alisado burdo con engobe rojo deslavado. La morfología utilitaria y la ausencia de decoración plástica compleja son indicadores de producción doméstica. Estado de conservación con fisuras y fracturas menores en el borde y cuerpo, con concreciones terrosas compatibles con contextos de enterramiento secundario.',
     material: 'Cerámica',
-    cultura: 'Cultura Calima · Valle del Cauca',
-    periodo: 'Período Tardío (posiblemente Sonso, 700 d.C. – 1700 d.C.)',
-    tecnica: 'Pasta compacta, desgrasante de cuarzo, cocción oxidante, superficie alisada',
-    dimensiones: 'Alt. aprox. 14 cm',
+    cultura: 'Posiblemente Calima Sonso · Valle del Cauca',
+    periodo: 'Período Tardío (Sonso, tentativo)',
+    tecnica: 'Pasta mediana, desgrasante de cuarzo y arena fina, cocción oxidante, engobe rojo deslavado',
+    dimensiones: 'Alt. 9.6 cm · ⌀ 12.7 cm',
     donante: '',
-    modelUrl: null,
+    modelUrl: 'models/jarron-3.glb',
     imagenes: [
-      'images/jarron-2-1.jpg',
-      'images/jarron-2-2.jpg',
-      'images/jarron-2-3.jpg',
-      'images/jarron-2-4.jpg',
-      'images/jarron-2-5.jpg'
+      'images/jarron-3-1.jpg',
+      'images/jarron-3-2.jpg',
+      'images/jarron-3-3.jpg',
+      'images/jarron-3-4.jpg',
+      'images/jarron-3-5.jpg',
+      'images/jarron-3-6.jpg'
     ],
     video: null
   }

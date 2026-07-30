@@ -107,23 +107,24 @@ export const PIECES = [
     restY: 1.19
   },
 
-  // ── JARRÓN 2 · Cultura Calima ────────────────────────────────────
+  // ── JARRÓN 3 · Vasija Globular con Asas Tubulares ────────────────
   {
-    id: 'jarron-2',
-    nombre: 'Vasija Globular con Cuello Corto',
-    procedencia: 'Cultura Calima, Valle del Cauca · Período Tardío (Sonso)',
-    descripcion: 'Vasija cerámica de cuerpo globular achatado y cuello corto evertido. Pasta compacta con desgrasante de cuarzo fino, cocción oxidante y acabado alisado. Producción doméstica utilitaria con desgaste superficial propio del uso cotidiano.',
-    metadata: 'Material: Cerámica · Técnica: Pasta compacta, cocción oxidante · Dimensiones: Alt. aprox. 14 cm · Estado: Completo',
-    color: 0x7A3818, roughness: 0.88, metalness: 0.03,
+    id: 'jarron-3',
+    nombre: 'Vasija Globular con Asas Tubulares',
+    procedencia: 'Posiblemente Calima Sonso, Valle del Cauca · Período Tardío (tentativo)',
+    descripcion: 'Vasija cerámica globular pequeña con cuello corto y asas laterales tubulares perforadas, típica de contextos domésticos tardíos. Pasta mediana con desgrasante de cuarzo y arena fina, cocción oxidante con núcleo visible, alisado burdo y engobe rojo deslavado (Munsell 10R 4/6). Producción utilitaria, sin decoración plástica compleja. Estado con fisuras y fracturas menores en borde y cuerpo.',
+    metadata: 'Material: Cerámica · Técnica: Pasta mediana, engobe rojo deslavado · Dimensiones: Alt. 9.6 × ⌀ 12.7 cm · Estado: Completo con fisuras · Registro ICANH',
+    color: 0x8B2A10, roughness: 0.90, metalness: 0.02,
     imagenes: [
-      'images/jarron-2-1.jpg',
-      'images/jarron-2-2.jpg',
-      'images/jarron-2-3.jpg',
-      'images/jarron-2-4.jpg',
-      'images/jarron-2-5.jpg'
+      'images/jarron-3-1.jpg',
+      'images/jarron-3-2.jpg',
+      'images/jarron-3-3.jpg',
+      'images/jarron-3-4.jpg',
+      'images/jarron-3-5.jpg',
+      'images/jarron-3-6.jpg'
     ],
     video: null,
-    modelUrl: null,
+    modelUrl: 'models/jarron-3.glb',
     restY: 1.19
   },
 
@@ -297,7 +298,7 @@ var BUILDERS = {
   'volante-de-huso-2': buildVolante,
   'cuenco-1':          buildCuenco,
   'jarron-1':          buildJarron,
-  'jarron-2':          buildJarron,
+  'jarron-3':          buildCuencoAsas,
   'cuenco-2':          buildCopa,
   'cuenco-carenado':   buildCarenado,
   'cuenco-asas':       buildCuencoAsas
