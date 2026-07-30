@@ -416,7 +416,8 @@ var LAYOUT = [
   { piece: getPieceById('volante-de-huso-2'), x:  3.0, z:  0 },
   { piece: getPieceById('cuenco-1'),          x: -3.0, z: -8 },
   { piece: getPieceById('jarron-1'),          x:  3.0, z: -8 },
-  { piece: getPieceById('cuenco-2'),          x: -3.0, z: -16 }
+  { piece: getPieceById('cuenco-2'),          x: -3.0, z: -16 },
+  { piece: getPieceById('cuenco-asas'),       x:  3.0, z: -16 }
 ];
 
 var interactables = [];
