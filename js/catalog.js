@@ -163,6 +163,44 @@ var MUSEUM_CATALOG = [
     video: null
   }
 
+  // ── JARRÓN 2 · Cultura Calima ────────────────────────────────────
+  ,{
+    id: 'jarron-2',
+    nombre: 'Vasija Globular con Cuello Corto',
+    descripcion: 'Vasija cerámica de cuerpo globular achatado y cuello corto evertido, propia de las tradiciones alfareras del suroccidente colombiano. Presenta pasta compacta con desgrasante de cuarzo fino, cocción oxidante y acabado alisado. Las proporciones volumétricas y el tratamiento de superficie son indicadores de producción doméstica utilitaria. Estado de conservación general bueno con desgaste superficial propio del uso cotidiano.',
+    material: 'Cerámica',
+    cultura: 'Cultura Calima · Valle del Cauca',
+    periodo: 'Período Tardío (posiblemente Sonso, 700 d.C. – 1700 d.C.)',
+    tecnica: 'Pasta compacta, desgrasante de cuarzo, cocción oxidante, superficie alisada',
+    dimensiones: 'Alt. aprox. 14 cm',
+    donante: '',
+    modelUrl: null,
+    imagenes: [
+      'images/jarron-2-1.jpg',
+      'images/jarron-2-2.jpg',
+      'images/jarron-2-3.jpg',
+      'images/jarron-2-4.jpg',
+      'images/jarron-2-5.jpg'
+    ],
+    video: null
+  }
+
+  // ── CUENCO CARENADO · Calima Yotoco ──────────────────────────────
+  ,{
+    id: 'cuenco-carenado',
+    nombre: 'Cuenco Carenado Utilitario de Cuello Evertido',
+    descripcion: 'Vasija cerámica de cuerpo subglobular con marcada carenación en el cuerpo y cuello cónico corto evertido, asociada a la producción alfarera utilitaria del período Yotoco en la región Calima. La morfología general presenta buen estado de conservación estructural, con superficie alisada rústica parcialmente desprovista de engobe y evidencias de desgaste tafonómico por meteorización. No se observan rastros de pintura ni incisiones complejas, concordando con la tendencia utilitaria de esta fase cronológica.',
+    material: 'Cerámica',
+    cultura: 'Calima Yotoco · Valle del Cauca',
+    periodo: 'Período Yotoco (100 a.C. – 1300 d.C.)',
+    tecnica: 'Pasta semi-fina, desgrasante de cuarzo y arena, cocción oxidante incompleta, alisado rústico',
+    dimensiones: 'Alt. 16.9 cm · ⌀ 20.5 cm',
+    donante: '',
+    modelUrl: 'models/cuenco-carenado.glb',
+    imagenes: [],
+    video: null
+  }
+
   // ── AGREGA MÁS PIEZAS AQUÍ ────────────────────────────────────────
   // Sigue el mismo patrón. El sistema soporta hasta 50 (o más).
 

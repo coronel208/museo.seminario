@@ -107,6 +107,40 @@ export const PIECES = [
     restY: 1.19
   },
 
+  // ── JARRÓN 2 · Cultura Calima ────────────────────────────────────
+  {
+    id: 'jarron-2',
+    nombre: 'Vasija Globular con Cuello Corto',
+    procedencia: 'Cultura Calima, Valle del Cauca · Período Tardío (Sonso)',
+    descripcion: 'Vasija cerámica de cuerpo globular achatado y cuello corto evertido. Pasta compacta con desgrasante de cuarzo fino, cocción oxidante y acabado alisado. Producción doméstica utilitaria con desgaste superficial propio del uso cotidiano.',
+    metadata: 'Material: Cerámica · Técnica: Pasta compacta, cocción oxidante · Dimensiones: Alt. aprox. 14 cm · Estado: Completo',
+    color: 0x7A3818, roughness: 0.88, metalness: 0.03,
+    imagenes: [
+      'images/jarron-2-1.jpg',
+      'images/jarron-2-2.jpg',
+      'images/jarron-2-3.jpg',
+      'images/jarron-2-4.jpg',
+      'images/jarron-2-5.jpg'
+    ],
+    video: null,
+    modelUrl: null,
+    restY: 1.19
+  },
+
+  // ── CUENCO CARENADO · Calima Yotoco ──────────────────────────────
+  {
+    id: 'cuenco-carenado',
+    nombre: 'Cuenco Carenado Utilitario de Cuello Evertido',
+    procedencia: 'Calima Yotoco, Valle del Cauca · Período Yotoco (100 a.C. – 1300 d.C.)',
+    descripcion: 'Vasija subglobular con carenación marcada en el cuerpo y cuello cónico corto evertido. Pasta semi-fina con desgrasante de cuarzo y arena, cocción oxidante incompleta. Superficie alisada rústica con engobe Munsell 7.5YR 5/4 (brown). Manufactura utilitaria doméstica. Estado completo con leves desgastes en el borde.',
+    metadata: 'Material: Cerámica · Técnica: Pasta semi-fina, cocción oxidante · Dimensiones: Alt. 16.9 × ⌀ 20.5 cm · Estado: Completo · Registro ICANH',
+    color: 0x8B5520, roughness: 0.87, metalness: 0.02,
+    imagenes: [],
+    video: null,
+    modelUrl: 'models/cuenco-carenado.glb',
+    restY: 1.19
+  },
+
   // ── CUENCO GLOBULAR CON ASAS · Calima Sonso ──────────────────────
   {
     id: 'cuenco-asas',
@@ -235,12 +269,37 @@ function buildCuencoAsas(piece) {
   return g;
 }
 
+function buildCarenado(piece) {
+  var g   = new THREE.Group();
+  var mat = makeMat(piece);
+  // Lower body: wide globular base up to carena
+  var lower = [];
+  for (var i = 0; i <= 10; i++) {
+    var a = (i / 10) * Math.PI * 0.58;
+    lower.push(new THREE.Vector2(Math.sin(a) * 0.56, -Math.cos(a) * 0.38 - 0.04));
+  }
+  g.add(new THREE.Mesh(new THREE.LatheGeometry(lower, 14), mat));
+  // Upper body: narrows toward neck
+  var upper = [
+    new THREE.Vector2(0.56,  0.18),
+    new THREE.Vector2(0.48,  0.30),
+    new THREE.Vector2(0.28,  0.38),
+    new THREE.Vector2(0.18,  0.42),
+    new THREE.Vector2(0.16,  0.46),
+    new THREE.Vector2(0.20,  0.52)
+  ];
+  g.add(new THREE.Mesh(new THREE.LatheGeometry(upper, 14), mat));
+  return g;
+}
+
 var BUILDERS = {
   'volante-de-uso':    buildVolante,
   'volante-de-huso-2': buildVolante,
   'cuenco-1':          buildCuenco,
   'jarron-1':          buildJarron,
+  'jarron-2':          buildJarron,
   'cuenco-2':          buildCopa,
+  'cuenco-carenado':   buildCarenado,
   'cuenco-asas':       buildCuencoAsas
 };
 
