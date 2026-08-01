@@ -410,6 +410,8 @@ var LAYOUT = [
 ];
 
 var interactables = [];
+var glbPending = LAYOUT.filter(function(c) { return c.piece && c.piece.modelUrl; }).length;
+function glbDone() { if (--glbPending <= 0) hideLs(); }
 
 // Single follow-spotlight replaces 18 per-vitrina lights (9 SpotLights + 9 PointLights)
 var _followSpot = new THREE.SpotLight(0xfff8e8, 4.0, 8, Math.PI / 5.5, 0.5, 1.5);
@@ -463,14 +465,27 @@ LAYOUT.forEach(function(cfg) {
   var cap = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.64, 0.09, 12), goldM);
   cap.position.y = 2.51; grp.add(cap);
 
-  // Artifact — always add procedural first; GLB loads by proximity
+  // Artifact — procedural shown immediately, GLB replaces it when loaded
   var artifact = new THREE.Group();
   artifact.position.set(0, piece.restY !== undefined ? piece.restY : 1.19, 0);
   artifact.userData.pieceId = piece.id;
   artifact.add(buildArtifact(piece, 0.62));
   grp.add(artifact);
-  cfg._artifact  = artifact;
-  cfg._glbLoaded = false;
+  cfg._artifact = artifact;
+  if (piece.modelUrl) {
+    _gltfLoader.load(piece.modelUrl, function(gltf) {
+      var m = gltf.scene;
+      var bbox = new THREE.Box3().setFromObject(m);
+      var sz   = bbox.getSize(new THREE.Vector3());
+      var sc   = 0.85 / (Math.max(sz.x, sz.y, sz.z) || 1);
+      m.scale.setScalar(sc);
+      var ctr  = bbox.getCenter(new THREE.Vector3());
+      m.position.set(-ctr.x * sc, -bbox.min.y * sc, -ctr.z * sc);
+      while (artifact.children.length) artifact.remove(artifact.children[0]);
+      artifact.add(m);
+      glbDone();
+    }, undefined, function() { glbDone(); });
+  }
 
   // ── Label plate ABOVE the case ──
   var lc = document.createElement('canvas');
@@ -1243,8 +1258,6 @@ if (malaganaModal) {
   });
 }
 
-var _proxFrame = 0;
-
 function tick(now) {
   requestAnimationFrame(tick);
   if (TARGET_INTERVAL > 0) {
@@ -1284,33 +1297,6 @@ function tick(now) {
   _followSpot.target.position.set(camera.position.x, 1.2, camera.position.z);
   _followSpot.target.updateMatrixWorld();
 
-  // Proximity GLB loader: checks every 45 frames, loads when within 11u
-  _proxFrame++;
-  if (_proxFrame % 45 === 0 && hasStarted) {
-    var cx = camera.position.x, cz = camera.position.z;
-    for (var _pi = 0; _pi < LAYOUT.length; _pi++) {
-      var _cfg = LAYOUT[_pi];
-      if (_cfg._glbLoaded || !_cfg.piece.modelUrl) continue;
-      var _dx = cx - _cfg.x, _dz = cz - _cfg.z;
-      if (Math.sqrt(_dx * _dx + _dz * _dz) < 11) {
-        _cfg._glbLoaded = true;
-        (function(c) {
-          _gltfLoader.load(c.piece.modelUrl, function(gltf) {
-            var m = gltf.scene;
-            var bbox = new THREE.Box3().setFromObject(m);
-            var sz   = bbox.getSize(new THREE.Vector3());
-            var sc   = 0.85 / (Math.max(sz.x, sz.y, sz.z) || 1);
-            m.scale.setScalar(sc);
-            var ctr  = bbox.getCenter(new THREE.Vector3());
-            m.position.set(-ctr.x * sc, -bbox.min.y * sc, -ctr.z * sc);
-            while (c._artifact.children.length) c._artifact.remove(c._artifact.children[0]);
-            c._artifact.add(m);
-          });
-        })(_cfg);
-      }
-    }
-  }
-
   if (isLocked) checkHover();
 
   interactables.forEach(function(item) {
@@ -1320,5 +1306,5 @@ function tick(now) {
   renderer.render(scene, camera);
 }
 
-hideLs();
+if (glbPending <= 0) hideLs();
 requestAnimationFrame(tick);
