@@ -13,7 +13,7 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 /* ── Draco loader ────────────────────────────────────────────────── */
 var _draco = new DRACOLoader();
 _draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
-function makeGLTF() { var l = new GLTFLoader(); l.setDRACOLoader(_draco); return l; }
+var _gltfLoader = (function() { var l = new GLTFLoader(); l.setDRACOLoader(_draco); return l; })();
 
 /* ── Loading bar helpers ─────────────────────────────────────────── */
 var lsEl     = document.getElementById('loading-screen');
@@ -209,38 +209,24 @@ lFill.position.set(-8, 3, MZ); scene.add(lFill);
 var rFill = new THREE.DirectionalLight(0xf0ead8, 0.35);
 rFill.position.set(8, 3, MZ); scene.add(rFill);
 
-// Ceiling lamp fixtures (6 along corridor)
-// Ceiling lamps — Z0+8 avoids entrance wall, Z1-2 avoids exit wall, skip z=19±2 (arch zone)
+// Ceiling lamp fixtures — emissive only, no PointLights
+var _lampShM = new THREE.MeshStandardMaterial({ color: 0xfff8e8, roughness: 0.4, emissive: 0xfff4cc, emissiveIntensity: 4.0 });
 [Z0+8, Z0+17, Z0+27, Z0+37, Z0+44].forEach(function(lz) {
   box(new THREE.BoxGeometry(0.50, 0.08, 0.50), goldM, 0, HH - 0.05, lz);
   box(new THREE.CylinderGeometry(0.016, 0.016, 0.50, 8), goldM, 0, HH - 0.32, lz);
-  var shM = new THREE.MeshStandardMaterial({ color: 0xfff8e8, roughness: 0.4, emissive: 0xfff4cc, emissiveIntensity: 0.5 });
-  box(new THREE.CylinderGeometry(0.07, 0.23, 0.22, 16), shM, 0, HH - 0.72, lz);
-  var pt = new THREE.PointLight(0xfff4cc, 2.2, 20, 1.5);
-  pt.position.set(0, HH - 0.94, lz);
-  scene.add(pt);
+  box(new THREE.CylinderGeometry(0.07, 0.23, 0.22, 12), _lampShM, 0, HH - 0.72, lz);
 });
 
-// Recessed wall lights (embedded fixtures, no visible bulb)
+// Recessed wall lights — emissive only, no PointLights
+var _wallRecessM = new THREE.MeshStandardMaterial({ color: 0x0c0a06, roughness: 1 });
+var _wallPanelM  = new THREE.MeshStandardMaterial({ color: 0xfff8e0, emissive: 0xfff4cc, emissiveIntensity: 6.0, roughness: 0.8 });
 [-HW/2 + 0.12, HW/2 - 0.12].forEach(function(sx) {
-  var side = sx < 0 ? 1 : -1;  // direction pointing toward corridor center
+  var side = sx < 0 ? 1 : -1;
   [Z0+11, Z0+23, Z0+35, Z0+45].forEach(function(sz) {
-    // Dark recessed housing box (embedded into wall)
-    var recessM = new THREE.MeshStandardMaterial({ color: 0x0c0a06, roughness: 1 });
-    var housing = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.18, 0.22), recessM);
-    housing.position.set(sx, 2.6, sz);
-    scene.add(housing);
-    // Emissive inner panel (the glow face)
-    var panelM = new THREE.MeshStandardMaterial({
-      color: 0xfff8e0, emissive: 0xfff4cc, emissiveIntensity: 2.0, roughness: 0.8
-    });
-    var panel = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.13, 0.17), panelM);
-    panel.position.set(sx + side * 0.034, 2.6, sz);
-    scene.add(panel);
-    // PointLight from fixture
-    var wl = new THREE.PointLight(0xfff4cc, 1.0, 9, 2.0);
-    wl.position.set(sx + side * 0.35, 2.6, sz);
-    scene.add(wl);
+    var housing = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.18, 0.22), _wallRecessM);
+    housing.position.set(sx, 2.6, sz); scene.add(housing);
+    var panel = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.13, 0.17), _wallPanelM);
+    panel.position.set(sx + side * 0.034, 2.6, sz); scene.add(panel);
   });
 });
 
@@ -424,34 +410,37 @@ var LAYOUT = [
 ];
 
 var interactables = [];
-var glbPending = LAYOUT.filter(function(c) { return c.piece.modelUrl; }).length;
-function glbDone() { if (--glbPending <= 0) hideLs(); }
+
+// Single follow-spotlight replaces 18 per-vitrina lights (9 SpotLights + 9 PointLights)
+var _followSpot = new THREE.SpotLight(0xfff8e8, 4.0, 8, Math.PI / 5.5, 0.5, 1.5);
+_followSpot.target = new THREE.Object3D();
+scene.add(_followSpot); scene.add(_followSpot.target);
 
 LAYOUT.forEach(function(cfg) {
   var piece = cfg.piece, x = cfg.x, z = cfg.z;
   var grp = new THREE.Group();
   grp.position.set(x, 0, z);
 
-  // Marble base
-  var base = new THREE.Mesh(new THREE.CylinderGeometry(0.88, 0.98, 0.52, 32), marbleM);
+  // Marble base — 14 segments (was 32)
+  var base = new THREE.Mesh(new THREE.CylinderGeometry(0.88, 0.98, 0.52, 14), marbleM);
   base.position.y = 0.26; grp.add(base);
 
-  // Gold rim on pedestal
-  var pRim = new THREE.Mesh(new THREE.CylinderGeometry(0.94, 0.96, 0.055, 32), goldM);
+  // Gold rim on pedestal — 14 segments (was 32)
+  var pRim = new THREE.Mesh(new THREE.CylinderGeometry(0.94, 0.96, 0.055, 14), goldM);
   pRim.position.y = 0.56; grp.add(pRim);
 
-  // Wooden column
-  var col = new THREE.Mesh(new THREE.CylinderGeometry(0.30, 0.34, 0.56, 16), woodM);
+  // Wooden column — 12 segments (was 16)
+  var col = new THREE.Mesh(new THREE.CylinderGeometry(0.30, 0.34, 0.56, 12), woodM);
   col.position.y = 0.86; grp.add(col);
 
-  // Transition ring
-  var colTop = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.38, 0.055, 16), goldM);
+  // Transition ring — 12 segments (was 16)
+  var colTop = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.38, 0.055, 12), goldM);
   colTop.position.y = 1.17; grp.add(colTop);
 
-  // Interior platform (piece rests here)
-  var plat = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.60, 0.055, 24), marbleM);
+  // Interior platform — 14 segments (was 24)
+  var plat = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.60, 0.055, 14), marbleM);
   plat.position.y = 1.15; grp.add(plat);
-  var platRim = new THREE.Mesh(new THREE.CylinderGeometry(0.60, 0.61, 0.022, 24), goldM);
+  var platRim = new THREE.Mesh(new THREE.CylinderGeometry(0.60, 0.61, 0.022, 14), goldM);
   platRim.position.y = 1.18; grp.add(platRim);
 
   // Glass case (raycasting target)
@@ -470,31 +459,18 @@ LAYOUT.forEach(function(cfg) {
     post.position.set(p[0], 1.76, p[1]); grp.add(post);
   });
 
-  // Cap
-  var cap = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.64, 0.09, 16), goldM);
+  // Cap — 12 segments (was 16)
+  var cap = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.64, 0.09, 12), goldM);
   cap.position.y = 2.51; grp.add(cap);
 
-  // Artifact on platform — Group so it can rotate regardless of async GLB load
+  // Artifact — always add procedural first; GLB loads by proximity
   var artifact = new THREE.Group();
   artifact.position.set(0, piece.restY !== undefined ? piece.restY : 1.19, 0);
   artifact.userData.pieceId = piece.id;
+  artifact.add(buildArtifact(piece, 0.62));
   grp.add(artifact);
-  if (piece.modelUrl) {
-    makeGLTF().load(piece.modelUrl, function(gltf) {
-      var m = gltf.scene;
-      var bbox = new THREE.Box3().setFromObject(m);
-      var sz   = bbox.getSize(new THREE.Vector3());
-      var maxD = Math.max(sz.x, sz.y, sz.z) || 1;
-      var sc   = 0.85 / maxD;
-      m.scale.setScalar(sc);
-      var ctr  = bbox.getCenter(new THREE.Vector3());
-      m.position.set(-ctr.x * sc, -bbox.min.y * sc, -ctr.z * sc);
-      artifact.add(m);
-      glbDone();
-    }, undefined, function() { glbDone(); });
-  } else {
-    artifact.add(buildArtifact(piece, 0.62));
-  }
+  cfg._artifact  = artifact;
+  cfg._glbLoaded = false;
 
   // ── Label plate ABOVE the case ──
   var lc = document.createElement('canvas');
@@ -566,22 +542,14 @@ LAYOUT.forEach(function(cfg) {
   stalk.position.set(0, 2.70, 0);
   grp.add(stalk);
 
-  // Hover ring
+  // Hover ring — 6×24 (was 8×48)
   var hlRing = new THREE.Mesh(
-    new THREE.TorusGeometry(0.88, 0.030, 8, 48),
+    new THREE.TorusGeometry(0.88, 0.030, 6, 24),
     new THREE.MeshBasicMaterial({ color: 0xd4af37, transparent: true, opacity: 0 })
   );
   hlRing.rotation.x = Math.PI / 2; hlRing.position.y = 1.12; grp.add(hlRing);
 
-  // Spotlight for vitrina
-  var sv = new THREE.SpotLight(0xfff8e8, 2.8, 8, Math.PI/7, 0.4, 1.5);
-  sv.position.set(0, 4.4, 0);
-  sv.target.position.set(0, 1.5, 0);
-  grp.add(sv); grp.add(sv.target);
-
-  // Accent light
-  var av = new THREE.PointLight(0xffd060, 0.7, 4.5, 2.2);
-  av.position.set(0, 2.8, 0); grp.add(av);
+  // No per-vitrina SpotLight or PointLight — replaced by single _followSpot in tick
 
   scene.add(grp);
   interactables.push({ glassMesh: glassMesh, hlRing: hlRing, artifact: artifact, pieceId: piece.id });
@@ -1275,6 +1243,8 @@ if (malaganaModal) {
   });
 }
 
+var _proxFrame = 0;
+
 function tick(now) {
   requestAnimationFrame(tick);
   if (TARGET_INTERVAL > 0) {
@@ -1309,6 +1279,38 @@ function tick(now) {
     }
   }
 
+  // Follow spotlight tracks camera — replaces 18 per-vitrina lights
+  _followSpot.position.set(camera.position.x, camera.position.y + 2.0, camera.position.z);
+  _followSpot.target.position.set(camera.position.x, 1.2, camera.position.z);
+  _followSpot.target.updateMatrixWorld();
+
+  // Proximity GLB loader: checks every 45 frames, loads when within 11u
+  _proxFrame++;
+  if (_proxFrame % 45 === 0 && hasStarted) {
+    var cx = camera.position.x, cz = camera.position.z;
+    for (var _pi = 0; _pi < LAYOUT.length; _pi++) {
+      var _cfg = LAYOUT[_pi];
+      if (_cfg._glbLoaded || !_cfg.piece.modelUrl) continue;
+      var _dx = cx - _cfg.x, _dz = cz - _cfg.z;
+      if (Math.sqrt(_dx * _dx + _dz * _dz) < 11) {
+        _cfg._glbLoaded = true;
+        (function(c) {
+          _gltfLoader.load(c.piece.modelUrl, function(gltf) {
+            var m = gltf.scene;
+            var bbox = new THREE.Box3().setFromObject(m);
+            var sz   = bbox.getSize(new THREE.Vector3());
+            var sc   = 0.85 / (Math.max(sz.x, sz.y, sz.z) || 1);
+            m.scale.setScalar(sc);
+            var ctr  = bbox.getCenter(new THREE.Vector3());
+            m.position.set(-ctr.x * sc, -bbox.min.y * sc, -ctr.z * sc);
+            while (c._artifact.children.length) c._artifact.remove(c._artifact.children[0]);
+            c._artifact.add(m);
+          });
+        })(_cfg);
+      }
+    }
+  }
+
   if (isLocked) checkHover();
 
   interactables.forEach(function(item) {
@@ -1318,5 +1320,5 @@ function tick(now) {
   renderer.render(scene, camera);
 }
 
-if (glbPending <= 0) hideLs();
+hideLs();
 requestAnimationFrame(tick);
