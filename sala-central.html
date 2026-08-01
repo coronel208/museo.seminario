@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Sala Central · Museo Seminario</title>
+  <title>Lobby · Museo Seminario</title>
   <link rel="stylesheet" href="css/estilo.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script type="importmap">
@@ -90,7 +90,7 @@
   </div>
   <div class="ls-title"><h2>MUSEO SEMINARIO</h2><p>Diocesano de Cristo Sacerdote</p></div>
   <div class="ls-track"><div id="ls-bar"></div></div>
-  <div id="ls-status">Preparando sala central…</div>
+  <div id="ls-status">Preparando lobby…</div>
 </div>
 
 <nav id="top-nav">
@@ -99,7 +99,7 @@
   <ul class="nb-menu">
     <li><a href="index.html">Inicio</a></li>
     <li><a href="coleccion.html">Colección</a></li>
-    <li><a href="sala-central.html" class="active">Sala Central</a></li>
+    <li><a href="sala-central.html" class="active">Lobby</a></li>
     <li><a href="recorrido.html" class="btn-r"><i class="fas fa-door-open"></i> Pasillo 1</a></li>
     <li><a href="sobre-nosotros.html">Sobre Nosotros</a></li>
     <li><a href="qr.html" title="QR"><i class="fas fa-qrcode"></i></a></li>
@@ -109,7 +109,7 @@
 <canvas id="gl-canvas"></canvas>
 
 <div id="start-prompt">
-  <h2>Sala Central</h2>
+  <h2>Lobby</h2>
   <div class="ctrl-row" id="sp-desktop">
     <div class="ctrl-col">
       <div class="key-row"><div class="key">W</div></div>
@@ -196,6 +196,27 @@
   toggle.addEventListener('click', function(){ menu.classList.contains('open') ? closeM() : openM(); });
   overlay.addEventListener('click', closeM);
   menu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', closeM); });
+
+  // Barra de carga empieza inmediatamente (antes de que cargue Three.js)
+  var bar = document.getElementById('ls-bar');
+  var status = document.getElementById('ls-status');
+  var prog = 0;
+  var lsInt = setInterval(function(){
+    prog += Math.random() * 7 + 4;
+    if (prog >= 82) { prog = 82; clearInterval(lsInt); status.textContent = 'Cargando motor 3D…'; }
+    bar.style.width = prog + '%';
+  }, 70);
+
+  window._lsReady = function(){
+    clearInterval(lsInt);
+    bar.style.width = '100%';
+    status.textContent = 'Listo. Bienvenido al Lobby.';
+    var ls = document.getElementById('loading-screen');
+    setTimeout(function(){
+      ls.style.opacity = '0'; ls.style.transition = 'opacity .5s';
+      setTimeout(function(){ ls.style.display = 'none'; document.getElementById('start-prompt').style.display = 'flex'; }, 500);
+    }, 350);
+  };
 })();
 </script>
 
@@ -217,9 +238,6 @@ var PANEL_W  = SIDE_W - COL_W - 0.3;
 var PANEL_H  = DOOR_H - 0.5;
 
 // ── DOM ───────────────────────────────────────────────────────────────────────
-var lsEl     = document.getElementById('loading-screen');
-var lsBar    = document.getElementById('ls-bar');
-var lsStatus = document.getElementById('ls-status');
 var startEl  = document.getElementById('start-prompt');
 var hudEl    = document.getElementById('hud');
 var crossEl  = document.getElementById('crosshair');
@@ -671,19 +689,8 @@ if(window.matchMedia('(pointer:coarse)').matches){
   document.getElementById('sp-mobile').style.display='block';
 }
 
-var prog=0;
-var lsInt=setInterval(function(){
-  prog+=Math.random()*15+10;
-  if(prog>=100){prog=100;clearInterval(lsInt);
-    lsStatus.textContent='Listo. Bienvenido al Museo.';
-    setTimeout(function(){ lsEl.style.opacity='0'; lsEl.style.transition='opacity .5s';
-      setTimeout(function(){ lsEl.style.display='none'; startEl.style.display='flex'; },500);
-    },400);
-  }
-  lsBar.style.width=prog+'%';
-},60);
-
 animate();
+window._lsReady();
 </script>
 </body>
 </html>
