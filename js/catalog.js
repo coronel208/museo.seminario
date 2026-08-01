@@ -202,6 +202,28 @@ var MUSEUM_CATALOG = [
     video: null
   }
 
+  // ── COPA EN PEDESTAL · Calima Malagana ───────────────────────────
+  ,{
+    id: 'copa-1',
+    nombre: 'Copa en Pedestal de Paredes Simples',
+    descripcion: 'Copa cerámica en pedestal con cuerpo carenado y base cóncava, clasificada morfológicamente dentro del horizonte Malagana del Valle Bajo del Cauca. Presenta pasta más arenosa y burda característica de este complejo, diferenciándose de las copas finamente incisas del período Yotoco. Morfología utilitaria y ritual asociada a ajuares funerarios de la planicie aluvial. Estado de conservación óptimo con integridad completa, con pátinas y concreciones propias de contextos de entierro primario en fosa.',
+    material: 'Cerámica',
+    cultura: 'Cultura Calima (Malagana) · Valle del Cauca',
+    periodo: 'Período Malagana (200 a.C. – 400 d.C.)',
+    tecnica: 'Pasta burda y arenosa, desgrasante de cuarzo y partículas minerales, cocción oxidante, engobe rojo-naranja alisado',
+    dimensiones: 'Alt. 10.8 cm · ⌀ 19.8 cm',
+    donante: '',
+    modelUrl: 'models/copa-1.glb',
+    imagenes: [
+      'images/copa-1-1.jpg',
+      'images/copa-1-2.jpg',
+      'images/copa-1-3.jpg',
+      'images/copa-1-4.jpg',
+      'images/copa-1-5.jpg'
+    ],
+    video: null
+  }
+
   // ── AGREGA MÁS PIEZAS AQUÍ ────────────────────────────────────────
   // Sigue el mismo patrón. El sistema soporta hasta 50 (o más).
 

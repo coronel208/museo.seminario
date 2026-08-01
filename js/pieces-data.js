@@ -142,6 +142,26 @@ export const PIECES = [
     restY: 1.19
   },
 
+  // ── COPA EN PEDESTAL · Calima Malagana ───────────────────────────
+  {
+    id: 'copa-1',
+    nombre: 'Copa en Pedestal de Paredes Simples',
+    procedencia: 'Cultura Calima (Malagana), Valle del Cauca · Período Malagana (200 a.C. – 400 d.C.)',
+    descripcion: 'Copa cerámica en pedestal con cuerpo carenado y base cóncava. Pasta burda y arenosa con desgrasante de cuarzo, cocción oxidante y engobe rojo-naranja (Munsell 10R 4/6). Morfología utilitaria y ritual de ajuares funerarios Malagana. Estado completo con pátinas de entierro.',
+    metadata: 'Material: Cerámica · Técnica: Pasta burda, engobe rojo-naranja · Dimensiones: Alt. 10.8 × ⌀ 19.8 cm · Estado: Completo · Registro ICANH',
+    color: 0x9B3A18, roughness: 0.87, metalness: 0.03,
+    imagenes: [
+      'images/copa-1-1.jpg',
+      'images/copa-1-2.jpg',
+      'images/copa-1-3.jpg',
+      'images/copa-1-4.jpg',
+      'images/copa-1-5.jpg'
+    ],
+    video: null,
+    modelUrl: 'models/copa-1.glb',
+    restY: 1.19
+  },
+
   // ── CUENCO GLOBULAR CON ASAS · Calima Sonso ──────────────────────
   {
     id: 'cuenco-asas',
@@ -301,6 +321,7 @@ var BUILDERS = {
   'jarron-3':          buildCuencoAsas,
   'cuenco-2':          buildCopa,
   'cuenco-carenado':   buildCarenado,
+  'copa-1':            buildCopa,
   'cuenco-asas':       buildCuencoAsas
 };
 

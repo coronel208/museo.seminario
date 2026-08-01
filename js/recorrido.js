@@ -410,10 +410,11 @@ prog(58, 'Montando letrero del museo…');
 /* ── Display cases (vitrinas) ────────────────────────────────────── */
 prog(70, 'Instalando vitrinas…');
 
-// 8 vitrinas: pared izquierda (x=-3) y derecha (x=3), 4 filas separadas 8u
+// 9 vitrinas: pared izquierda (x=-3) y derecha (x=3), filas en z=16,8,0,-8,-16
 var LAYOUT = [
-  { piece: getPieceById('jarron-3'),          x: -3.0, z:  8 },
-  { piece: getPieceById('cuenco-carenado'),   x:  3.0, z:  8 },
+  { piece: getPieceById('copa-1'),            x: -3.0, z:  16 },
+  { piece: getPieceById('jarron-3'),          x:  3.0, z:  16 },
+  { piece: getPieceById('cuenco-carenado'),   x: -3.0, z:  8 },
   { piece: getPieceById('volante-de-uso'),    x: -3.0, z:  0 },
   { piece: getPieceById('volante-de-huso-2'), x:  3.0, z:  0 },
   { piece: getPieceById('cuenco-1'),          x: -3.0, z: -8 },
