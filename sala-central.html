@@ -432,42 +432,41 @@ for(var wi=0;wi<5;wi++){
   grp.rotation.y = -theta;
   scene.add(grp);
 
+  var _m;
   // left side wall (floor → door height)
-  grp.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(SIDE_W, DOOR_H, WT), wallM),
-    {position: new THREE.Vector3(-(DOOR_W/2+SIDE_W/2), DOOR_H/2, 0)}));
+  _m = new THREE.Mesh(new THREE.BoxGeometry(SIDE_W, DOOR_H, WT), wallM);
+  _m.position.set(-(DOOR_W/2+SIDE_W/2), DOOR_H/2, 0); grp.add(_m);
   // right side wall
-  grp.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(SIDE_W, DOOR_H, WT), wallM),
-    {position: new THREE.Vector3( DOOR_W/2+SIDE_W/2,  DOOR_H/2, 0)}));
+  _m = new THREE.Mesh(new THREE.BoxGeometry(SIDE_W, DOOR_H, WT), wallM);
+  _m.position.set(DOOR_W/2+SIDE_W/2, DOOR_H/2, 0); grp.add(_m);
   // full-width transom above door
-  grp.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(PEN_SIDE, TRANS_H, WT), wallM),
-    {position: new THREE.Vector3(0, DOOR_H+TRANS_H/2, 0)}));
+  _m = new THREE.Mesh(new THREE.BoxGeometry(PEN_SIDE, TRANS_H, WT), wallM);
+  _m.position.set(0, DOOR_H+TRANS_H/2, 0); grp.add(_m);
 
   // door columns (gold)
   var colH = DOOR_H + 0.08;
-  grp.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(COL_W, colH, WT+0.05), goldM),
-    {position: new THREE.Vector3(-(DOOR_W/2+COL_W/2), colH/2, 0.01)}));
-  grp.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(COL_W, colH, WT+0.05), goldM),
-    {position: new THREE.Vector3( DOOR_W/2+COL_W/2,  colH/2, 0.01)}));
+  _m = new THREE.Mesh(new THREE.BoxGeometry(COL_W, colH, WT+0.05), goldM);
+  _m.position.set(-(DOOR_W/2+COL_W/2), colH/2, 0.01); grp.add(_m);
+  _m = new THREE.Mesh(new THREE.BoxGeometry(COL_W, colH, WT+0.05), goldM);
+  _m.position.set(DOOR_W/2+COL_W/2, colH/2, 0.01); grp.add(_m);
   // lintel
-  grp.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(DOOR_W+COL_W*2+0.12, 0.12, WT+0.06), goldM),
-    {position: new THREE.Vector3(0, DOOR_H+0.06, 0.01)}));
+  _m = new THREE.Mesh(new THREE.BoxGeometry(DOOR_W+COL_W*2+0.12, 0.12, WT+0.06), goldM);
+  _m.position.set(0, DOOR_H+0.06, 0.01); grp.add(_m);
 
   // transom canvas
-  grp.add(Object.assign(new THREE.Mesh(
-    new THREE.PlaneGeometry(PEN_SIDE-0.35, TRANS_H-0.28),
-    new THREE.MeshStandardMaterial({map:TRANSOMS[wi], roughness:0.55, emissive:new THREE.Color(0x1a1208), emissiveIntensity:2.2})
-  ), {position: new THREE.Vector3(0, DOOR_H+TRANS_H/2, WT/2+0.02)}));
+  _m = new THREE.Mesh(new THREE.PlaneGeometry(PEN_SIDE-0.35, TRANS_H-0.28),
+    new THREE.MeshStandardMaterial({map:TRANSOMS[wi], roughness:0.55, emissive:new THREE.Color(0x1a1208), emissiveIntensity:2.2}));
+  _m.position.set(0, DOOR_H+TRANS_H/2, WT/2+0.02); grp.add(_m);
 
   // sala label above arch
-  grp.add(Object.assign(new THREE.Mesh(
-    new THREE.PlaneGeometry(1.7, 0.85),
-    new THREE.MeshStandardMaterial({map:makeSalaLabelTex(wi+1), transparent:true, roughness:0.7, emissive:new THREE.Color(0x1a1208), emissiveIntensity:1.6})
-  ), {position: new THREE.Vector3(0, DOOR_H-0.5, WT/2+0.03)}));
+  _m = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 0.85),
+    new THREE.MeshStandardMaterial({map:makeSalaLabelTex(wi+1), transparent:true, roughness:0.7, emissive:new THREE.Color(0x1a1208), emissiveIntensity:1.6}));
+  _m.position.set(0, DOOR_H-0.5, WT/2+0.03); grp.add(_m);
 
   // corner pillars
   [-PEN_SIDE/2, PEN_SIDE/2].forEach(function(px){
-    grp.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(0.2, HH, 0.2), goldM),
-      {position: new THREE.Vector3(px, HH/2, 0)}));
+    var _p = new THREE.Mesh(new THREE.BoxGeometry(0.2, HH, 0.2), goldM);
+    _p.position.set(px, HH/2, 0); grp.add(_p);
   });
 
   // info panels (left=-1, right=+1)
