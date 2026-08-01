@@ -401,6 +401,7 @@ var LAYOUT = [
   { piece: getPieceById('copa-1'),            x: -3.0, z:  16 },
   { piece: getPieceById('jarron-3'),          x:  3.0, z:  16 },
   { piece: getPieceById('cuenco-carenado'),   x: -3.0, z:  8 },
+  { piece: getPieceById('figura-1'),          x:  3.0, z:  8 },
   { piece: getPieceById('volante-de-uso'),    x: -3.0, z:  0 },
   { piece: getPieceById('volante-de-huso-2'), x:  3.0, z:  0 },
   { piece: getPieceById('cuenco-1'),          x: -3.0, z: -8 },

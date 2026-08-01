@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Sala Central · Museo Seminario</title>
+  <link rel="stylesheet" href="css/estilo.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script type="importmap">
+    {"imports":{"three":"https://unpkg.com/three@0.158.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.158.0/examples/jsm/"}}
+  </script>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html, body { width:100%; height:100%; overflow:hidden; background:#000; font-family:'Raleway','Segoe UI',sans-serif; }
+    #top-nav { position:fixed; top:0; left:0; right:0; height:52px; display:flex; justify-content:space-between; align-items:center; padding:0 2rem; background:rgba(8,9,11,.96); backdrop-filter:blur(10px); border-bottom:1px solid rgba(212,175,55,.30); z-index:600; }
+    .nb-brand h1 { font-family:'Cormorant Garamond',Georgia,serif; color:#d4af37; font-size:1.3rem; letter-spacing:.08em; }
+    .nb-brand span { font-size:.62rem; color:#a99e8c; display:block; text-transform:uppercase; letter-spacing:.04em; }
+    .nb-menu { display:flex; gap:1.4rem; list-style:none; align-items:center; }
+    .nb-menu a { color:#ccc; text-decoration:none; font-size:.78rem; font-weight:500; text-transform:uppercase; letter-spacing:.05em; transition:color .2s; }
+    .nb-menu a:hover, .nb-menu a.active { color:#d4af37; }
+    .nb-menu .btn-r { background:#d4af37; color:#000!important; padding:.3rem .9rem; border-radius:20px; font-weight:700!important; }
+    #loading-screen { position:fixed; inset:0; z-index:9000; background:#0b0c0e; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.8rem; }
+    .ls-ring { width:88px; height:88px; border-radius:50%; border:2px solid rgba(212,175,55,.35); display:flex; align-items:center; justify-content:center; animation:lsp 2s ease-in-out infinite; }
+    .ls-ring img { width:76px; height:76px; border-radius:50%; object-fit:cover; }
+    .ls-fb { width:76px; height:76px; border-radius:50%; background:#2a1808; display:flex; align-items:center; justify-content:center; font-family:Georgia,serif; color:#d4af37; font-size:1.4rem; font-weight:bold; }
+    @keyframes lsp { 0%,100%{box-shadow:0 0 0 0 rgba(212,175,55,.35);} 50%{box-shadow:0 0 0 14px rgba(212,175,55,0);} }
+    .ls-title { text-align:center; }
+    .ls-title h2 { font-family:Georgia,serif; color:#d4af37; font-size:1.8rem; letter-spacing:.1em; margin-bottom:.3rem; }
+    .ls-title p { color:#a99e8c; font-size:.75rem; text-transform:uppercase; letter-spacing:.08em; }
+    .ls-track { width:260px; height:3px; background:rgba(212,175,55,.15); border-radius:2px; overflow:hidden; }
+    #ls-bar { height:100%; width:0%; background:linear-gradient(90deg,#c8a832,#f0d060); border-radius:2px; transition:width .3s ease; }
+    #ls-status { color:#a99e8c; font-size:.76rem; letter-spacing:.04em; }
+    #gl-canvas { position:fixed; top:52px; left:0; display:block; }
+    #start-prompt { display:none; position:fixed; top:52px; left:0; right:0; bottom:0; background:rgba(10,12,14,.82); align-items:center; justify-content:center; flex-direction:column; gap:1.6rem; z-index:400; backdrop-filter:blur(5px); }
+    #start-prompt h2 { font-family:Georgia,serif; color:#d4af37; font-size:1.75rem; letter-spacing:.06em; text-align:center; }
+    #btn-start { background:#d4af37; color:#000; border:none; padding:.85rem 2.6rem; border-radius:4px; font-size:.95rem; font-weight:700; cursor:pointer; letter-spacing:.04em; font-family:inherit; transition:background .2s,transform .15s; }
+    #btn-start:hover { background:#f0d060; transform:translateY(-2px); }
+    .ctrl-row { display:flex; gap:2rem; align-items:flex-start; justify-content:center; }
+    .ctrl-col { display:flex; flex-direction:column; align-items:center; gap:.4rem; }
+    .ctrl-col span { color:#777; font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; }
+    .key-row { display:flex; gap:4px; }
+    .key { width:30px; height:30px; border-radius:5px; background:#1e2025; border:1px solid rgba(212,175,55,.4); color:#d4af37; font-size:.65rem; font-weight:600; display:flex; align-items:center; justify-content:center; }
+    .key.w { width:65px; }
+    #hud { display:none; position:fixed; bottom:22px; left:22px; color:#e0d0a0; background:rgba(0,0,0,.62); padding:7px 16px; border-radius:26px; font-size:.8rem; border:1px solid rgba(212,175,55,.25); pointer-events:none; z-index:300; }
+    #crosshair { display:none; position:fixed; top:calc(52px + 50%); left:50%; transform:translate(-50%,-50%); width:20px; height:20px; pointer-events:none; z-index:300; }
+    #crosshair::before,#crosshair::after { content:''; position:absolute; background:rgba(255,255,255,.78); }
+    #crosshair::before { width:1px; height:20px; left:9px; top:0; }
+    #crosshair::after  { width:20px; height:1px; top:9px; left:0; }
+    #crosshair .dot { position:absolute; width:4px; height:4px; background:#d4af37; border-radius:50%; top:8px; left:8px; }
+    #hint-label { display:none; position:fixed; bottom:72px; left:50%; transform:translateX(-50%); background:rgba(212,175,55,.13); border:1px solid #d4af37; color:#d4af37; padding:5px 15px; border-radius:22px; font-size:.8rem; pointer-events:none; white-space:nowrap; z-index:300; }
+    @media(pointer:coarse){ #crosshair{display:none!important;} #hud{display:none!important;} #hint-label{display:none!important;} }
+    .nb-toggle { display:none; flex-direction:column; justify-content:center; align-items:center; gap:5px; background:none; border:1px solid rgba(212,175,55,.30); border-radius:6px; padding:7px 9px; cursor:pointer; -webkit-tap-highlight-color:transparent; z-index:10001; }
+    .nb-toggle span { display:block; width:20px; height:2px; background:#d4af37; border-radius:2px; transition:transform .28s,opacity .22s; }
+    .nb-toggle.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+    .nb-toggle.open span:nth-child(2){opacity:0;transform:scaleX(0);}
+    .nb-toggle.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+    .nb-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.52); z-index:599; }
+    .nb-overlay.open { display:block; }
+    @media(max-width:1024px){ .nb-toggle{display:flex;} }
+    @media(max-width:768px){
+      #top-nav{padding:.6rem 1rem;}
+      .nb-menu{position:fixed;top:0;right:0;width:min(290px,82vw);height:100%;flex-direction:column;align-items:flex-start;padding:72px 1.5rem 2rem;gap:4px;background:rgba(8,9,11,0.99);border-left:2px solid #d4af37;z-index:9999;transform:translateX(100%);transition:transform .3s cubic-bezier(.25,.46,.45,.94);overflow-y:auto;box-shadow:-8px 0 32px rgba(0,0,0,.6);}
+      .nb-menu.open{transform:translateX(0);}
+      .nb-menu li{width:100%;}
+      .nb-menu a{display:block;padding:.85rem .6rem;font-size:1.05rem;border-bottom:1px solid rgba(212,175,55,.15);}
+    }
+    #landscape-prompt{display:none;position:fixed;inset:0;z-index:99999;background:#0b0c0e;flex-direction:column;align-items:center;justify-content:center;gap:1.4rem;text-align:center;padding:2rem;}
+    #landscape-prompt .lp-icon{font-size:3.2rem;color:#d4af37;animation:lp-rot 1.6s ease-in-out infinite;}
+    @keyframes lp-rot{0%,100%{transform:rotate(0deg)}50%{transform:rotate(90deg)}}
+    #landscape-prompt h3{font-family:Georgia,serif;color:#d4af37;font-size:1.4rem;}
+    #landscape-prompt p{color:#a99e8c;font-size:.85rem;max-width:240px;line-height:1.6;}
+    @media(orientation:portrait) and (max-width:900px){#landscape-prompt{display:flex;}}
+    #joystick-zone{display:none;position:fixed;bottom:28px;left:24px;width:120px;height:120px;z-index:300;touch-action:none;user-select:none;border-radius:50%;border:2px solid rgba(212,175,55,0.35);background:rgba(0,0,0,0.30);}
+    #joy-thumb{position:absolute;top:50%;left:50%;width:44px;height:44px;border-radius:50%;background:rgba(212,175,55,0.55);border:2px solid rgba(212,175,55,0.80);transform:translate(-50%,-50%);pointer-events:none;}
+    @media(pointer:coarse),(max-width:900px){#joystick-zone{display:block;}}
+    #info-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:2000;align-items:center;justify-content:center;}
+    #info-modal.open{display:flex;}
+    .im-box{background:#14161a;width:88%;max-width:680px;border-radius:14px;border:1px solid rgba(212,175,55,.30);box-shadow:0 0 60px rgba(212,175,55,.15);overflow:hidden;position:relative;padding:2.5rem 2.5rem 2rem;}
+    .im-close{position:absolute;top:12px;right:18px;background:none;border:none;color:#d4af37;font-size:26px;cursor:pointer;line-height:1;}
+    .im-box h3{font-family:'Cormorant Garamond',Georgia,serif;color:#d4af37;font-size:1.7rem;margin-bottom:.9rem;}
+    .im-box p{color:#ccc;font-size:.9rem;line-height:1.75;margin-bottom:.65rem;}
+    #pause-dialog{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:800;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+  </style>
+</head>
+<body>
+
+<div id="loading-screen">
+  <div class="ls-ring">
+    <img src="assets/logo.jpg" alt="Logo" onerror="this.parentElement.innerHTML='<div class=ls-fb>MS</div>'">
+  </div>
+  <div class="ls-title"><h2>MUSEO SEMINARIO</h2><p>Diocesano de Cristo Sacerdote</p></div>
+  <div class="ls-track"><div id="ls-bar"></div></div>
+  <div id="ls-status">Preparando sala central…</div>
+</div>
+
+<nav id="top-nav">
+  <div class="nb-brand"><h1>MUSEO SEMINARIO</h1><span>Diocesano de Cristo Sacerdote</span></div>
+  <button class="nb-toggle" aria-label="Menú" aria-expanded="false"><span></span><span></span><span></span></button>
+  <ul class="nb-menu">
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="coleccion.html">Colección</a></li>
+    <li><a href="sala-central.html" class="active">Sala Central</a></li>
+    <li><a href="recorrido.html" class="btn-r"><i class="fas fa-door-open"></i> Pasillo 1</a></li>
+    <li><a href="sobre-nosotros.html">Sobre Nosotros</a></li>
+    <li><a href="qr.html" title="QR"><i class="fas fa-qrcode"></i></a></li>
+  </ul>
+</nav>
+
+<canvas id="gl-canvas"></canvas>
+
+<div id="start-prompt">
+  <h2>Sala Central</h2>
+  <div class="ctrl-row" id="sp-desktop">
+    <div class="ctrl-col">
+      <div class="key-row"><div class="key">W</div></div>
+      <div class="key-row"><div class="key">A</div><div class="key">S</div><div class="key">D</div></div>
+      <span>Moverse</span>
+    </div>
+    <div class="ctrl-col">
+      <div class="key-row"><div class="key w" style="font-size:.56rem">🖱 Ratón</div></div>
+      <span>Mirar</span>
+    </div>
+    <div class="ctrl-col">
+      <div class="key-row"><div class="key w" style="font-size:.56rem">🖱 Clic</div></div>
+      <span>Leer panel</span>
+    </div>
+  </div>
+  <p id="sp-mobile" style="display:none;color:#a99e8c;font-size:.88rem;text-align:center;max-width:300px;line-height:1.65;">
+    Usa el <strong style="color:#d4af37;">joystick</strong> para moverte · Arrastra para <strong style="color:#d4af37;">mirar</strong> · Toca un panel para <strong style="color:#d4af37;">leer</strong>
+  </p>
+  <button id="btn-start"><i class="fas fa-play"></i>&nbsp; Entrar a la Sala</button>
+</div>
+
+<div id="hud"><i class="fas fa-lock"></i> ESC para pausar · Apunta a un panel y haz clic</div>
+<div id="crosshair"><div class="dot"></div></div>
+<div id="hint-label"><i class="fas fa-hand-pointer"></i> Clic para leer</div>
+<div id="joystick-zone"><div id="joy-thumb"></div></div>
+<div id="landscape-prompt">
+  <div class="lp-icon"><i class="fas fa-mobile-alt"></i></div>
+  <h3>Gira tu dispositivo</h3>
+  <p>El recorrido virtual funciona mejor en modo horizontal</p>
+</div>
+<div class="nb-overlay" id="nb-overlay"></div>
+
+<div id="pause-dialog">
+  <div style="background:#13151a;border:1.5px solid rgba(212,175,55,.45);border-radius:14px;padding:2.5rem 3rem;text-align:center;box-shadow:0 0 50px rgba(212,175,55,.22);max-width:440px;width:90%;">
+    <div style="font-size:2rem;margin-bottom:.8rem;">⏸</div>
+    <h3 style="font-family:Georgia,serif;color:#d4af37;font-size:1.6rem;margin-bottom:.5rem;">Recorrido en Pausa</h3>
+    <p style="color:#a99e8c;font-size:.88rem;margin-bottom:1.8rem;line-height:1.65;">WASD · Ratón para mirar · Clic en un panel</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <button id="pd-continue" style="background:#d4af37;color:#000;border:none;padding:.75rem 2.2rem;border-radius:4px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;"><i class="fas fa-play"></i> Continuar</button>
+      <button id="pd-abandon" style="background:transparent;color:#e05050;border:1.5px solid #e05050;padding:.75rem 2rem;border-radius:4px;font-size:.9rem;cursor:pointer;font-family:inherit;"><i class="fas fa-door-open"></i> Salir</button>
+    </div>
+  </div>
+</div>
+
+<div id="info-modal">
+  <div class="im-box">
+    <button class="im-close" id="im-close">&times;</button>
+    <h3 id="im-title"></h3>
+    <div id="im-body"></div>
+  </div>
+</div>
+
+<div id="malagana-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:2000;align-items:center;justify-content:center;">
+  <div style="background:#14161a;width:88%;max-width:1100px;height:80vh;border-radius:14px;border:1px solid rgba(212,175,55,.30);box-shadow:0 0 60px rgba(212,175,55,.18);overflow:hidden;display:flex;flex-direction:column;position:relative;">
+    <button id="ml-close" style="position:absolute;top:12px;right:18px;background:none;border:none;color:#d4af37;font-size:26px;cursor:pointer;z-index:10;line-height:1;">&times;</button>
+    <div style="display:flex;flex:1;min-height:0;">
+      <div style="flex:2;background:#0c0e13;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;">
+        <h3 style="font-family:'Cormorant Garamond',Georgia,serif;color:#d4af37;font-size:1.5rem;margin-bottom:1.2rem;text-align:center;letter-spacing:.05em;"><i class="fas fa-film" style="margin-right:.5rem;opacity:.7;"></i>Historia de la Cultura Malagana</h3>
+        <video id="ml-video" controls muted style="width:100%;max-height:55vh;border-radius:8px;background:#000;" src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"></video>
+        <p style="color:#a99e8c;font-size:.75rem;margin-top:.8rem;text-align:center;font-style:italic;">* Video ilustrativo — próximamente el video oficial del Seminario</p>
+      </div>
+      <div style="flex:1;padding:2rem;overflow-y:auto;border-left:1px solid #1e2025;display:flex;flex-direction:column;gap:1rem;">
+        <h3 style="font-family:'Cormorant Garamond',Georgia,serif;color:#d4af37;font-size:1.8rem;line-height:1.2;">La Cultura Malagana</h3>
+        <p style="color:#a99e8c;font-size:.82rem;"><i class="fas fa-map-pin"></i> &nbsp;Palmira, Valle del Cauca · 200 a.C. – 400 d.C.</p>
+        <p style="color:#ccc;font-size:.88rem;line-height:1.75;">La cultura Malagana fue una civilización precolombina que habitó el Valle del Cauca entre los siglos II a.C. y IV d.C. Destacaron por su extraordinaria maestría en la orfebrería, produciendo piezas de oro de gran complejidad técnica y simbólica.</p>
+        <p style="color:#ccc;font-size:.88rem;line-height:1.75;">Sus asentamientos principales se concentraron en la región de Palmira, donde desarrollaron una sociedad jerárquica con élites que expresaban su estatus a través de objetos rituales de oro, cerámica y piedra.</p>
+        <p style="color:#ccc;font-size:.88rem;line-height:1.75;">El hallazgo del sitio arqueológico en 1992 en la hacienda Malagana reveló centenares de piezas de excepcional valor, muchas de las cuales hoy forman parte de colecciones de museos nacionales e internacionales.</p>
+        <div style="border-top:1px solid #1e2025;padding-top:.9rem;margin-top:auto;">
+          <p style="color:#a99e8c;font-size:.80rem;line-height:1.6;font-style:italic;">"Nuestra institución custodia estas piezas como testimonio del rico patrimonio cultural de nuestra región y como puente entre el pasado indígena y la memoria colectiva de Palmira."</p>
+          <p style="color:#d4af37;font-size:.75rem;margin-top:.5rem;">— Seminario Diocesano de Cristo Sacerdote</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var toggle = document.querySelector('.nb-toggle');
+  var menu = document.querySelector('.nb-menu');
+  var overlay = document.getElementById('nb-overlay');
+  function openM(){ menu.classList.add('open'); overlay.classList.add('open'); toggle.classList.add('open'); }
+  function closeM(){ menu.classList.remove('open'); overlay.classList.remove('open'); toggle.classList.remove('open'); }
+  toggle.addEventListener('click', function(){ menu.classList.contains('open') ? closeM() : openM(); });
+  overlay.addEventListener('click', closeM);
+  menu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', closeM); });
+})();
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+
+// ── PENTAGON CONSTANTS ────────────────────────────────────────────────────────
+var PEN_R    = 10.0;
+var PEN_A    = PEN_R * Math.cos(36 * Math.PI / 180);
+var PEN_SIDE = 2 * PEN_R * Math.sin(36 * Math.PI / 180);
+var HH       = 8;
+var WT       = 0.3;
+var DOOR_W   = 2.4;
+var DOOR_H   = 4.2;
+var SIDE_W   = (PEN_SIDE - DOOR_W) / 2;
+var TRANS_H  = HH - DOOR_H;
+var COL_W    = 0.28;
+var PANEL_W  = SIDE_W - COL_W - 0.3;
+var PANEL_H  = DOOR_H - 0.5;
+
+// ── DOM ───────────────────────────────────────────────────────────────────────
+var lsEl     = document.getElementById('loading-screen');
+var lsBar    = document.getElementById('ls-bar');
+var lsStatus = document.getElementById('ls-status');
+var startEl  = document.getElementById('start-prompt');
+var hudEl    = document.getElementById('hud');
+var crossEl  = document.getElementById('crosshair');
+var hintEl   = document.getElementById('hint-label');
+var pauseEl  = document.getElementById('pause-dialog');
+var infoModal= document.getElementById('info-modal');
+var malModal = document.getElementById('malagana-modal');
+
+// ── RENDERER ─────────────────────────────────────────────────────────────────
+var canvas = document.getElementById('gl-canvas');
+var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+var NAV_H = 52;
+function resize(){
+  var w = window.innerWidth, h = window.innerHeight - NAV_H;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resize);
+
+var scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a0804);
+scene.fog = new THREE.Fog(0x0a0804, 14, 28);
+
+var camera = new THREE.PerspectiveCamera(72, 1, 0.1, 40);
+camera.position.set(0, 1.75, 0);
+
+// ── MATERIALS ─────────────────────────────────────────────────────────────────
+var goldM = new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.22, metalness: 0.88 });
+
+function makeWallMat(){
+  var cvs = document.createElement('canvas'); cvs.width = 512; cvs.height = 512;
+  var ctx = cvs.getContext('2d');
+  ctx.fillStyle = '#C4A87A'; ctx.fillRect(0,0,512,512);
+  for(var i=0;i<2000;i++){ ctx.fillStyle='rgba(0,0,0,'+(Math.random()*.05)+')'; ctx.fillRect(Math.random()*512,Math.random()*512,2,2); }
+  ctx.fillStyle='#6a3e18'; ctx.fillRect(0,436,512,76);
+  ctx.fillStyle='rgba(212,175,55,0.50)'; ctx.fillRect(0,432,512,4);
+  var tex = new THREE.CanvasTexture(cvs);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(2,2);
+  return new THREE.MeshStandardMaterial({ map:tex, roughness:0.78, metalness:0.04 });
+}
+var wallM  = makeWallMat();
+var floorM = new THREE.MeshStandardMaterial({ color:0x252018, roughness:0.9, metalness:0.05 });
+var ceilM  = new THREE.MeshStandardMaterial({ color:0xE8E4DC, roughness:0.85, metalness:0.0 });
+
+function makePanelTex(title, bodyLines){
+  var cvs = document.createElement('canvas'); cvs.width=512; cvs.height=384;
+  var ctx = cvs.getContext('2d');
+  ctx.fillStyle='#12100a'; ctx.fillRect(0,0,512,384);
+  ctx.strokeStyle='#d4af37'; ctx.lineWidth=4; ctx.strokeRect(8,8,496,368);
+  ctx.strokeStyle='rgba(212,175,55,0.25)'; ctx.lineWidth=1; ctx.strokeRect(16,16,480,352);
+  ctx.fillStyle='#d4af37'; ctx.font='bold 30px Georgia'; ctx.textAlign='center';
+  var words=title.split(' '), line='', lines=[];
+  for(var i=0;i<words.length;i++){
+    var test=line+(line?' ':'')+words[i];
+    if(ctx.measureText(test).width>460&&line){lines.push(line);line=words[i];}else{line=test;}
+  }
+  lines.push(line);
+  var ty=54; lines.forEach(function(l){ctx.fillText(l,256,ty);ty+=36;});
+  ctx.fillStyle='rgba(212,175,55,0.4)'; ctx.fillRect(60,ty+4,392,2); ty+=20;
+  ctx.fillStyle='#d0c8a8'; ctx.font='18px Raleway,sans-serif';
+  bodyLines.forEach(function(bl){ctx.fillText(bl,256,ty);ty+=28;});
+  return new THREE.CanvasTexture(cvs);
+}
+
+function makeProxTex(title){
+  var cvs = document.createElement('canvas'); cvs.width=512; cvs.height=384;
+  var ctx = cvs.getContext('2d');
+  ctx.fillStyle='#0e0c08'; ctx.fillRect(0,0,512,384);
+  ctx.strokeStyle='rgba(212,175,55,0.35)'; ctx.lineWidth=3; ctx.strokeRect(8,8,496,368);
+  ctx.fillStyle='rgba(212,175,55,0.15)'; ctx.font='80px Georgia'; ctx.textAlign='center'; ctx.fillText('✦',256,200);
+  ctx.fillStyle='#d4af37'; ctx.font='bold 28px Georgia'; ctx.fillText(title,256,90);
+  ctx.fillStyle='rgba(212,175,55,0.4)'; ctx.fillRect(80,108,352,2);
+  ctx.fillStyle='#908070'; ctx.font='20px Raleway,sans-serif'; ctx.fillText('Próximamente disponible',256,310);
+  return new THREE.CanvasTexture(cvs);
+}
+
+// ── TRANSOM TEXTURES ──────────────────────────────────────────────────────────
+function makeWelcomeTex(){
+  var cvs=document.createElement('canvas'); cvs.width=1024; cvs.height=256;
+  var ctx=cvs.getContext('2d');
+  ctx.fillStyle='#0a0804'; ctx.fillRect(0,0,1024,256);
+  ctx.strokeStyle='#d4af37'; ctx.lineWidth=5; ctx.strokeRect(6,6,1012,244);
+  ctx.fillStyle='rgba(212,175,55,0.07)'; ctx.fillRect(6,6,1012,244);
+  ctx.fillStyle='#d4af37'; ctx.font='bold 66px Georgia'; ctx.textAlign='center'; ctx.fillText('MUSEO SEMINARIO',512,88);
+  ctx.font='26px Georgia'; ctx.fillText('DIOCESANO DE CRISTO SACERDOTE',512,128);
+  ctx.fillStyle='rgba(212,175,55,0.40)'; ctx.fillRect(120,146,784,2);
+  ctx.fillStyle='#b0a880'; ctx.font='22px Raleway,sans-serif'; ctx.fillText('Colección Arqueológica Prehispánica · Palmira, Colombia',512,184);
+  ctx.fillStyle='#d4af37'; ctx.font='italic 20px Georgia'; ctx.fillText('— Bienvenidos —',512,224);
+  return new THREE.CanvasTexture(cvs);
+}
+
+function makeSeminarioTex(){
+  var cvs=document.createElement('canvas'); cvs.width=1024; cvs.height=256;
+  var ctx=cvs.getContext('2d');
+  ctx.fillStyle='#0a0804'; ctx.fillRect(0,0,1024,256);
+  ctx.strokeStyle='#d4af37'; ctx.lineWidth=4; ctx.strokeRect(6,6,1012,244);
+  ctx.fillStyle='#d4af37'; ctx.font='bold 50px Georgia'; ctx.textAlign='center'; ctx.fillText('SEMINARIO DIOCESANO',512,86);
+  ctx.font='28px Georgia'; ctx.fillText('DE CRISTO SACERDOTE',512,128);
+  ctx.fillStyle='rgba(212,175,55,0.40)'; ctx.fillRect(120,148,784,2);
+  ctx.fillStyle='#b0a880'; ctx.font='22px Raleway,sans-serif'; ctx.fillText('Palmira · Valle del Cauca · Colombia',512,192);
+  return new THREE.CanvasTexture(cvs);
+}
+
+function makeGoldTransomTex(){
+  var cvs=document.createElement('canvas'); cvs.width=1024; cvs.height=256;
+  var ctx=cvs.getContext('2d');
+  var g=ctx.createLinearGradient(0,0,1024,0);
+  g.addColorStop(0,'#1a120a'); g.addColorStop(0.5,'#2a1e0c'); g.addColorStop(1,'#1a120a');
+  ctx.fillStyle=g; ctx.fillRect(0,0,1024,256);
+  ctx.strokeStyle='#d4af37'; ctx.lineWidth=3; ctx.strokeRect(8,8,1008,240);
+  ctx.fillStyle='rgba(212,175,55,0.18)'; ctx.font='64px Georgia'; ctx.textAlign='center';
+  for(var i=0;i<7;i++) ctx.fillText('✦', 72+i*130, 148);
+  return new THREE.CanvasTexture(cvs);
+}
+
+function makeSalaLabelTex(n){
+  var cvs=document.createElement('canvas'); cvs.width=256; cvs.height=128;
+  var ctx=cvs.getContext('2d');
+  ctx.fillStyle='#0c0904'; ctx.fillRect(0,0,256,128);
+  ctx.strokeStyle='#d4af37'; ctx.lineWidth=3; ctx.strokeRect(4,4,248,120);
+  ctx.fillStyle='#d4af37'; ctx.font='bold 28px Georgia'; ctx.textAlign='center'; ctx.fillText('SALA '+n,128,58);
+  ctx.fillStyle='rgba(212,175,55,0.45)'; ctx.fillRect(30,70,196,1);
+  ctx.fillStyle='#a09070'; ctx.font='15px Raleway,sans-serif'; ctx.fillText('Acceso próximamente',128,98);
+  return new THREE.CanvasTexture(cvs);
+}
+
+// ── PANEL CONTENT ─────────────────────────────────────────────────────────────
+var PANELS = [
+  // wall 0
+  [ { title:'Cultura Prehispánica', lines:['Palmira y el Valle del Cauca','fueron hogar de civilizaciones','milenarias de gran riqueza','arqueológica y cultural.'],
+      modal:{ h:'Cultura Prehispánica de Palmira', p:['El Valle del Cauca fue escenario de diversas culturas precolombinas a lo largo de más de 3.000 años. Las culturas Calima, Malagana y sus variantes habitaron estas tierras, desarrollando tradiciones alfareras, orfebres y funerarias de extraordinaria riqueza simbólica.','Las piezas de esta colección pertenecen principalmente a los períodos Ilama (1600–100 a.C.), Yotoco (100 a.C.–1300 d.C.) y Malagana (200 a.C.–400 d.C.), cada uno con características cerámicas y culturales propias.'] } },
+    { title:'Historia de las Piezas', lines:['Cada pieza tiene una historia','única de origen, donación','y conservación en el','Seminario Diocesano.'],
+      modal:{ h:'Historia de las Piezas', p:['Las piezas de esta colección llegaron al Seminario Diocesano de Cristo Sacerdote a través de décadas de donaciones de familias de Palmira y la región, conscientes del valor patrimonial de estos objetos.','El Seminario ha trabajado con el ICANH para catalogar, conservar y difundir esta colección como bien cultural de la comunidad palmirana.'] } }
+  ],
+  // wall 1
+  [ { title:'El Seminario Diocesano', lines:['Formando sacerdotes y','custodiando el patrimonio','cultural de Palmira','desde sus inicios.'],
+      modal:{ h:'El Seminario Diocesano de Cristo Sacerdote', p:['El Seminario Diocesano de Cristo Sacerdote de Palmira es una institución de formación sacerdotal de la Diócesis de Palmira. Además de su misión educativa y espiritual, custodia una importante colección de piezas arqueológicas precolombinas.','Esta colección es parte del compromiso de la institución con la memoria histórica y cultural del pueblo de Palmira y el Valle del Cauca.'] } },
+    { title:'Colección Malagana', lines:['Cerámica, figuras y vasijas','de la cultura Malagana,','patrimonio arqueológico','del Valle del Cauca.'], isMalagana:true }
+  ],
+  // wall 2
+  [ { title:'Los Creadores', lines:['Este museo virtual fue','creado para preservar','y difundir el patrimonio','cultural de la región.'],
+      modal:{ h:'Los Creadores del Museo Virtual', p:['Este museo virtual fue desarrollado como proyecto de preservación y difusión del patrimonio arqueológico custodiado por el Seminario Diocesano de Cristo Sacerdote de Palmira.','El proyecto busca acercar la colección prehispánica a toda la comunidad mediante tecnología 3D interactiva, permitiendo explorar las piezas arqueológicas de manera inmersiva y educativa.'] } },
+    { title:'Cultura Malagana', lines:['Pulsa para conocer la','historia de la cultura','Malagana y sus piezas','del Valle del Cauca.'], isMalagana:true }
+  ],
+  // wall 3
+  [ { title:'Sala 4', lines:['Próximamente'], isProx:true },
+    { title:'Sala 4', lines:['Próximamente'], isProx:true }
+  ],
+  // wall 4
+  [ { title:'Sala 5', lines:['Próximamente'], isProx:true },
+    { title:'Sala 5', lines:['Próximamente'], isProx:true }
+  ]
+];
+
+var TRANSOMS = [makeWelcomeTex(), makeSeminarioTex(), makeGoldTransomTex(), makeGoldTransomTex(), makeGoldTransomTex()];
+
+// ── FLOOR & CEILING (pentagon) ────────────────────────────────────────────────
+function addPentagon(y, mat){
+  var shape = new THREE.Shape();
+  for(var i=0;i<5;i++){
+    var a=(i*72-90)*Math.PI/180;
+    var vx=PEN_R*Math.cos(a), vz=PEN_R*Math.sin(a);
+    if(i===0) shape.moveTo(vx,vz); else shape.lineTo(vx,vz);
+  }
+  shape.closePath();
+  var mesh = new THREE.Mesh(new THREE.ShapeGeometry(shape), mat);
+  mesh.rotation.x = -Math.PI/2; mesh.position.y = y;
+  scene.add(mesh);
+}
+addPentagon(0, floorM);
+addPentagon(HH, ceilM);
+
+// central carpet
+var carpet = new THREE.Mesh(new THREE.CircleGeometry(3.5,32),
+  new THREE.MeshStandardMaterial({color:0x1e0e04,roughness:0.95}));
+carpet.rotation.x = -Math.PI/2; carpet.position.y = 0.01;
+scene.add(carpet);
+
+// ── INTERACTABLES REGISTRY ────────────────────────────────────────────────────
+var interactables = [];
+
+// ── BUILD WALLS ───────────────────────────────────────────────────────────────
+for(var wi=0;wi<5;wi++){
+  var theta = wi * 2 * Math.PI / 5;
+  var wx = PEN_A * Math.sin(theta);
+  var wz = -PEN_A * Math.cos(theta);
+
+  var grp = new THREE.Group();
+  grp.position.set(wx, 0, wz);
+  grp.rotation.y = -theta;
+  scene.add(grp);
+
+  // left side wall (floor → door height)
+  grp.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(SIDE_W, DOOR_H, WT), wallM),
+    {position: new THREE.Vector3(-(DOOR_W/2+SIDE_W/2), DOOR_H/2, 0)}));
+  // right side wall
+  grp.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(SIDE_W, DOOR_H, WT), wallM),
+    {position: new THREE.Vector3( DOOR_W/2+SIDE_W/2,  DOOR_H/2, 0)}));
+  // full-width transom above door
+  grp.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(PEN_SIDE, TRANS_H, WT), wallM),
+    {position: new THREE.Vector3(0, DOOR_H+TRANS_H/2, 0)}));
+
+  // door columns (gold)
+  var colH = DOOR_H + 0.08;
+  grp.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(COL_W, colH, WT+0.05), goldM),
+    {position: new THREE.Vector3(-(DOOR_W/2+COL_W/2), colH/2, 0.01)}));
+  grp.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(COL_W, colH, WT+0.05), goldM),
+    {position: new THREE.Vector3( DOOR_W/2+COL_W/2,  colH/2, 0.01)}));
+  // lintel
+  grp.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(DOOR_W+COL_W*2+0.12, 0.12, WT+0.06), goldM),
+    {position: new THREE.Vector3(0, DOOR_H+0.06, 0.01)}));
+
+  // transom canvas
+  grp.add(Object.assign(new THREE.Mesh(
+    new THREE.PlaneGeometry(PEN_SIDE-0.35, TRANS_H-0.28),
+    new THREE.MeshStandardMaterial({map:TRANSOMS[wi], roughness:0.55, emissive:new THREE.Color(0x1a1208), emissiveIntensity:2.2})
+  ), {position: new THREE.Vector3(0, DOOR_H+TRANS_H/2, WT/2+0.02)}));
+
+  // sala label above arch
+  grp.add(Object.assign(new THREE.Mesh(
+    new THREE.PlaneGeometry(1.7, 0.85),
+    new THREE.MeshStandardMaterial({map:makeSalaLabelTex(wi+1), transparent:true, roughness:0.7, emissive:new THREE.Color(0x1a1208), emissiveIntensity:1.6})
+  ), {position: new THREE.Vector3(0, DOOR_H-0.5, WT/2+0.03)}));
+
+  // corner pillars
+  [-PEN_SIDE/2, PEN_SIDE/2].forEach(function(px){
+    grp.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(0.2, HH, 0.2), goldM),
+      {position: new THREE.Vector3(px, HH/2, 0)}));
+  });
+
+  // info panels (left=-1, right=+1)
+  var wallPanels = PANELS[wi];
+  [-1, 1].forEach(function(sign, si){
+    var pdef = wallPanels[si];
+    var cx = sign * (DOOR_W/2 + COL_W + PANEL_W/2 + 0.15);
+    var tex = pdef.isProx ? makeProxTex(pdef.title) : makePanelTex(pdef.title, pdef.lines);
+    var pmat = new THREE.MeshStandardMaterial({
+      map: tex, roughness: 0.55, metalness: 0,
+      emissive: new THREE.Color(0x181408), emissiveIntensity: 1.5
+    });
+    var pmesh = new THREE.Mesh(new THREE.PlaneGeometry(PANEL_W, PANEL_H), pmat);
+    pmesh.position.set(cx, DOOR_H/2, WT/2+0.02);
+    grp.add(pmesh);
+    interactables.push({mesh: pmesh, def: pdef});
+
+    // gold frame
+    var fw = PANEL_W+0.08, fh = PANEL_H+0.08;
+    [[fw,0.05,0,PANEL_H/2+0.025],[fw,0.05,0,-PANEL_H/2-0.025],[0.05,fh,PANEL_W/2+0.025,0],[0.05,fh,-PANEL_W/2-0.025,0]].forEach(function(f){
+      var fm = new THREE.Mesh(new THREE.BoxGeometry(f[0],f[1],0.04), goldM);
+      fm.position.set(cx+f[2], DOOR_H/2+f[3], WT/2+0.02);
+      grp.add(fm);
+    });
+  });
+}
+
+// ── CEILING LAMPS ─────────────────────────────────────────────────────────────
+var lampM = new THREE.MeshStandardMaterial({color:0xfff3c8, emissive:new THREE.Color(0xfff3c8), emissiveIntensity:4.0, roughness:0.3});
+[[0,0],[4,3],[-4,3],[3,-4],[-3,-4]].forEach(function(p){
+  var l = new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.22,0.15,8), lampM);
+  l.position.set(p[0], HH-0.08, p[1]);
+  scene.add(l);
+});
+
+// ── LIGHTING ─────────────────────────────────────────────────────────────────
+scene.add(new THREE.AmbientLight(0xfff8f0, 2.8));
+var dl = new THREE.DirectionalLight(0xfff8f0, 0.8); dl.position.set(0,8,0); scene.add(dl);
+var f1 = new THREE.DirectionalLight(0xfff0e0, 0.35); f1.position.set(5,4,5); scene.add(f1);
+var f2 = new THREE.DirectionalLight(0xfff0e0, 0.35); f2.position.set(-5,4,-5); scene.add(f2);
+var followSpot = new THREE.SpotLight(0xfff8e8, 4.0, 8, Math.PI/5.5, 0.5, 1.5);
+followSpot.target = new THREE.Object3D();
+scene.add(followSpot); scene.add(followSpot.target);
+
+// ── INPUT ─────────────────────────────────────────────────────────────────────
+var yaw=0, pitch=0, keys={}, locked=false, started=false;
+
+document.addEventListener('pointerlockchange', function(){
+  locked = !!document.pointerLockElement;
+  hudEl.style.display = locked ? 'block' : 'none';
+  crossEl.style.display = locked ? 'block' : 'none';
+  if(!locked && started) pauseEl.style.display='flex';
+});
+document.addEventListener('mousemove', function(e){
+  if(!locked) return;
+  yaw -= e.movementX*0.002; pitch -= e.movementY*0.002;
+  pitch = Math.max(-1.2, Math.min(1.2, pitch));
+});
+document.addEventListener('keydown', function(e){ keys[e.code]=true; });
+document.addEventListener('keyup',   function(e){ keys[e.code]=false; });
+
+document.getElementById('btn-start').addEventListener('click', function(){
+  started=true; startEl.style.display='none'; canvas.requestPointerLock();
+});
+document.getElementById('pd-continue').addEventListener('click', function(){
+  pauseEl.style.display='none'; canvas.requestPointerLock();
+});
+document.getElementById('pd-abandon').addEventListener('click', function(){
+  window.location.href='index.html';
+});
+
+// ── MODALS ────────────────────────────────────────────────────────────────────
+document.getElementById('im-close').addEventListener('click', closeInfo);
+infoModal.addEventListener('click', function(e){ if(e.target===infoModal) closeInfo(); });
+document.getElementById('ml-close').addEventListener('click', function(){
+  malModal.style.display='none'; document.getElementById('ml-video').pause();
+});
+malModal.addEventListener('click', function(e){
+  if(e.target===malModal){ malModal.style.display='none'; document.getElementById('ml-video').pause(); }
+});
+
+function openInfo(def){
+  document.getElementById('im-title').textContent = def.modal.h;
+  var body = document.getElementById('im-body'); body.innerHTML='';
+  def.modal.p.forEach(function(para){
+    var el=document.createElement('p'); el.textContent=para; body.appendChild(el);
+  });
+  infoModal.classList.add('open');
+}
+function closeInfo(){ infoModal.classList.remove('open'); }
+
+// ── RAYCASTER ─────────────────────────────────────────────────────────────────
+var ray = new THREE.Raycaster();
+var CENTER = new THREE.Vector2(0,0);
+var prevHovered = null;
+
+canvas.addEventListener('click', function(){
+  if(!locked || !started) return;
+  ray.setFromCamera(CENTER, camera);
+  var hits = ray.intersectObjects(interactables.map(function(x){return x.mesh;}));
+  if(!hits.length) return;
+  var found = interactables.find(function(x){return x.mesh===hits[0].object;});
+  if(!found) return;
+  var def = found.def;
+  if(def.isMalagana){ malModal.style.display='flex'; return; }
+  if(def.isProx){
+    document.getElementById('im-title').textContent='Próximamente';
+    document.getElementById('im-body').innerHTML='<p>Este contenido estará disponible próximamente. ¡Vuelve pronto!</p>';
+    infoModal.classList.add('open'); return;
+  }
+  openInfo(def);
+});
+
+function checkHover(){
+  if(!locked) return;
+  ray.setFromCamera(CENTER, camera);
+  var hits = ray.intersectObjects(interactables.map(function(x){return x.mesh;}));
+  var hit = hits.length ? hits[0].object : null;
+  if(hit !== prevHovered){
+    if(prevHovered) prevHovered.material.emissiveIntensity=1.5;
+    if(hit) hit.material.emissiveIntensity=3.2;
+    prevHovered=hit;
+    hintEl.style.display = hit?'block':'none';
+  }
+}
+
+// ── JOYSTICK ──────────────────────────────────────────────────────────────────
+var joyZone=document.getElementById('joystick-zone');
+var joyThumb=document.getElementById('joy-thumb');
+var joyDx=0, joyDy=0, joyActive=false, joyId=null, joyOriX=0, joyOriY=0, JOY_R=38;
+
+joyZone.addEventListener('touchstart', function(e){
+  e.preventDefault();
+  var t=e.changedTouches[0], r=joyZone.getBoundingClientRect();
+  joyOriX=r.left+r.width/2; joyOriY=r.top+r.height/2;
+  joyId=t.identifier; joyActive=true;
+  if(!started){started=true;startEl.style.display='none';}
+},{passive:false});
+joyZone.addEventListener('touchmove', function(e){
+  e.preventDefault();
+  for(var i=0;i<e.changedTouches.length;i++){
+    var t=e.changedTouches[i]; if(t.identifier!==joyId) continue;
+    var dx=t.clientX-joyOriX, dy=t.clientY-joyOriY, dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist>JOY_R){dx=dx/dist*JOY_R;dy=dy/dist*JOY_R;}
+    joyDx=dx/JOY_R; joyDy=dy/JOY_R;
+    joyThumb.style.transform='translate(calc(-50% + '+dx+'px),calc(-50% + '+dy+'px))';
+  }
+},{passive:false});
+function joyEnd(e){
+  for(var i=0;i<e.changedTouches.length;i++)
+    if(e.changedTouches[i].identifier===joyId){joyActive=false;joyDx=0;joyDy=0;joyThumb.style.transform='translate(-50%,-50%)';}
+}
+joyZone.addEventListener('touchend',joyEnd); joyZone.addEventListener('touchcancel',joyEnd);
+
+var lookId=null, lookLX=0, lookLY=0;
+document.addEventListener('touchstart',function(e){
+  for(var i=0;i<e.changedTouches.length;i++){
+    var t=e.changedTouches[i], r=joyZone.getBoundingClientRect();
+    var inJ=t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom;
+    if(!inJ&&lookId===null){lookId=t.identifier;lookLX=t.clientX;lookLY=t.clientY;if(!started){started=true;startEl.style.display='none';}}
+  }
+});
+document.addEventListener('touchmove',function(e){
+  for(var i=0;i<e.changedTouches.length;i++){
+    var t=e.changedTouches[i]; if(t.identifier!==lookId) continue;
+    yaw-=(t.clientX-lookLX)*0.004; pitch-=(t.clientY-lookLY)*0.004;
+    pitch=Math.max(-1.2,Math.min(1.2,pitch));
+    lookLX=t.clientX; lookLY=t.clientY;
+  }
+},{passive:true});
+document.addEventListener('touchend',function(e){
+  for(var i=0;i<e.changedTouches.length;i++) if(e.changedTouches[i].identifier===lookId) lookId=null;
+});
+
+// ── COLLISION ─────────────────────────────────────────────────────────────────
+function canMove(nx, nz){
+  for(var i=0;i<5;i++){
+    var t=i*2*Math.PI/5;
+    var wx=PEN_A*Math.sin(t), wz=-PEN_A*Math.cos(t);
+    var inX=-Math.sin(t), inZ=Math.cos(t);
+    if(inX*(nx-wx)+inZ*(nz-wz)<0.55) return false;
+  }
+  return true;
+}
+
+// ── ANIMATE ───────────────────────────────────────────────────────────────────
+var clock=new THREE.Clock(), frame=0;
+function animate(){
+  requestAnimationFrame(animate);
+  var dt=Math.min(clock.getDelta(),0.05); frame++;
+  if(started){
+    var sp=4.5*dt, fwd=0, str=0;
+    if(keys['KeyW']||keys['ArrowUp'])    fwd= 1;
+    if(keys['KeyS']||keys['ArrowDown'])  fwd=-1;
+    if(keys['KeyA']||keys['ArrowLeft'])  str=-1;
+    if(keys['KeyD']||keys['ArrowRight']) str= 1;
+    if(joyActive){fwd=-joyDy;str=joyDx;}
+    var sy=Math.sin(yaw), cy=Math.cos(yaw);
+    var nx=camera.position.x+(fwd*sy+str*cy)*sp;
+    var nz=camera.position.z+(fwd*(-cy)+str*sy)*sp;
+    if(canMove(nx,camera.position.z)) camera.position.x=nx;
+    if(canMove(camera.position.x,nz)) camera.position.z=nz;
+    camera.rotation.order='YXZ'; camera.rotation.y=yaw; camera.rotation.x=pitch;
+    if(frame%3===0) checkHover();
+  }
+  followSpot.position.copy(camera.position); followSpot.position.y+=1.5;
+  followSpot.target.position.set(
+    camera.position.x-Math.sin(yaw)*4,
+    camera.position.y+pitch*2,
+    camera.position.z+Math.cos(yaw)*4);
+  followSpot.target.updateMatrixWorld();
+  renderer.render(scene,camera);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+resize();
+if(window.matchMedia('(pointer:coarse)').matches){
+  document.getElementById('sp-desktop').style.display='none';
+  document.getElementById('sp-mobile').style.display='block';
+}
+
+var prog=0;
+var lsInt=setInterval(function(){
+  prog+=Math.random()*15+10;
+  if(prog>=100){prog=100;clearInterval(lsInt);
+    lsStatus.textContent='Listo. Bienvenido al Museo.';
+    setTimeout(function(){ lsEl.style.opacity='0'; lsEl.style.transition='opacity .5s';
+      setTimeout(function(){ lsEl.style.display='none'; startEl.style.display='flex'; },500);
+    },400);
+  }
+  lsBar.style.width=prog+'%';
+},60);
+
+animate();
+</script>
+</body>
+</html>

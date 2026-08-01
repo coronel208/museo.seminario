@@ -162,6 +162,28 @@ export const PIECES = [
     restY: 1.19
   },
 
+  // ── FIGURA 1 · Alcarraza Antropomorfa · Calima Ilama ─────────────
+  {
+    id: 'figura-1',
+    nombre: 'Alcarraza Antropomorfa Sentada con Tocado',
+    procedencia: 'Cultura Calima Ilama, Valle del Cauca · Período Ilama (1600 a.C. – 100 d.C.)',
+    descripcion: 'Alcarraza cerámica figurativa que representa una figura sentada con cuerpo globular, cabeza modelada con rasgos realistas y tocado incisado con líneas paralelas características del período Ilama. La iconografía presenta simbolismo chamánico vinculado a transformaciones rituales y ofrendas funerarias. Acabado alisado con engobe rojo-naranja (Munsell 10R 5/6) y reducciones locales en cocción. Estado de conservación completo con abrasión moderada y concreciones de tierra en intersticios.',
+    metadata: 'Material: Cerámica · Técnica: Pasta fina oxidante, desgrasante de cuarzo y tiesto molido · Dimensiones: Alt. 33.5 × ⌀ 21.7 cm · Decoración: Incisiones paralelas en tocado, apliques modelados · Estado: Completo · Registro ICANH',
+    color: 0x9B5030, roughness: 0.88, metalness: 0.03,
+    imagenes: [
+      'images/figura-1-1.jpg',
+      'images/figura-1-2.jpg',
+      'images/figura-1-3.jpg',
+      'images/figura-1-4.jpg',
+      'images/figura-1-5.jpg',
+      'images/figura-1-6.jpg',
+      'images/figura-1-7.jpg'
+    ],
+    video: null,
+    modelUrl: 'models/figura-1.glb',
+    restY: 1.19
+  },
+
   // ── CUENCO GLOBULAR CON ASAS · Calima Sonso ──────────────────────
   {
     id: 'cuenco-asas',
@@ -313,6 +335,24 @@ function buildCarenado(piece) {
   return g;
 }
 
+function buildFigura(piece) {
+  var g   = new THREE.Group();
+  var mat = makeMat(piece);
+  var tPts = [];
+  for (var i = 0; i <= 10; i++) {
+    var a = (i / 10) * Math.PI * 0.85;
+    tPts.push(new THREE.Vector2(Math.sin(a) * 0.32, -Math.cos(a) * 0.38 + 0.04));
+  }
+  g.add(new THREE.Mesh(new THREE.LatheGeometry(tPts, 14), mat));
+  var head = new THREE.Mesh(new THREE.SphereGeometry(0.15, 12, 10), mat);
+  head.position.y = 0.52;
+  g.add(head);
+  var tocado = new THREE.Mesh(new THREE.ConeGeometry(0.14, 0.30, 14), mat);
+  tocado.position.y = 0.76;
+  g.add(tocado);
+  return g;
+}
+
 var BUILDERS = {
   'volante-de-uso':    buildVolante,
   'volante-de-huso-2': buildVolante,
@@ -322,7 +362,8 @@ var BUILDERS = {
   'cuenco-2':          buildCopa,
   'cuenco-carenado':   buildCarenado,
   'copa-1':            buildCopa,
-  'cuenco-asas':       buildCuencoAsas
+  'cuenco-asas':       buildCuencoAsas,
+  'figura-1':          buildFigura
 };
 
 export function buildArtifact(piece, scale) {

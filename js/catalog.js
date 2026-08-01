@@ -224,6 +224,30 @@ var MUSEUM_CATALOG = [
     video: null
   }
 
+  // ── FIGURA 1 · Alcarraza Antropomorfa · Calima Ilama ─────────────
+  ,{
+    id: 'figura-1',
+    nombre: 'Alcarraza Antropomorfa Sentada con Tocado',
+    descripcion: 'Alcarraza cerámica figurativa que representa una figura sentada con cuerpo globular, cabeza modelada con rasgos realistas y tocado incisado con líneas paralelas características del período Ilama. La iconografía presenta simbolismo chamánico vinculado a transformaciones rituales y ofrendas funerarias. Acabado alisado con engobe rojo-naranja (Munsell 10R 5/6) y reducciones locales en cocción. Estado de conservación completo con abrasión moderada y concreciones de tierra en intersticios.',
+    material: 'Cerámica',
+    cultura: 'Cultura Calima Ilama · Valle del Cauca',
+    periodo: 'Período Ilama (1600 a.C. – 100 d.C.)',
+    tecnica: 'Pasta fina oxidante, desgrasante de cuarzo y tiesto molido, atmósfera de cocción oxidante con reducciones locales',
+    dimensiones: 'Alt. 33.5 cm · ⌀ 21.7 cm',
+    donante: '',
+    modelUrl: 'models/figura-1.glb',
+    imagenes: [
+      'images/figura-1-1.jpg',
+      'images/figura-1-2.jpg',
+      'images/figura-1-3.jpg',
+      'images/figura-1-4.jpg',
+      'images/figura-1-5.jpg',
+      'images/figura-1-6.jpg',
+      'images/figura-1-7.jpg'
+    ],
+    video: null
+  }
+
   // ── AGREGA MÁS PIEZAS AQUÍ ────────────────────────────────────────
   // Sigue el mismo patrón. El sistema soporta hasta 50 (o más).
 
