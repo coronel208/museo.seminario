@@ -100,7 +100,6 @@
     <li><a href="index.html">Inicio</a></li>
     <li><a href="coleccion.html">Colección</a></li>
     <li><a href="sala-central.html" class="active">Lobby</a></li>
-    <li><a href="recorrido.html" class="btn-r"><i class="fas fa-door-open"></i> Pasillo 1</a></li>
     <li><a href="sobre-nosotros.html">Sobre Nosotros</a></li>
     <li><a href="qr.html" title="QR"><i class="fas fa-qrcode"></i></a></li>
   </ul>
@@ -223,19 +222,19 @@
 <script type="module">
 import * as THREE from 'three';
 
-// ── PENTAGON CONSTANTS ────────────────────────────────────────────────────────
-var PEN_R    = 10.0;
+// ── CONSTANTS ─────────────────────────────────────────────────────────────────
+var PEN_R    = 14;
 var PEN_A    = PEN_R * Math.cos(36 * Math.PI / 180);
 var PEN_SIDE = 2 * PEN_R * Math.sin(36 * Math.PI / 180);
-var HH       = 8;
+var HH       = 10;
 var WT       = 0.3;
-var DOOR_W   = 2.4;
-var DOOR_H   = 4.2;
+var DOOR_W   = 3.2;
+var DOOR_H   = 6.2;
 var SIDE_W   = (PEN_SIDE - DOOR_W) / 2;
 var TRANS_H  = HH - DOOR_H;
-var COL_W    = 0.28;
-var PANEL_W  = SIDE_W - COL_W - 0.3;
-var PANEL_H  = DOOR_H - 0.5;
+var COL_W    = 0.38;
+var PANEL_W  = SIDE_W - COL_W - 0.5;
+var PANEL_H  = DOOR_H - 1.0;
 
 // ── DOM ───────────────────────────────────────────────────────────────────────
 var startEl  = document.getElementById('start-prompt');
@@ -260,29 +259,64 @@ function resize(){
 window.addEventListener('resize', resize);
 
 var scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0a0804);
-scene.fog = new THREE.Fog(0x0a0804, 14, 28);
+scene.background = new THREE.Color(0x060608);
+scene.fog = new THREE.Fog(0x060608, 18, 38);
 
-var camera = new THREE.PerspectiveCamera(72, 1, 0.1, 40);
+var camera = new THREE.PerspectiveCamera(72, 1, 0.1, 50);
 camera.position.set(0, 1.75, 0);
 
 // ── MATERIALS ─────────────────────────────────────────────────────────────────
-var goldM = new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.22, metalness: 0.88 });
+var goldM = new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.18, metalness: 0.92 });
 
 function makeWallMat(){
-  var cvs = document.createElement('canvas'); cvs.width = 512; cvs.height = 512;
+  var cvs = document.createElement('canvas'); cvs.width = 512; cvs.height = 1024;
   var ctx = cvs.getContext('2d');
-  ctx.fillStyle = '#C4A87A'; ctx.fillRect(0,0,512,512);
-  for(var i=0;i<2000;i++){ ctx.fillStyle='rgba(0,0,0,'+(Math.random()*.05)+')'; ctx.fillRect(Math.random()*512,Math.random()*512,2,2); }
-  ctx.fillStyle='#6a3e18'; ctx.fillRect(0,436,512,76);
-  ctx.fillStyle='rgba(212,175,55,0.50)'; ctx.fillRect(0,432,512,4);
+  var g = ctx.createLinearGradient(0,0,512,1024);
+  g.addColorStop(0,'#141414'); g.addColorStop(0.5,'#0d0d0d'); g.addColorStop(1,'#111111');
+  ctx.fillStyle = g; ctx.fillRect(0,0,512,1024);
+  // marble veining
+  for(var v=0;v<14;v++){
+    ctx.beginPath();
+    ctx.strokeStyle='rgba(255,255,255,'+(Math.random()*0.055+0.015)+')';
+    ctx.lineWidth=Math.random()*1.4+0.3;
+    var sx=Math.random()*512, cx2=sx;
+    ctx.moveTo(sx,0);
+    for(var s=0;s<9;s++){cx2+=Math.random()*90-45; ctx.lineTo(cx2,s*114+Math.random()*50);}
+    ctx.stroke();
+  }
   var tex = new THREE.CanvasTexture(cvs);
-  tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(2,2);
-  return new THREE.MeshStandardMaterial({ map:tex, roughness:0.78, metalness:0.04 });
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(1.2,1);
+  return new THREE.MeshStandardMaterial({ map:tex, roughness:0.62, metalness:0.06 });
 }
+
+function makeFloorMat(){
+  var cvs = document.createElement('canvas'); cvs.width=512; cvs.height=512;
+  var ctx = cvs.getContext('2d');
+  ctx.fillStyle='#080808'; ctx.fillRect(0,0,512,512);
+  for(var v=0;v<7;v++){ctx.beginPath();ctx.strokeStyle='rgba(255,255,255,0.028)';ctx.lineWidth=1;ctx.moveTo(Math.random()*512,0);for(var s=0;s<5;s++)ctx.lineTo(Math.random()*512,s*102+Math.random()*50);ctx.stroke();}
+  ctx.strokeStyle='rgba(212,175,55,0.18)'; ctx.lineWidth=1;
+  for(var i=0;i<=8;i++){ctx.beginPath();ctx.moveTo(i*64,0);ctx.lineTo(i*64,512);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i*64);ctx.lineTo(512,i*64);ctx.stroke();}
+  var tex = new THREE.CanvasTexture(cvs);
+  tex.wrapS=tex.wrapT=THREE.RepeatWrapping; tex.repeat.set(5,5);
+  return new THREE.MeshStandardMaterial({map:tex,roughness:0.28,metalness:0.10});
+}
+
+function makeCeilMat(){
+  var cvs=document.createElement('canvas'); cvs.width=512; cvs.height=512;
+  var ctx=cvs.getContext('2d');
+  ctx.fillStyle='#f0f0ec'; ctx.fillRect(0,0,512,512);
+  ctx.strokeStyle='rgba(212,175,55,0.32)'; ctx.lineWidth=1.5;
+  for(var i=0;i<=4;i++){ctx.beginPath();ctx.moveTo(i*128,0);ctx.lineTo(i*128,512);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i*128);ctx.lineTo(512,i*128);ctx.stroke();}
+  ctx.strokeStyle='rgba(0,0,0,0.07)'; ctx.lineWidth=7;
+  for(var ix=0;ix<4;ix++)for(var iy=0;iy<4;iy++)ctx.strokeRect(ix*128+10,iy*128+10,108,108);
+  var tex=new THREE.CanvasTexture(cvs);
+  tex.wrapS=tex.wrapT=THREE.RepeatWrapping; tex.repeat.set(3,3);
+  return new THREE.MeshStandardMaterial({map:tex,roughness:0.88,metalness:0.0});
+}
+
 var wallM  = makeWallMat();
-var floorM = new THREE.MeshStandardMaterial({ color:0x252018, roughness:0.9, metalness:0.05 });
-var ceilM  = new THREE.MeshStandardMaterial({ color:0xE8E4DC, roughness:0.85, metalness:0.0 });
+var floorM = makeFloorMat();
+var ceilM  = makeCeilMat();
 
 function makePanelTex(title, bodyLines){
   var cvs = document.createElement('canvas'); cvs.width=512; cvs.height=384;
@@ -412,11 +446,27 @@ function addPentagon(y, mat){
 addPentagon(0, floorM);
 addPentagon(HH, ceilM);
 
-// central carpet
-var carpet = new THREE.Mesh(new THREE.CircleGeometry(3.5,32),
-  new THREE.MeshStandardMaterial({color:0x1e0e04,roughness:0.95}));
-carpet.rotation.x = -Math.PI/2; carpet.position.y = 0.01;
-scene.add(carpet);
+// floor medallion — gold ring + compass star
+var medalOutM = new THREE.MeshStandardMaterial({color:0xd4af37,roughness:0.22,metalness:0.88});
+var medalOut = new THREE.Mesh(new THREE.CircleGeometry(5.5,64), medalOutM);
+medalOut.rotation.x=-Math.PI/2; medalOut.position.y=0.009; scene.add(medalOut);
+var medalMidM = new THREE.MeshStandardMaterial({color:0x080808,roughness:0.28,metalness:0.10});
+var medalMid = new THREE.Mesh(new THREE.CircleGeometry(5.0,64), medalMidM);
+medalMid.rotation.x=-Math.PI/2; medalMid.position.y=0.012; scene.add(medalMid);
+(function(){
+  var cvs=document.createElement('canvas'); cvs.width=512; cvs.height=512;
+  var ctx=cvs.getContext('2d');
+  ctx.fillStyle='#080808'; ctx.fillRect(0,0,512,512);
+  ctx.translate(256,256);
+  ctx.fillStyle='rgba(212,175,55,0.22)';
+  for(var i=0;i<8;i++){ctx.save();ctx.rotate(i*Math.PI/4);ctx.beginPath();ctx.moveTo(0,-210);ctx.lineTo(15,-85);ctx.lineTo(0,-30);ctx.lineTo(-15,-85);ctx.closePath();ctx.fill();ctx.restore();}
+  ctx.strokeStyle='rgba(212,175,55,0.45)'; ctx.lineWidth=2;
+  [55,85,108,138].forEach(function(r){ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.stroke();});
+  ctx.fillStyle='#d4af37'; ctx.beginPath(); ctx.arc(0,0,14,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#080808'; ctx.beginPath(); ctx.arc(0,0,7,0,Math.PI*2); ctx.fill();
+  medalMid.material.map = new THREE.CanvasTexture(cvs);
+  medalMid.material.needsUpdate = true;
+})();
 
 // ── INTERACTABLES REGISTRY ────────────────────────────────────────────────────
 var interactables = [];
@@ -455,17 +505,33 @@ for(var wi=0;wi<5;wi++){
 
   // transom canvas
   _m = new THREE.Mesh(new THREE.PlaneGeometry(PEN_SIDE-0.35, TRANS_H-0.28),
-    new THREE.MeshStandardMaterial({map:TRANSOMS[wi], roughness:0.55, emissive:new THREE.Color(0x1a1208), emissiveIntensity:2.2}));
+    new THREE.MeshStandardMaterial({map:TRANSOMS[wi], roughness:0.55, emissive:new THREE.Color(0x0a0a06), emissiveIntensity:2.5}));
   _m.position.set(0, DOOR_H+TRANS_H/2, WT/2+0.02); grp.add(_m);
+  if(wi===1) window._logoMat = _m.material;
 
   // sala label above arch
   _m = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 0.85),
     new THREE.MeshStandardMaterial({map:makeSalaLabelTex(wi+1), transparent:true, roughness:0.7, emissive:new THREE.Color(0x1a1208), emissiveIntensity:1.6}));
   _m.position.set(0, DOOR_H-0.5, WT/2+0.03); grp.add(_m);
 
+  // torus arch above door
+  var archGeo = new THREE.TorusGeometry(DOOR_W/2*0.88, 0.07, 8, 20, Math.PI);
+  var archM = new THREE.Mesh(archGeo, goldM);
+  archM.position.set(0, DOOR_H+0.07, 0.01); archM.rotation.z = Math.PI; grp.add(archM);
+
+  // gold baseboard strip
+  _m = new THREE.Mesh(new THREE.BoxGeometry(PEN_SIDE+0.02, 0.09, 0.14), goldM);
+  _m.position.set(0, 0.045, WT/2+0.02); grp.add(_m);
+  // gold crown strip
+  _m = new THREE.Mesh(new THREE.BoxGeometry(PEN_SIDE+0.02, 0.14, 0.18), goldM);
+  _m.position.set(0, HH-0.07, WT/2+0.02); grp.add(_m);
+  // mid-wall trim
+  _m = new THREE.Mesh(new THREE.BoxGeometry(PEN_SIDE, 0.045, 0.07), goldM);
+  _m.position.set(0, DOOR_H*0.52, WT/2+0.015); grp.add(_m);
+
   // corner pillars
   [-PEN_SIDE/2, PEN_SIDE/2].forEach(function(px){
-    var _p = new THREE.Mesh(new THREE.BoxGeometry(0.2, HH, 0.2), goldM);
+    var _p = new THREE.Mesh(new THREE.BoxGeometry(0.3, HH, 0.3), goldM);
     _p.position.set(px, HH/2, 0); grp.add(_p);
   });
 
@@ -477,8 +543,9 @@ for(var wi=0;wi<5;wi++){
     var tex = pdef.isProx ? makeProxTex(pdef.title) : makePanelTex(pdef.title, pdef.lines);
     var pmat = new THREE.MeshStandardMaterial({
       map: tex, roughness: 0.55, metalness: 0,
-      emissive: new THREE.Color(0x181408), emissiveIntensity: 1.5
+      emissive: new THREE.Color(0x080808), emissiveIntensity: 1.8
     });
+    if(wi===2 && si===1) window._muralMat = pmat;
     var pmesh = new THREE.Mesh(new THREE.PlaneGeometry(PANEL_W, PANEL_H), pmat);
     pmesh.position.set(cx, DOOR_H/2, WT/2+0.02);
     grp.add(pmesh);
@@ -494,20 +561,30 @@ for(var wi=0;wi<5;wi++){
   });
 }
 
+// ── TEXTURE LOADING (mural + logo) ───────────────────────────────────────────
+var tl = new THREE.TextureLoader();
+tl.load('assets/mural_malagana.jpg', function(t){
+  if(window._muralMat){ window._muralMat.map=t; window._muralMat.emissiveIntensity=0.6; window._muralMat.needsUpdate=true; }
+});
+tl.load('assets/logo.jpg', function(t){
+  if(window._logoMat){ window._logoMat.map=t; window._logoMat.emissiveIntensity=1.2; window._logoMat.needsUpdate=true; }
+});
+
 // ── CEILING LAMPS ─────────────────────────────────────────────────────────────
-var lampM = new THREE.MeshStandardMaterial({color:0xfff3c8, emissive:new THREE.Color(0xfff3c8), emissiveIntensity:4.0, roughness:0.3});
-[[0,0],[4,3],[-4,3],[3,-4],[-3,-4]].forEach(function(p){
-  var l = new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.22,0.15,8), lampM);
-  l.position.set(p[0], HH-0.08, p[1]);
-  scene.add(l);
+var lampM = new THREE.MeshStandardMaterial({color:0xfffef0, emissive:new THREE.Color(0xfffef0), emissiveIntensity:5.5, roughness:0.2});
+[[0,0],[5,3.8],[-5,3.8],[3.8,-5],[-3.8,-5]].forEach(function(p){
+  var l = new THREE.Mesh(new THREE.CylinderGeometry(0.20,0.26,0.18,10), lampM);
+  l.position.set(p[0], HH-0.09, p[1]); scene.add(l);
+  var ring = new THREE.Mesh(new THREE.TorusGeometry(0.34, 0.045, 7, 18), goldM);
+  ring.rotation.x = Math.PI/2; ring.position.set(p[0], HH-0.10, p[1]); scene.add(ring);
 });
 
 // ── LIGHTING ─────────────────────────────────────────────────────────────────
-scene.add(new THREE.AmbientLight(0xfff8f0, 2.8));
-var dl = new THREE.DirectionalLight(0xfff8f0, 0.8); dl.position.set(0,8,0); scene.add(dl);
-var f1 = new THREE.DirectionalLight(0xfff0e0, 0.35); f1.position.set(5,4,5); scene.add(f1);
-var f2 = new THREE.DirectionalLight(0xfff0e0, 0.35); f2.position.set(-5,4,-5); scene.add(f2);
-var followSpot = new THREE.SpotLight(0xfff8e8, 4.0, 8, Math.PI/5.5, 0.5, 1.5);
+scene.add(new THREE.AmbientLight(0xfff8f0, 3.2));
+var dl = new THREE.DirectionalLight(0xfffaf0, 1.1); dl.position.set(0,10,0); scene.add(dl);
+var f1 = new THREE.DirectionalLight(0xfff8e8, 0.45); f1.position.set(8,6,8); scene.add(f1);
+var f2 = new THREE.DirectionalLight(0xfff8e8, 0.45); f2.position.set(-8,6,-8); scene.add(f2);
+var followSpot = new THREE.SpotLight(0xfff8e8, 6.0, 12, Math.PI/5, 0.5, 1.5);
 followSpot.target = new THREE.Object3D();
 scene.add(followSpot); scene.add(followSpot.target);
 
@@ -654,9 +731,16 @@ function canMove(nx, nz){
 
 // ── ANIMATE ───────────────────────────────────────────────────────────────────
 var clock=new THREE.Clock(), frame=0;
+var _fwd=new THREE.Vector3(), _right=new THREE.Vector3(), _up=new THREE.Vector3(0,1,0);
 function animate(){
   requestAnimationFrame(animate);
   var dt=Math.min(clock.getDelta(),0.05); frame++;
+
+  // update camera orientation first so _fwd is current this frame
+  camera.rotation.order='YXZ'; camera.rotation.y=yaw; camera.rotation.x=pitch;
+  camera.getWorldDirection(_fwd); _fwd.y=0; _fwd.normalize();
+  _right.crossVectors(_fwd,_up).normalize();
+
   if(started){
     var sp=4.5*dt, fwd=0, str=0;
     if(keys['KeyW']||keys['ArrowUp'])    fwd= 1;
@@ -664,19 +748,19 @@ function animate(){
     if(keys['KeyA']||keys['ArrowLeft'])  str=-1;
     if(keys['KeyD']||keys['ArrowRight']) str= 1;
     if(joyActive){fwd=-joyDy;str=joyDx;}
-    var sy=Math.sin(yaw), cy=Math.cos(yaw);
-    var nx=camera.position.x+(fwd*sy+str*cy)*sp;
-    var nz=camera.position.z+(fwd*(-cy)+str*sy)*sp;
+    var dx=(fwd*_fwd.x+str*_right.x)*sp;
+    var dz=(fwd*_fwd.z+str*_right.z)*sp;
+    var nx=camera.position.x+dx, nz=camera.position.z+dz;
     if(canMove(nx,camera.position.z)) camera.position.x=nx;
     if(canMove(camera.position.x,nz)) camera.position.z=nz;
-    camera.rotation.order='YXZ'; camera.rotation.y=yaw; camera.rotation.x=pitch;
     if(frame%3===0) checkHover();
   }
+
   followSpot.position.copy(camera.position); followSpot.position.y+=1.5;
   followSpot.target.position.set(
-    camera.position.x-Math.sin(yaw)*4,
+    camera.position.x+_fwd.x*4,
     camera.position.y+pitch*2,
-    camera.position.z+Math.cos(yaw)*4);
+    camera.position.z+_fwd.z*4);
   followSpot.target.updateMatrixWorld();
   renderer.render(scene,camera);
 }
