@@ -357,8 +357,13 @@
         infoPanel.classList.add('expanded');
       });
 
-      // Timeout de seguridad: si tarda más de 15s, ocultar loading igual
-      setTimeout(function() { loading.classList.add('hidden'); }, 15000);
+      // Timeout de seguridad: 60s para modelos grandes (6-8 MB en móvil lento)
+      var loadTimeout = setTimeout(function() {
+        if(!loading.classList.contains('hidden')){
+          loading.classList.add('hidden');
+        }
+      }, 60000);
+      mv.addEventListener('load', function(){ clearTimeout(loadTimeout); }, {once:true});
     }
   </script>
 </body>
