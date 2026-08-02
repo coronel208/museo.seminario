@@ -191,6 +191,19 @@
   </div>
 </div>
 
+<div id="door-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.90);z-index:2000;align-items:center;justify-content:center;">
+  <div style="background:#14161a;width:88%;max-width:480px;border-radius:14px;border:1px solid rgba(212,175,55,.45);box-shadow:0 0 60px rgba(212,175,55,.22);padding:2.5rem 2.5rem 2rem;text-align:center;position:relative;">
+    <button id="dm-close" style="position:absolute;top:12px;right:18px;background:none;border:none;color:#d4af37;font-size:26px;cursor:pointer;line-height:1;">&times;</button>
+    <div style="font-size:2.4rem;margin-bottom:.8rem;color:#d4af37;"><i class="fas fa-door-open"></i></div>
+    <h3 id="dm-title" style="font-family:'Cormorant Garamond',Georgia,serif;color:#d4af37;font-size:1.6rem;margin-bottom:.7rem;"></h3>
+    <p id="dm-sub" style="color:#a99e8c;font-size:.88rem;margin-bottom:1.8rem;line-height:1.65;"></p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <button id="dm-confirm" style="background:#d4af37;color:#000;border:none;padding:.75rem 2.2rem;border-radius:4px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;"><i class="fas fa-play"></i> Entrar</button>
+      <button id="dm-cancel" style="background:transparent;color:#a99e8c;border:1.5px solid rgba(212,175,55,.35);padding:.75rem 2rem;border-radius:4px;font-size:.9rem;cursor:pointer;font-family:inherit;">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
   var toggle = document.querySelector('.nb-toggle');
@@ -232,15 +245,15 @@ import * as THREE from 'three';
 var PEN_R    = 18;
 var PEN_A    = PEN_R * Math.cos(36 * Math.PI / 180);
 var PEN_SIDE = 2 * PEN_R * Math.sin(36 * Math.PI / 180);
-var HH       = 10;
+var HH       = 12;
 var WT       = 0.3;
 var DOOR_W   = 3.8;
-var DOOR_H   = 4.8;
+var DOOR_H   = 6.5;
 var SIDE_W   = (PEN_SIDE - DOOR_W) / 2;
 var TRANS_H  = HH - DOOR_H;
 var COL_W    = 0.5;
 var PANEL_W  = SIDE_W - COL_W - 0.7;
-var PANEL_H  = DOOR_H - 0.8;
+var PANEL_H  = 3.2;
 
 // ── DOM ───────────────────────────────────────────────────────────────────────
 var startEl  = document.getElementById('start-prompt');
@@ -387,6 +400,62 @@ function makeProxTex(title){
   ctx.fillStyle='rgba(212,175,55,0.4)'; ctx.fillRect(80,108,352,2);
   ctx.fillStyle='#908070'; ctx.font='20px Raleway,sans-serif'; ctx.fillText('Próximamente disponible',256,310);
   return new THREE.CanvasTexture(cvs);
+}
+
+// ── DOOR TEXTURE ─────────────────────────────────────────────────────────────
+var _doorTex = null;
+function getDoorTex(){
+  if(_doorTex) return _doorTex;
+  var cvs=document.createElement('canvas'); cvs.width=512; cvs.height=1024;
+  var ctx=cvs.getContext('2d');
+  // Dark wood base
+  var g=ctx.createLinearGradient(0,0,512,0);
+  g.addColorStop(0,'#1c1008'); g.addColorStop(0.5,'#251508'); g.addColorStop(1,'#1c1008');
+  ctx.fillStyle=g; ctx.fillRect(0,0,512,1024);
+  // Wood grain
+  for(var v=0;v<40;v++){
+    ctx.beginPath();
+    ctx.strokeStyle='rgba(180,120,55,'+(Math.random()*0.07+0.02)+')';
+    ctx.lineWidth=Math.random()*2.5+0.5;
+    var sy=Math.random()*1024;
+    ctx.moveTo(0,sy);
+    for(var s=0;s<10;s++){sy+=Math.random()*55-18; ctx.lineTo(s*52+Math.random()*30,sy);}
+    ctx.stroke();
+  }
+  // 4 raised panels (2 cols × 2 rows)
+  [[28,28,220,450],[264,28,220,450],[28,508,220,480],[264,508,220,480]].forEach(function(p){
+    var x=p[0],y=p[1],w=p[2],h=p[3];
+    // outer shadow
+    ctx.fillStyle='rgba(0,0,0,0.40)'; ctx.fillRect(x+4,y+4,w,h);
+    // panel gradient
+    var pg=ctx.createLinearGradient(x,y,x+w,y+h);
+    pg.addColorStop(0,'#2e1a08'); pg.addColorStop(1,'#1c0e04');
+    ctx.fillStyle=pg; ctx.fillRect(x,y,w,h);
+    // gold outer bevel
+    ctx.strokeStyle='rgba(212,175,55,0.55)'; ctx.lineWidth=2.5; ctx.strokeRect(x,y,w,h);
+    // inner recessed line
+    ctx.strokeStyle='rgba(212,175,55,0.20)'; ctx.lineWidth=1; ctx.strokeRect(x+10,y+10,w-20,h-20);
+    // corner ornaments
+    [[x+6,y+6],[x+w-6,y+6],[x+6,y+h-6],[x+w-6,y+h-6]].forEach(function(c){
+      ctx.beginPath(); ctx.arc(c[0],c[1],3,0,Math.PI*2);
+      ctx.fillStyle='rgba(212,175,55,0.40)'; ctx.fill();
+    });
+  });
+  // Gold door handle / knob
+  ctx.beginPath(); ctx.arc(468, 520, 19, 0, Math.PI*2);
+  var kg=ctx.createRadialGradient(462,514,3,468,520,19);
+  kg.addColorStop(0,'#fef080'); kg.addColorStop(0.45,'#d4af37'); kg.addColorStop(1,'#7a5a0a');
+  ctx.fillStyle=kg; ctx.fill();
+  ctx.strokeStyle='rgba(212,175,55,0.75)'; ctx.lineWidth=2; ctx.stroke();
+  // Keyhole below knob
+  ctx.fillStyle='rgba(0,0,0,0.6)';
+  ctx.beginPath(); ctx.arc(468,548,6,0,Math.PI*2); ctx.fill();
+  ctx.fillRect(464,554,8,14);
+  // Gold outer frame
+  ctx.strokeStyle='rgba(212,175,55,0.65)'; ctx.lineWidth=10; ctx.strokeRect(5,5,502,1014);
+  ctx.strokeStyle='rgba(212,175,55,0.22)'; ctx.lineWidth=3; ctx.strokeRect(20,20,472,984);
+  _doorTex = new THREE.CanvasTexture(cvs);
+  return _doorTex;
 }
 
 // ── TRANSOM TEXTURES ──────────────────────────────────────────────────────────
@@ -605,6 +674,15 @@ for(var wi=0;wi<5;wi++){
   _m = new THREE.Mesh(new THREE.BoxGeometry(DOOR_W+COL_W*2+0.12, 0.12, WT+0.06), goldM);
   _m.position.set(0, DOOR_H+0.06, 0.01); grp.add(_m);
 
+  // door panel (clickable)
+  var doorMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(DOOR_W-0.10, DOOR_H-0.08),
+    new THREE.MeshStandardMaterial({map:getDoorTex(), roughness:0.62, metalness:0.04,
+      emissive:new THREE.Color(0x0a0604), emissiveIntensity:0.5})
+  );
+  doorMesh.position.set(0, DOOR_H/2, WT/2+0.02); grp.add(doorMesh);
+  interactables.push({mesh:doorMesh, isDoor:true, salaNum:wi+1});
+
   // transom canvas
   _m = new THREE.Mesh(new THREE.PlaneGeometry(PEN_SIDE-0.35, TRANS_H-0.28),
     new THREE.MeshStandardMaterial({map:TRANSOMS[wi], roughness:0.55, emissive:new THREE.Color(0x0a0a06), emissiveIntensity:2.5}));
@@ -643,7 +721,7 @@ for(var wi=0;wi<5;wi++){
     if(wi===4 && si===0) window._photoMat_w4l = pmat;
     if(wi===4 && si===1) window._photoMat_w4r = pmat;
     var pmesh = new THREE.Mesh(new THREE.PlaneGeometry(PANEL_W, PANEL_H), pmat);
-    pmesh.position.set(cx, DOOR_H/2+0.9, WT/2+0.02);
+    pmesh.position.set(cx, 3.8, WT/2+0.02);
     grp.add(pmesh);
     interactables.push({mesh: pmesh, def: pdef});
 
@@ -651,7 +729,7 @@ for(var wi=0;wi<5;wi++){
     var fw = PANEL_W+0.08, fh = PANEL_H+0.08;
     [[fw,0.05,0,PANEL_H/2+0.025],[fw,0.05,0,-PANEL_H/2-0.025],[0.05,fh,PANEL_W/2+0.025,0],[0.05,fh,-PANEL_W/2-0.025,0]].forEach(function(f){
       var fm = new THREE.Mesh(new THREE.BoxGeometry(f[0],f[1],0.04), goldM);
-      fm.position.set(cx+f[2], DOOR_H/2+0.9+f[3], WT/2+0.02);
+      fm.position.set(cx+f[2], 3.8+f[3], WT/2+0.02);
       grp.add(fm);
     });
   });
@@ -729,118 +807,149 @@ lampPos.forEach(function(p,idx){
   rm.rotation.x=Math.PI/2; rm.position.y=HH-0.005; scene.add(rm);
 })();
 
-// Plantas decorativas — 5 tipos varietales del Valle del Cauca
+// ── PLANTAS DECORATIVAS — 5 tipos del Valle del Cauca, todas con matera ──────
+function makePot(x, z, baseR, h, potColor){
+  var gP=new THREE.MeshStandardMaterial({color:0xd4af37,roughness:0.20,metalness:0.90});
+  var pts=[
+    new THREE.Vector2(0.02,0), new THREE.Vector2(baseR*0.60,0.02),
+    new THREE.Vector2(baseR*0.78,h*0.18), new THREE.Vector2(baseR*0.88,h*0.45),
+    new THREE.Vector2(baseR*0.78,h*0.72), new THREE.Vector2(baseR*0.64,h*0.88),
+    new THREE.Vector2(baseR*0.68,h*0.96), new THREE.Vector2(baseR*0.72,h)
+  ];
+  var potM=new THREE.MeshStandardMaterial({color:potColor,roughness:0.50,metalness:0.06});
+  var base=new THREE.Mesh(new THREE.CylinderGeometry(baseR*0.76,baseR*0.76,0.05,14),gP);
+  base.position.set(x,0.025,z); scene.add(base);
+  var pot=new THREE.Mesh(new THREE.LatheGeometry(pts,16),potM);
+  pot.position.set(x,0.05,z); scene.add(pot);
+  var rim=new THREE.Mesh(new THREE.TorusGeometry(baseR*0.72,0.028,7,18),gP);
+  rim.rotation.x=Math.PI/2; rim.position.set(x,0.05+h,z); scene.add(rim);
+  var soil=new THREE.Mesh(new THREE.CircleGeometry(baseR*0.65,14),
+    new THREE.MeshStandardMaterial({color:0x180a04,roughness:1.0}));
+  soil.rotation.x=-Math.PI/2; soil.position.set(x,0.05+h-0.04,z); scene.add(soil);
+  return 0.05+h; // returns y of pot rim
+}
 function addPlant(x, z, type){
-  var gM2=new THREE.MeshStandardMaterial({color:0xd4af37,roughness:0.20,metalness:0.90});
   if(type===0){
-    // Árbol tropical de hoja verde (planta base)
-    var urnM=new THREE.MeshStandardMaterial({color:0x0d0d10,roughness:0.38,metalness:0.06});
-    var pts=[new THREE.Vector2(0.02,0),new THREE.Vector2(0.18,0.02),new THREE.Vector2(0.28,0.12),
-      new THREE.Vector2(0.34,0.26),new THREE.Vector2(0.30,0.44),new THREE.Vector2(0.22,0.58),
-      new THREE.Vector2(0.16,0.72),new THREE.Vector2(0.18,0.82),new THREE.Vector2(0.28,0.90),new THREE.Vector2(0.29,0.96)];
-    var base0=new THREE.Mesh(new THREE.CylinderGeometry(0.50,0.50,0.06,14),gM2);
-    base0.position.set(x,0.03,z); scene.add(base0);
-    var urn0=new THREE.Mesh(new THREE.LatheGeometry(pts,14),urnM);
-    urn0.position.set(x,0.06,z); scene.add(urn0);
-    var rim0=new THREE.Mesh(new THREE.TorusGeometry(0.29,0.024,7,16),gM2);
-    rim0.rotation.x=Math.PI/2; rim0.position.set(x,1.02,z); scene.add(rim0);
-    var tr0=new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.05,1.05,7),new THREE.MeshStandardMaterial({color:0x1c2a0c,roughness:0.9}));
-    tr0.position.set(x,1.565,z); scene.add(tr0);
-    var lM0=new THREE.MeshStandardMaterial({color:0x1e4c12,roughness:0.96});
-    [[0,1.05,0,0.38],[0.34,0.72,0,0.28],[-0.34,0.72,0,0.28],[0,0.72,0.34,0.28],[0,0.72,-0.34,0.28],[0.22,0.38,0.20,0.22],[-0.22,0.38,-0.20,0.22]].forEach(function(f){
-      var lf=new THREE.Mesh(new THREE.SphereGeometry(f[3],7,5),lM0);
-      lf.scale.set(1.05,0.82,1.05); lf.position.set(x+f[0],1.02+f[1],z+f[2]); scene.add(lf);
+    // Árbol tropical — matera de mármol negro con urna
+    var potTop=makePot(x,z,0.52,1.05,0x0d0d10);
+    var trM=new THREE.MeshStandardMaterial({color:0x1c2a0c,roughness:0.9});
+    var tr=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.07,1.15,7),trM);
+    tr.position.set(x,potTop+0.575,z); scene.add(tr);
+    var lM=new THREE.MeshStandardMaterial({color:0x1b4a10,roughness:0.96});
+    [[0,1.18,0,0.48],[0.44,0.88,0,0.34],[-0.44,0.88,0,0.34],[0,0.88,0.44,0.34],
+     [0,0.88,-0.44,0.34],[0.30,0.52,0.28,0.27],[-0.30,0.52,-0.28,0.27],
+     [0.26,0.30,-0.26,0.22],[-0.20,0.26,0.22,0.20]].forEach(function(f){
+      var lf=new THREE.Mesh(new THREE.SphereGeometry(f[3],8,6),lM);
+      lf.scale.set(1.1,0.78,1.1); lf.position.set(x+f[0],potTop+f[1],z+f[2]); scene.add(lf);
     });
   } else if(type===1){
-    // Cerezo bonsái con flores rosadas
-    var potM1=new THREE.MeshStandardMaterial({color:0x3a1e10,roughness:0.65});
-    var pot1=new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.22,0.28,10),potM1);
-    pot1.position.set(x,0.14,z); scene.add(pot1);
-    var rim1=new THREE.Mesh(new THREE.TorusGeometry(0.28,0.02,6,14),gM2);
-    rim1.rotation.x=Math.PI/2; rim1.position.set(x,0.27,z); scene.add(rim1);
-    var wdM1=new THREE.MeshStandardMaterial({color:0x3a1e0a,roughness:0.88});
-    var tr1=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.07,0.62,7),wdM1);
-    tr1.position.set(x,0.59,z); tr1.rotation.z=0.14; scene.add(tr1);
-    var b1a=new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.04,0.35,5),wdM1);
-    b1a.position.set(x+0.16,0.82,z-0.04); b1a.rotation.z=0.55; scene.add(b1a);
-    var b1b=new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.04,0.30,5),wdM1);
-    b1b.position.set(x-0.14,0.78,z+0.06); b1b.rotation.z=-0.50; scene.add(b1b);
-    var flM1=new THREE.MeshStandardMaterial({color:0xffb7c5,roughness:0.95,emissive:new THREE.Color(0x220808),emissiveIntensity:0.25});
-    [[0,0.64,0,0.20],[0.22,0.50,0.06,0.15],[-0.18,0.46,-0.05,0.13],[0.14,0.40,-0.12,0.11],[0.26,0.55,0.08,0.12],[-0.10,0.58,0.16,0.10]].forEach(function(f){
-      var fl=new THREE.Mesh(new THREE.SphereGeometry(f[3],6,5),flM1);
-      fl.position.set(x+f[0],0.28+f[1],z+f[2]); scene.add(fl);
+    // Bonsái cerezo — matera de terracota con flores rosas
+    var potTop1=makePot(x,z,0.45,0.60,0x7a3a1a);
+    var wdM=new THREE.MeshStandardMaterial({color:0x3a1e0a,roughness:0.88});
+    // Tronco principal
+    var tr1=new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.09,0.88,8),wdM);
+    tr1.position.set(x,potTop1+0.44,z); tr1.rotation.z=0.15; scene.add(tr1);
+    // Ramas secundarias
+    [[0.22,0.74,-0.06,0.50,0.52],[-0.18,0.70,0.05,0.45,-0.50]].forEach(function(b){
+      var br=new THREE.Mesh(new THREE.CylinderGeometry(0.028,0.045,b[3],6),wdM);
+      br.position.set(x+b[0],potTop1+b[1],z+b[2]);
+      br.rotation.z=b[4]; scene.add(br);
+    });
+    // Flores rosas — múltiples capas
+    var flM=new THREE.MeshStandardMaterial({color:0xffb7c5,roughness:0.92,
+      emissive:new THREE.Color(0x280c10),emissiveIntensity:0.30});
+    [[0,0.88,0,0.26],[0.28,0.72,0.08,0.22],[-0.24,0.68,-0.06,0.20],[0.18,0.60,-0.16,0.18],
+     [-0.16,0.76,0.18,0.18],[0.32,0.80,-0.10,0.16],[0.06,0.56,0.22,0.15],
+     [-0.22,0.58,0.14,0.14],[0.20,0.48,0,0.12]].forEach(function(f){
+      var fl=new THREE.Mesh(new THREE.SphereGeometry(f[3],7,6),flM);
+      fl.position.set(x+f[0],potTop1+f[1],z+f[2]); scene.add(fl);
     });
   } else if(type===2){
-    // Guadua — bambú del Valle del Cauca
-    var bamM=new THREE.MeshStandardMaterial({color:0x4a7c3f,roughness:0.78});
-    var ndM=new THREE.MeshStandardMaterial({color:0x386030,roughness:0.82});
-    [[-0.08,1.85,0,0.040],[0.09,2.15,0.07,0.035],[-0.04,1.55,-0.10,0.038],[0.16,1.95,0.04,0.032]].forEach(function(s){
-      var stk=new THREE.Mesh(new THREE.CylinderGeometry(s[3],s[3]*1.25,s[1],6),bamM);
-      stk.position.set(x+s[0],s[1]/2,z+s[2]); scene.add(stk);
-      for(var n=0;n<Math.floor(s[1]/0.42);n++){
-        var nd=new THREE.Mesh(new THREE.TorusGeometry(s[3]+0.012,0.014,4,10),ndM);
-        nd.rotation.x=Math.PI/2; nd.position.set(x+s[0],n*0.42+0.25,z+s[2]); scene.add(nd);
+    // Guadua — macetón de piedra gris con bambú
+    var potTop2=makePot(x,z,0.55,0.65,0x3a3a3a);
+    var bamM=new THREE.MeshStandardMaterial({color:0x4a8040,roughness:0.72});
+    var ndM=new THREE.MeshStandardMaterial({color:0x356030,roughness:0.80});
+    [[-0.10,2.20,0.04,0.042],[0.10,2.55,0.08,0.036],[-0.04,1.90,-0.12,0.040],
+     [0.18,2.35,-0.05,0.032],[0.00,2.10,0.14,0.038]].forEach(function(s){
+      var stk=new THREE.Mesh(new THREE.CylinderGeometry(s[3],s[3]*1.3,s[1],7),bamM);
+      stk.position.set(x+s[0],potTop2+s[1]/2,z+s[2]); scene.add(stk);
+      for(var n=0;n<Math.ceil(s[1]/0.40);n++){
+        var nd=new THREE.Mesh(new THREE.TorusGeometry(s[3]+0.014,0.016,5,12),ndM);
+        nd.rotation.x=Math.PI/2; nd.position.set(x+s[0],potTop2+n*0.40+0.20,z+s[2]); scene.add(nd);
       }
     });
-    var blM=new THREE.MeshStandardMaterial({color:0x2a5a1a,roughness:0.95});
-    for(var bi=0;bi<8;bi++){
-      var ba=bi*Math.PI*2/4+Math.PI/8;
-      var bl2=new THREE.Mesh(new THREE.SphereGeometry(0.07,4,4),blM);
-      bl2.scale.set(0.35,2.0,0.22); bl2.rotation.z=Math.sin(ba)*0.8+0.3;
-      bl2.position.set(x+(Math.random()-0.5)*0.28,1.5+(bi%4)*0.25,z+(Math.random()-0.5)*0.28); scene.add(bl2);
+    // Hojas en lo alto
+    var blM=new THREE.MeshStandardMaterial({color:0x286020,roughness:0.95});
+    for(var bi=0;bi<10;bi++){
+      var ba=bi*Math.PI*2/5;
+      var bl=new THREE.Mesh(new THREE.SphereGeometry(0.075,5,4),blM);
+      bl.scale.set(0.28,2.2,0.18); bl.rotation.z=Math.sin(ba)*0.75+0.25;
+      bl.position.set(x+Math.sin(ba)*0.20,potTop2+1.6+(bi%5)*0.22,z+Math.cos(ba)*0.20); scene.add(bl);
     }
   } else if(type===3){
-    // Palma de cera — árbol nacional de Colombia
-    var ppM=new THREE.MeshStandardMaterial({color:0x1a1410,roughness:0.55});
-    var pp=new THREE.Mesh(new THREE.CylinderGeometry(0.32,0.26,0.40,10),ppM);
-    pp.position.set(x,0.20,z); scene.add(pp);
-    var rim3=new THREE.Mesh(new THREE.TorusGeometry(0.32,0.018,6,14),gM2);
-    rim3.rotation.x=Math.PI/2; rim3.position.set(x,0.38,z); scene.add(rim3);
-    var trM3=new THREE.MeshStandardMaterial({color:0x7a6548,roughness:0.82});
-    var tr3=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.11,2.5,8),trM3);
-    tr3.position.set(x,1.65,z); scene.add(tr3);
-    var ringM3=new THREE.MeshStandardMaterial({color:0x5a4a30,roughness:0.9});
-    for(var ri=0;ri<8;ri++){
-      var rm3=new THREE.Mesh(new THREE.TorusGeometry(0.076,0.01,4,10),ringM3);
-      rm3.rotation.x=Math.PI/2; rm3.position.set(x,0.5+ri*0.30,z); scene.add(rm3);
+    // Palma de cera — macetón elegante, tronco alto y frondas visibles
+    var potTop3=makePot(x,z,0.52,0.70,0x1a1410);
+    var trM3=new THREE.MeshStandardMaterial({color:0x7a6548,roughness:0.80});
+    var tr3=new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.13,3.0,10),trM3);
+    tr3.position.set(x,potTop3+1.50,z); scene.add(tr3);
+    // Anillos del tronco
+    var rnM=new THREE.MeshStandardMaterial({color:0x5a4530,roughness:0.88});
+    for(var ri=0;ri<9;ri++){
+      var rm=new THREE.Mesh(new THREE.TorusGeometry(0.10,0.012,5,14),rnM);
+      rm.rotation.x=Math.PI/2; rm.position.set(x,potTop3+0.28+ri*0.32,z); scene.add(rm);
     }
-    var frM=new THREE.MeshStandardMaterial({color:0x1a4a12,roughness:0.92});
-    for(var fi=0;fi<10;fi++){
-      var fa=fi*Math.PI*2/10;
-      var fr=new THREE.Mesh(new THREE.CylinderGeometry(0.018,0.032,0.90,4),frM);
-      fr.position.set(x+Math.sin(fa)*0.32,2.95,z+Math.cos(fa)*0.32);
-      fr.rotation.z=Math.sin(fa)*0.65+0.32; fr.rotation.x=-Math.cos(fa)*0.65;
+    // Corona de frondas — más largas y visibles
+    var frM=new THREE.MeshStandardMaterial({color:0x1a4a10,roughness:0.90});
+    for(var fi=0;fi<12;fi++){
+      var fa=fi*Math.PI*2/12;
+      var fr=new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.040,1.10,5),frM);
+      fr.position.set(x+Math.sin(fa)*0.40,potTop3+3.05,z+Math.cos(fa)*0.40);
+      fr.rotation.z=Math.sin(fa)*0.72+0.40;
+      fr.rotation.x=-Math.cos(fa)*0.72;
       scene.add(fr);
+      // Hojitas al final de cada fronda
+      var flt=new THREE.Mesh(new THREE.SphereGeometry(0.08,5,4),frM);
+      flt.scale.set(0.5,1.5,0.5);
+      flt.position.set(x+Math.sin(fa)*0.85,potTop3+3.20,z+Math.cos(fa)*0.85);
+      scene.add(flt);
     }
   } else {
-    // type===4: Heliconia — planta tropical del Valle del Cauca
-    var hpM=new THREE.MeshStandardMaterial({color:0x2a1810,roughness:0.60});
-    var hp=new THREE.Mesh(new THREE.CylinderGeometry(0.36,0.28,0.42,10),hpM);
-    hp.position.set(x,0.21,z); scene.add(hp);
-    var rim4=new THREE.Mesh(new THREE.TorusGeometry(0.36,0.02,6,14),gM2);
-    rim4.rotation.x=Math.PI/2; rim4.position.set(x,0.40,z); scene.add(rim4);
-    var hlM=new THREE.MeshStandardMaterial({color:0x0a3a0a,roughness:0.95});
-    for(var hl=0;hl<5;hl++){
-      var hla=hl*Math.PI*2/5;
-      var hleaf=new THREE.Mesh(new THREE.SphereGeometry(0.22,5,4),hlM);
-      hleaf.scale.set(0.28,2.4,0.22); hleaf.rotation.z=Math.sin(hla)*0.55;
-      hleaf.position.set(x+Math.sin(hla)*0.20,0.92,z+Math.cos(hla)*0.20); scene.add(hleaf);
-    }
-    var hfM=new THREE.MeshStandardMaterial({color:0xff6b1a,roughness:0.8,emissive:new THREE.Color(0x441500),emissiveIntensity:0.35});
-    [[0,1.22,0.07],[0.13,1.38,-0.04],[-0.10,1.54,0.05],[0.06,1.68,-0.08]].forEach(function(fb){
-      var fbr=new THREE.Mesh(new THREE.SphereGeometry(0.10,5,4),hfM);
-      fbr.scale.set(1.9,0.75,1.0); fbr.position.set(x+fb[0],fb[1],z+fb[2]); scene.add(fbr);
+    // type===4: Heliconia — macetón de barro, hojas grandes, bráctes naranjas
+    var potTop4=makePot(x,z,0.58,0.72,0x5a2a12);
+    // Hojas grandes (ovaladas tipo platanera)
+    var hlM=new THREE.MeshStandardMaterial({color:0x0c420c,roughness:0.95});
+    [[0,1.50,0,0.55,0.22,2.80,0.20],[0.25,1.30,0.15,0.50,0.20,2.60,0.18],
+     [-0.20,1.40,-0.18,0.50,0.22,2.70,0.18],[0.10,1.20,-0.22,0.46,0.18,2.50,0.16],
+     [-0.28,1.25,0.10,0.46,0.20,2.55,0.16]].forEach(function(f){
+      var lf=new THREE.Mesh(new THREE.SphereGeometry(f[3],8,6),hlM);
+      lf.scale.set(f[4],f[5],f[6]); lf.rotation.z=(f[0]>0?0.35:-0.35);
+      lf.position.set(x+f[0],potTop4+f[1],z+f[2]); scene.add(lf);
+    });
+    // Bráctes característicos en escalera (naranja → rojo → amarillo)
+    var bColors=[0xff6010,0xe02808,0xf8a800];
+    [[0,1.70,0.06],[0.14,1.95,-0.05],[-0.12,2.20,0.04],[0.08,2.42,-0.08]].forEach(function(fb,fbi){
+      var bM=new THREE.MeshStandardMaterial({
+        color:bColors[fbi%3],roughness:0.75,
+        emissive:new THREE.Color(bColors[fbi%3]),emissiveIntensity:0.18});
+      var bract=new THREE.Mesh(new THREE.SphereGeometry(0.12,6,5),bM);
+      bract.scale.set(2.0,0.6,0.8); bract.position.set(x+fb[0],potTop4+fb[1],z+fb[2]); scene.add(bract);
+      // Flor blanca saliendo del bráctee
+      var wM=new THREE.MeshStandardMaterial({color:0xf0f0e0,roughness:0.92});
+      var fl=new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.015,0.18,5),wM);
+      fl.position.set(x+fb[0]+0.14,potTop4+fb[1]+0.06,z+fb[2]); scene.add(fl);
     });
   }
 }
-// Posicionar 1 planta por pared, junto al panel (no en frente de puertas)
-// Fórmula world: wx = cos(θ)*lx - sin(θ)*lz + PEN_A*sin(θ), wz = sin(θ)*lx + cos(θ)*lz - PEN_A*cos(θ)
+// Posicionar 1 planta por pared, junto al panel, alejada según tamaño
+// Fórmula: wx = cos(θ)*lx - sin(θ)*lz + PEN_A*sin(θ)
+//           wz = sin(θ)*lx + cos(θ)*lz - PEN_A*cos(θ)
+var PLZ_BY_TYPE=[1.30, 0.85, 1.55, 1.90, 1.40]; // distancia de pared según tamaño
 for(var pli=0;pli<5;pli++){
   var theta=pli*2*Math.PI/5;
   var ct=Math.cos(theta), st=Math.sin(theta);
   var sign=(pli%2===0)?-1:1;
   var lx=sign*(DOOR_W/2+COL_W+PANEL_W*0.40);
-  var lz=0.68;
+  var lz=PLZ_BY_TYPE[pli];
   var wx=ct*lx-st*lz+PEN_A*st;
   var wz=st*lx+ct*lz-PEN_A*ct;
   addPlant(wx, wz, pli);
@@ -875,6 +984,7 @@ document.addEventListener('keydown', function(e){
   if(e.code==='Escape'){
     if(infoModal.classList.contains('open')){ closeInfo(); return; }
     if(malModal.style.display==='flex'){ closeMal(); return; }
+    if(doorModal.style.display==='flex'){ closeDoor(); return; }
   }
 });
 document.addEventListener('keyup', function(e){ keys[e.code]=false; });
@@ -920,6 +1030,34 @@ resumeOverlay.addEventListener('click', function(){
   canvas.requestPointerLock();
 });
 
+// ── DOOR MODAL ────────────────────────────────────────────────────────────────
+var doorModal = document.getElementById('door-modal');
+var _doorSalaNum = 0;
+var SALA_URLS = ['recorrido.html', null, null, null, null];
+
+function openDoor(salaNum){
+  _doorSalaNum = salaNum;
+  document.getElementById('dm-title').textContent = '¿Entrar a la Sala ' + salaNum + '?';
+  var url = SALA_URLS[salaNum-1];
+  document.getElementById('dm-sub').textContent = url
+    ? 'Accederás al recorrido virtual de la Sala ' + salaNum + '.'
+    : 'La Sala ' + salaNum + ' estará disponible próximamente.';
+  document.getElementById('dm-confirm').style.display = url ? 'inline-block' : 'none';
+  modalOpen=true; document.exitPointerLock();
+  doorModal.style.display='flex';
+}
+function closeDoor(){
+  doorModal.style.display='none';
+  modalOpen=false;
+  if(started) resumeOverlay.style.display='flex';
+}
+document.getElementById('dm-close').addEventListener('click', closeDoor);
+document.getElementById('dm-cancel').addEventListener('click', closeDoor);
+doorModal.addEventListener('click', function(e){ if(e.target===doorModal) closeDoor(); });
+document.getElementById('dm-confirm').addEventListener('click', function(){
+  var url=SALA_URLS[_doorSalaNum-1]; if(url) window.location.href=url;
+});
+
 // ── RAYCASTER ─────────────────────────────────────────────────────────────────
 var ray = new THREE.Raycaster();
 var CENTER = new THREE.Vector2(0,0);
@@ -933,6 +1071,7 @@ canvas.addEventListener('click', function(){
   var found = interactables.find(function(x){return x.mesh===hits[0].object;});
   if(!found) return;
   var def = found.def;
+  if(def.isDoor){ openDoor(def.salaNum); return; }
   if(def.isMalagana){ modalOpen=true; document.exitPointerLock(); malModal.style.display='flex'; return; }
   if(def.isProx){
     document.getElementById('im-title').textContent='Próximamente';
