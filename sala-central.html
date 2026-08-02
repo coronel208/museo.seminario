@@ -223,18 +223,18 @@
 import * as THREE from 'three';
 
 // ── CONSTANTS ─────────────────────────────────────────────────────────────────
-var PEN_R    = 14;
+var PEN_R    = 18;
 var PEN_A    = PEN_R * Math.cos(36 * Math.PI / 180);
 var PEN_SIDE = 2 * PEN_R * Math.sin(36 * Math.PI / 180);
 var HH       = 10;
 var WT       = 0.3;
-var DOOR_W   = 3.2;
-var DOOR_H   = 6.2;
+var DOOR_W   = 3.8;
+var DOOR_H   = 4.8;
 var SIDE_W   = (PEN_SIDE - DOOR_W) / 2;
 var TRANS_H  = HH - DOOR_H;
-var COL_W    = 0.38;
-var PANEL_W  = SIDE_W - COL_W - 0.5;
-var PANEL_H  = DOOR_H - 1.0;
+var COL_W    = 0.5;
+var PANEL_W  = SIDE_W - COL_W - 0.7;
+var PANEL_H  = DOOR_H - 0.8;
 
 // ── DOM ───────────────────────────────────────────────────────────────────────
 var startEl  = document.getElementById('start-prompt');
@@ -352,16 +352,18 @@ function makeProxTex(title){
 
 // ── TRANSOM TEXTURES ──────────────────────────────────────────────────────────
 function makeWelcomeTex(){
-  var cvs=document.createElement('canvas'); cvs.width=1024; cvs.height=256;
+  var cvs=document.createElement('canvas'); cvs.width=2048; cvs.height=512;
   var ctx=cvs.getContext('2d');
-  ctx.fillStyle='#0a0804'; ctx.fillRect(0,0,1024,256);
-  ctx.strokeStyle='#d4af37'; ctx.lineWidth=5; ctx.strokeRect(6,6,1012,244);
-  ctx.fillStyle='rgba(212,175,55,0.07)'; ctx.fillRect(6,6,1012,244);
-  ctx.fillStyle='#d4af37'; ctx.font='bold 66px Georgia'; ctx.textAlign='center'; ctx.fillText('MUSEO SEMINARIO',512,88);
-  ctx.font='26px Georgia'; ctx.fillText('DIOCESANO DE CRISTO SACERDOTE',512,128);
-  ctx.fillStyle='rgba(212,175,55,0.40)'; ctx.fillRect(120,146,784,2);
-  ctx.fillStyle='#b0a880'; ctx.font='22px Raleway,sans-serif'; ctx.fillText('Colección Arqueológica Prehispánica · Palmira, Colombia',512,184);
-  ctx.fillStyle='#d4af37'; ctx.font='italic 20px Georgia'; ctx.fillText('— Bienvenidos —',512,224);
+  ctx.fillStyle='#080808'; ctx.fillRect(0,0,2048,512);
+  ctx.strokeStyle='#d4af37'; ctx.lineWidth=8; ctx.strokeRect(8,8,2032,496);
+  ctx.strokeStyle='rgba(212,175,55,0.22)'; ctx.lineWidth=2; ctx.strokeRect(20,20,2008,472);
+  ctx.fillStyle='#d4af37'; ctx.font='bold 148px Georgia'; ctx.textAlign='center';
+  ctx.fillText('BIENVENIDOS',1024,178);
+  ctx.fillStyle='rgba(212,175,55,0.50)'; ctx.fillRect(180,200,1688,3);
+  ctx.fillStyle='#f0e8c8'; ctx.font='bold 62px Georgia'; ctx.fillText('MUSEO SEMINARIO',1024,294);
+  ctx.fillStyle='rgba(212,175,55,0.40)'; ctx.fillRect(380,316,1288,2);
+  ctx.fillStyle='#a09068'; ctx.font='34px Georgia'; ctx.fillText('Diocesano de Cristo Sacerdote · Palmira, Colombia',1024,372);
+  ctx.fillStyle='rgba(212,175,55,0.60)'; ctx.font='italic 28px Georgia'; ctx.fillText('Colección Arqueológica Prehispánica',1024,432);
   return new THREE.CanvasTexture(cvs);
 }
 
@@ -514,11 +516,6 @@ for(var wi=0;wi<5;wi++){
     new THREE.MeshStandardMaterial({map:makeSalaLabelTex(wi+1), transparent:true, roughness:0.7, emissive:new THREE.Color(0x1a1208), emissiveIntensity:1.6}));
   _m.position.set(0, DOOR_H-0.5, WT/2+0.03); grp.add(_m);
 
-  // torus arch above door
-  var archGeo = new THREE.TorusGeometry(DOOR_W/2*0.88, 0.07, 8, 20, Math.PI);
-  var archM = new THREE.Mesh(archGeo, goldM);
-  archM.position.set(0, DOOR_H+0.07, 0.01); archM.rotation.z = Math.PI; grp.add(archM);
-
   // gold baseboard strip
   _m = new THREE.Mesh(new THREE.BoxGeometry(PEN_SIDE+0.02, 0.09, 0.14), goldM);
   _m.position.set(0, 0.045, WT/2+0.02); grp.add(_m);
@@ -567,15 +564,31 @@ tl.load('assets/mural_malagana.jpg', function(t){
   if(window._muralMat){ window._muralMat.map=t; window._muralMat.emissiveIntensity=0.6; window._muralMat.needsUpdate=true; }
 });
 tl.load('assets/logo.jpg', function(t){
-  if(window._logoMat){ window._logoMat.map=t; window._logoMat.emissiveIntensity=1.2; window._logoMat.needsUpdate=true; }
+  if(!window._logoMat) return;
+  var img=t.image;
+  // draw logo centered with correct aspect ratio into a canvas matching the transom ratio
+  var CW=2048, CH=Math.round(CW*(TRANS_H/PEN_SIDE));
+  var cvs=document.createElement('canvas'); cvs.width=CW; cvs.height=CH;
+  var ctx=cvs.getContext('2d');
+  ctx.fillStyle='#080808'; ctx.fillRect(0,0,CW,CH);
+  ctx.strokeStyle='#d4af37'; ctx.lineWidth=6; ctx.strokeRect(6,6,CW-12,CH-12);
+  var maxW=CW*0.55, maxH=CH*0.80;
+  var scale=Math.min(maxW/img.width, maxH/img.height);
+  var dw=img.width*scale, dh=img.height*scale;
+  ctx.drawImage(img,(CW-dw)/2,(CH-dh)/2,dw,dh);
+  window._logoMat.map=new THREE.CanvasTexture(cvs);
+  window._logoMat.emissiveIntensity=1.0;
+  window._logoMat.needsUpdate=true;
 });
 
 // ── CEILING LAMPS ─────────────────────────────────────────────────────────────
 var lampM = new THREE.MeshStandardMaterial({color:0xfffef0, emissive:new THREE.Color(0xfffef0), emissiveIntensity:5.5, roughness:0.2});
-[[0,0],[5,3.8],[-5,3.8],[3.8,-5],[-3.8,-5]].forEach(function(p){
+var lampPos = [[0,0]];
+for(var li=0;li<5;li++){ var lt=li*2*Math.PI/5; lampPos.push([PEN_A*0.58*Math.sin(lt),-PEN_A*0.58*Math.cos(lt)]); }
+lampPos.forEach(function(p){
   var l = new THREE.Mesh(new THREE.CylinderGeometry(0.20,0.26,0.18,10), lampM);
   l.position.set(p[0], HH-0.09, p[1]); scene.add(l);
-  var ring = new THREE.Mesh(new THREE.TorusGeometry(0.34, 0.045, 7, 18), goldM);
+  var ring = new THREE.Mesh(new THREE.TorusGeometry(0.34, 0.05, 8, 20), goldM);
   ring.rotation.x = Math.PI/2; ring.position.set(p[0], HH-0.10, p[1]); scene.add(ring);
 });
 
@@ -589,7 +602,7 @@ followSpot.target = new THREE.Object3D();
 scene.add(followSpot); scene.add(followSpot.target);
 
 // ── INPUT ─────────────────────────────────────────────────────────────────────
-var yaw=0, pitch=0, keys={}, locked=false, started=false;
+var yaw=0, pitch=-0.32, keys={}, locked=false, started=false;
 
 document.addEventListener('pointerlockchange', function(){
   locked = !!document.pointerLockElement;
