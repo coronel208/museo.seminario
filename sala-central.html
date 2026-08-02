@@ -270,7 +270,7 @@ scene.background = new THREE.Color(0x060608);
 scene.fog = new THREE.Fog(0x060608, 18, 38);
 
 var camera = new THREE.PerspectiveCamera(72, 1, 0.1, 50);
-camera.position.set(0, 1.95, 0);
+camera.position.set(0, 2.4, 0);
 
 // ── MATERIALS ─────────────────────────────────────────────────────────────────
 var goldM = new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.18, metalness: 0.92 });
@@ -450,12 +450,16 @@ var PANELS = [
     { title:'Cultura Malagana', lines:['Pulsa para conocer la','historia de la cultura','Malagana y sus piezas','del Valle del Cauca.'], isMalagana:true }
   ],
   // wall 3
-  [ { title:'Sala 4', lines:['Próximamente'], isProx:true },
-    { title:'Sala 4', lines:['Próximamente'], isProx:true }
+  [ { title:'Parque Bolívar', lines:['El corazón de Palmira,','ciudad que custodia el','legado de la cultura','Malagana.'],
+      modal:{ h:'Palmira, Ciudad Señora del Valle', p:['Palmira, conocida como la "Ciudad Señora" del Valle del Cauca, fue hogar de la cultura Malagana por más de 3.200 años. El hallazgo de 1992 en la Hacienda Malagana reveló centenares de piezas arqueológicas de excepcional valor.','La ciudad alberga el Museo Arqueológico de Palmira (MAP) y el Seminario Diocesano de Cristo Sacerdote, dos instituciones comprometidas con la preservación del patrimonio cultural prehispánico.'] } },
+    { title:'Festival Malagana', lines:['Palmira celebra su','herencia precolombina','con festivales anuales','de la cultura Malagana.'],
+      modal:{ h:'Festival de la Cultura Malagana', p:['Cada año Palmira conmemora el hallazgo arqueológico de 1992 con el Festival de la Cultura Malagana. Este evento rinde tributo a la civilización que habitó estas tierras y mantiene viva la memoria ancestral del pueblo palmireño.','El festival incluye exposiciones, danzas y actividades educativas que acercan el patrimonio cultural precolombino a toda la comunidad.'] } }
   ],
   // wall 4
-  [ { title:'Sala 5', lines:['Próximamente'], isProx:true },
-    { title:'Sala 5', lines:['Próximamente'], isProx:true }
+  [ { title:'Catedral de Palmira', lines:['La Catedral Nuestra Señora','del Palmar, patrimonio','arquitectónico del centro','histórico de Palmira.'],
+      modal:{ h:'Centro Histórico de Palmira', p:['El centro histórico de Palmira conserva una rica arquitectura que refleja siglos de desarrollo cultural y espiritual. La catedral es uno de los edificios más emblemáticos de la ciudad.','Palmira es sede de instituciones educativas y religiosas que han contribuido durante generaciones a la formación cultural e intelectual del Valle del Cauca.'] } },
+    { title:'Legado Malagana', lines:['El sitio arqueológico','Malagana, hallado en 1992,','transformó el conocimiento','de la historia regional.'],
+      modal:{ h:'El Legado Arqueológico Malagana', p:['En octubre de 1992, un tractor descubrió accidentalmente en la Hacienda Malagana un extraordinario yacimiento arqueológico, considerado el hallazgo más importante del suroccidente colombiano del siglo XX.','Las piezas encontradas — orfebrería, cerámica, objetos líticos y óseos — revelaron una civilización sofisticada que habitó el Valle del Cauca entre el 200 a.C. y el 400 d.C.'] } }
   ]
 ];
 
@@ -602,6 +606,10 @@ for(var wi=0;wi<5;wi++){
       emissive: new THREE.Color(0x080808), emissiveIntensity: 1.8
     });
     if(wi===0 && si===1) window._muralMat = pmat;
+    if(wi===3 && si===0) window._photoMat_w3l = pmat;
+    if(wi===3 && si===1) window._photoMat_w3r = pmat;
+    if(wi===4 && si===0) window._photoMat_w4l = pmat;
+    if(wi===4 && si===1) window._photoMat_w4r = pmat;
     var pmesh = new THREE.Mesh(new THREE.PlaneGeometry(PANEL_W, PANEL_H), pmat);
     pmesh.position.set(cx, DOOR_H/2, WT/2+0.02);
     grp.add(pmesh);
@@ -628,6 +636,13 @@ tl.load('assets/logo.jpg', function(t){
     window._welcomeTex.needsUpdate=true;
   }
 });
+['assets/palmira-parque.jpg','assets/festival-malagana.jpg','assets/palmira-catedral.jpg','assets/palmira-malagana.jpg'].forEach(function(url, i){
+  var keys=['_photoMat_w3l','_photoMat_w3r','_photoMat_w4l','_photoMat_w4r'];
+  tl.load(url, function(t){
+    t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping;
+    var mat=window[keys[i]]; if(mat){mat.map=t;mat.emissiveIntensity=0.4;mat.needsUpdate=true;}
+  });
+});
 
 // ── CEILING LAMPS ─────────────────────────────────────────────────────────────
 var lampM = new THREE.MeshStandardMaterial({color:0xfffef0, emissive:new THREE.Color(0xfffef0), emissiveIntensity:5.5, roughness:0.2});
@@ -639,6 +654,83 @@ lampPos.forEach(function(p){
   var ring = new THREE.Mesh(new THREE.TorusGeometry(0.34, 0.05, 8, 20), goldM);
   ring.rotation.x = Math.PI/2; ring.position.set(p[0], HH-0.10, p[1]); scene.add(ring);
 });
+
+// ── EXTRA DECOR ──────────────────────────────────────────────────────────────
+
+// Floor: extended gold/dark rings beyond compass rose
+[7.2,7.7,8.2,8.7].forEach(function(r,i){
+  var m=i===0||i===2?goldM:new THREE.MeshStandardMaterial({color:0x080808,roughness:0.28,metalness:0.08});
+  var ring=new THREE.Mesh(new THREE.CircleGeometry(r,72),m);
+  ring.rotation.x=-Math.PI/2; ring.position.y=0.003+i*0.001; scene.add(ring);
+});
+
+// Ceiling: gold medallion discs at each side-lamp position
+lampPos.forEach(function(p,idx){
+  if(idx===0) return;
+  var med=new THREE.Mesh(new THREE.CircleGeometry(0.65,16),
+    new THREE.MeshStandardMaterial({color:0xd4af37,roughness:0.22,metalness:0.88}));
+  med.rotation.x=Math.PI/2; med.position.set(p[0],HH-0.005,p[1]); scene.add(med);
+});
+
+// Central ceiling rosette
+(function(){
+  var S=512,cvs=document.createElement('canvas'); cvs.width=S; cvs.height=S;
+  var ctx=cvs.getContext('2d'),C=S/2;
+  ctx.fillStyle='#ededea'; ctx.fillRect(0,0,S,S);
+  ctx.save(); ctx.translate(C,C);
+  for(var ri=0;ri<16;ri++){
+    ctx.save(); ctx.rotate(ri*Math.PI/8);
+    ctx.fillStyle=ri%2===0?'rgba(212,175,55,0.55)':'rgba(212,175,55,0.22)';
+    ctx.beginPath(); ctx.ellipse(0,-S*0.32,ri%2===0?12:7,ri%2===0?82:56,0,0,Math.PI*2);
+    ctx.fill(); ctx.restore();
+  }
+  [14,34,64,90,130,168].forEach(function(r,i){
+    ctx.strokeStyle=i%2===0?'rgba(212,175,55,0.65)':'rgba(212,175,55,0.28)';
+    ctx.lineWidth=i%2===0?2.5:1.2;
+    ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.stroke();
+  });
+  ctx.fillStyle='#d4af37'; ctx.beginPath(); ctx.arc(0,0,13,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+  var rm=new THREE.Mesh(new THREE.CircleGeometry(3.0,40),
+    new THREE.MeshStandardMaterial({map:new THREE.CanvasTexture(cvs),roughness:0.82,
+      emissive:new THREE.Color(0x060606),emissiveIntensity:0.2}));
+  rm.rotation.x=Math.PI/2; rm.position.y=HH-0.005; scene.add(rm);
+})();
+
+// Decorative marble urns with plants at pentagon corners
+function addPlant(x,z){
+  var gM2=new THREE.MeshStandardMaterial({color:0xd4af37,roughness:0.20,metalness:0.90});
+  var urnM=new THREE.MeshStandardMaterial({color:0x0d0d10,roughness:0.38,metalness:0.06});
+  var base=new THREE.Mesh(new THREE.CylinderGeometry(0.50,0.50,0.06,14),gM2);
+  base.position.set(x,0.03,z); scene.add(base);
+  var pts=[
+    new THREE.Vector2(0.02,0),new THREE.Vector2(0.18,0.02),new THREE.Vector2(0.28,0.12),
+    new THREE.Vector2(0.34,0.26),new THREE.Vector2(0.30,0.44),new THREE.Vector2(0.22,0.58),
+    new THREE.Vector2(0.16,0.72),new THREE.Vector2(0.18,0.82),new THREE.Vector2(0.28,0.90),
+    new THREE.Vector2(0.29,0.96)
+  ];
+  var urn=new THREE.Mesh(new THREE.LatheGeometry(pts,14),urnM);
+  urn.position.set(x,0.06,z); scene.add(urn);
+  var rim=new THREE.Mesh(new THREE.TorusGeometry(0.29,0.024,7,16),gM2);
+  rim.rotation.x=Math.PI/2; rim.position.set(x,0.06+0.96,z); scene.add(rim);
+  var soil=new THREE.Mesh(new THREE.CircleGeometry(0.26,12),
+    new THREE.MeshStandardMaterial({color:0x180a04,roughness:1.0}));
+  soil.rotation.x=-Math.PI/2; soil.position.set(x,0.06+0.93,z); scene.add(soil);
+  var trunk=new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.05,1.05,7),
+    new THREE.MeshStandardMaterial({color:0x1c2a0c,roughness:0.9}));
+  trunk.position.set(x,0.06+0.96+0.525,z); scene.add(trunk);
+  var leafM=new THREE.MeshStandardMaterial({color:0x1e4c12,roughness:0.96});
+  [[0,1.05,0,0.38],[0.34,0.72,0,0.28],[-0.34,0.72,0,0.28],
+   [0,0.72,0.34,0.28],[0,0.72,-0.34,0.28],
+   [0.22,0.38,0.20,0.22],[-0.22,0.38,-0.20,0.22]].forEach(function(f){
+    var lf=new THREE.Mesh(new THREE.SphereGeometry(f[3],7,5),leafM);
+    lf.scale.set(1.05,0.82,1.05); lf.position.set(x+f[0],0.06+0.96+f[1],z+f[2]); scene.add(lf);
+  });
+}
+for(var pli=0;pli<5;pli++){
+  var pva=(pli*72-90)*Math.PI/180;
+  addPlant(PEN_R*0.77*Math.cos(pva),PEN_R*0.77*Math.sin(pva));
+}
 
 // ── LIGHTING ─────────────────────────────────────────────────────────────────
 scene.add(new THREE.AmbientLight(0xfff8f0, 3.2));
