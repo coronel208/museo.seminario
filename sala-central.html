@@ -153,6 +153,12 @@
   </div>
 </div>
 
+<div id="resume-overlay" style="display:none;position:fixed;inset:52px 0 0 0;background:rgba(0,0,0,.55);z-index:1500;cursor:pointer;align-items:center;justify-content:center;">
+  <div style="background:rgba(13,15,18,0.92);border:1.5px solid rgba(212,175,55,.45);border-radius:10px;padding:1rem 2.4rem;color:#d4af37;font-size:.92rem;letter-spacing:.04em;">
+    <i class="fas fa-mouse-pointer"></i> &nbsp;Clic para continuar
+  </div>
+</div>
+
 <div id="info-modal">
   <div class="im-box">
     <button class="im-close" id="im-close">&times;</button>
@@ -244,6 +250,7 @@ var hintEl   = document.getElementById('hint-label');
 var pauseEl  = document.getElementById('pause-dialog');
 var infoModal= document.getElementById('info-modal');
 var malModal = document.getElementById('malagana-modal');
+var resumeOverlay = document.getElementById('resume-overlay');
 
 // ── RENDERER ─────────────────────────────────────────────────────────────────
 var canvas = document.getElementById('gl-canvas');
@@ -430,8 +437,7 @@ var PANELS = [
   // wall 0
   [ { title:'Cultura Prehispánica', lines:['Palmira y el Valle del Cauca','fueron hogar de civilizaciones','milenarias de gran riqueza','arqueológica y cultural.'],
       modal:{ h:'Cultura Prehispánica de Palmira', p:['El Valle del Cauca fue escenario de diversas culturas precolombinas a lo largo de más de 3.000 años. Las culturas Calima, Malagana y sus variantes habitaron estas tierras, desarrollando tradiciones alfareras, orfebres y funerarias de extraordinaria riqueza simbólica.','Las piezas de esta colección pertenecen principalmente a los períodos Ilama (1600–100 a.C.), Yotoco (100 a.C.–1300 d.C.) y Malagana (200 a.C.–400 d.C.), cada uno con características cerámicas y culturales propias.'] } },
-    { title:'Historia de las Piezas', lines:['Cada pieza tiene una historia','única de origen, donación','y conservación en el','Seminario Diocesano.'],
-      modal:{ h:'Historia de las Piezas', p:['Las piezas de esta colección llegaron al Seminario Diocesano de Cristo Sacerdote a través de décadas de donaciones de familias de Palmira y la región, conscientes del valor patrimonial de estos objetos.','El Seminario ha trabajado con el ICANH para catalogar, conservar y difundir esta colección como bien cultural de la comunidad palmirana.'] } }
+    { title:'Cultura Malagana', lines:['La civilización precolombina','que habitó el Valle del','Cauca. Pulsa para conocer','su historia.'], isMalagana:true }
   ],
   // wall 1
   [ { title:'El Seminario Diocesano', lines:['Formando sacerdotes y','custodiando el patrimonio','cultural de Palmira','desde sus inicios.'],
@@ -595,7 +601,7 @@ for(var wi=0;wi<5;wi++){
       map: tex, roughness: 0.55, metalness: 0,
       emissive: new THREE.Color(0x080808), emissiveIntensity: 1.8
     });
-    if(wi===2 && si===1) window._muralMat = pmat;
+    if(wi===0 && si===1) window._muralMat = pmat;
     var pmesh = new THREE.Mesh(new THREE.PlaneGeometry(PANEL_W, PANEL_H), pmat);
     pmesh.position.set(cx, DOOR_H/2, WT/2+0.02);
     grp.add(pmesh);
@@ -690,19 +696,23 @@ function openInfo(def){
 function closeInfo(){
   infoModal.classList.remove('open');
   modalOpen=false;
-  if(started) canvas.requestPointerLock();
+  if(started) resumeOverlay.style.display='flex';
 }
 function closeMal(){
   malModal.style.display='none';
   var v=document.getElementById('ml-video'); if(v) v.pause();
   modalOpen=false;
-  if(started) canvas.requestPointerLock();
+  if(started) resumeOverlay.style.display='flex';
 }
 
 document.getElementById('im-close').addEventListener('click', closeInfo);
 infoModal.addEventListener('click', function(e){ if(e.target===infoModal) closeInfo(); });
 document.getElementById('ml-close').addEventListener('click', closeMal);
 malModal.addEventListener('click', function(e){ if(e.target===malModal) closeMal(); });
+resumeOverlay.addEventListener('click', function(){
+  resumeOverlay.style.display='none';
+  canvas.requestPointerLock();
+});
 
 // ── RAYCASTER ─────────────────────────────────────────────────────────────────
 var ray = new THREE.Raycaster();

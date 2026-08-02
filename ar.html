@@ -347,23 +347,60 @@
 
       fillInfo(piece);
 
+      var retryCount = 0;
+      var loadTimeout;
+      var isResetting = false;
+
+      function startLoadTimeout() {
+        clearTimeout(loadTimeout);
+        loadTimeout = setTimeout(function() {
+          if (!loading.classList.contains('hidden')) {
+            showRetryUI('El modelo tardó demasiado. Verifica tu conexión e intenta de nuevo.');
+          }
+        }, 60000);
+      }
+
+      function showRetryUI(msg) {
+        clearTimeout(loadTimeout);
+        loading.classList.add('hidden');
+        noModel.querySelector('p').textContent = msg;
+        noModel.style.display = 'flex';
+        infoPanel.classList.add('expanded');
+        var existing = document.getElementById('retry-btn');
+        if (existing) existing.remove();
+        if (retryCount < 3) {
+          var btn = document.createElement('button');
+          btn.id = 'retry-btn';
+          btn.textContent = 'Reintentar';
+          btn.style.cssText = 'margin-top:.6rem;background:#d4af37;color:#000;border:none;padding:.55rem 1.8rem;border-radius:20px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;';
+          btn.addEventListener('click', function() {
+            retryCount++;
+            noModel.style.display = 'none';
+            infoPanel.classList.remove('expanded');
+            loading.classList.remove('hidden');
+            isResetting = true;
+            mv.setAttribute('src', '');
+            setTimeout(function() {
+              isResetting = false;
+              mv.setAttribute('src', piece.modelUrl);
+              startLoadTimeout();
+            }, 300);
+          });
+          noModel.appendChild(btn);
+        }
+      }
+
       mv.addEventListener('load', function() {
+        clearTimeout(loadTimeout);
         loading.classList.add('hidden');
       });
 
       mv.addEventListener('error', function() {
-        loading.classList.add('hidden');
-        noModel.style.display = 'flex';
-        infoPanel.classList.add('expanded');
+        if (isResetting) return;
+        showRetryUI('No se pudo cargar el modelo 3D.');
       });
 
-      // Timeout de seguridad: 60s para modelos grandes (6-8 MB en móvil lento)
-      var loadTimeout = setTimeout(function() {
-        if(!loading.classList.contains('hidden')){
-          loading.classList.add('hidden');
-        }
-      }, 60000);
-      mv.addEventListener('load', function(){ clearTimeout(loadTimeout); }, {once:true});
+      startLoadTimeout();
     }
   </script>
 </body>
