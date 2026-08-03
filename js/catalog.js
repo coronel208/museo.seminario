@@ -270,6 +270,47 @@ var MUSEUM_CATALOG = [
     video: null
   }
 
+  ,{
+    id: 'vasija-globular-asas',
+    nombre: 'Vasija Cerámica Globular con Asas',
+    material: 'Cerámica',
+    periodo: 'Período Ilama · Cultura Calima Ilama (1500 a.C. – 100 a.C.)',
+    donante: '',
+    descripcion: 'Vasija globular de cerámica prehispánica con asas laterales. Pasta semi-gruesa con desgrasante de cuarzo y arena, cocción oxidante. Acabado alisado tosco. Estado de conservación completo.',
+    procedencia: 'Valle del Cauca, Colombia',
+    dimensiones: 'Alt. 15.3 cm · ⌀ 20 cm',
+    modelUrl: 'models/vasija-globular-asas.glb',
+    imagenes: [
+      'images/vasija-globular-asas-1.jpeg',
+      'images/vasija-globular-asas-2.jpeg',
+      'images/vasija-globular-asas-3.jpeg',
+      'images/vasija-globular-asas-4.jpeg',
+      'images/vasija-globular-asas-5.jpeg',
+      'images/vasija-globular-asas-6.jpeg'
+    ],
+    video: null
+  }
+  ,{
+    id: 'cuenco-miniatura-carenado',
+    nombre: 'Cuenco Miniatura Carenado con Aplique Digital',
+    material: 'Cerámica',
+    periodo: 'Período Ilama · Cultura Calima Ilama (1600 a.C. – 100 d.C.)',
+    donante: '',
+    descripcion: 'Cuenco miniatura globular incompleto con bordes dentados y espinosos. Aplique pastillado con impresiones digitales en la carenina. Cocción reductora con núcleo oscuro. Probable función ritual o votiva.',
+    procedencia: 'Valle del Cauca, Colombia',
+    dimensiones: 'Alt. 6.5 cm · ⌀ 7 cm',
+    modelUrl: 'models/cuenco-miniatura-carenado.glb',
+    imagenes: [
+      'images/cuenco-miniatura-1.jpeg',
+      'images/cuenco-miniatura-2.jpeg',
+      'images/cuenco-miniatura-3.jpeg',
+      'images/cuenco-miniatura-4.jpeg',
+      'images/cuenco-miniatura-5.jpeg',
+      'images/cuenco-miniatura-6.jpeg'
+    ],
+    video: null
+  }
+
   // ── AGREGA MÁS PIEZAS AQUÍ ────────────────────────────────────────
   // Sigue el mismo patrón. El sistema soporta hasta 50 (o más).
 

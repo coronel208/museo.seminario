@@ -224,6 +224,48 @@ export const PIECES = [
     video: null,
     modelUrl: 'models/vasija-antropomorfa.glb',
     restY: 1.19
+  },
+
+  // ── VASIJA GLOBULAR CON ASAS · Cultura Calima Ilama ──────────────
+  {
+    id: 'vasija-globular-asas',
+    nombre: 'Vasija Cerámica Globular con Asas',
+    procedencia: 'Cultura Calima Ilama, Valle del Cauca · Período Ilama (1500 a.C. – 100 a.C.)',
+    descripcion: 'Vasija globular de cerámica prehispánica perteneciente a la cultura Calima Ilama. Presenta pasta semi-gruesa con desgrasante de cuarzo y arena visible, cocción en atmósfera oxidante con porosidad media. El cuerpo globular muestra asas laterales y decoración ausente o muy simple en la zona de hombro, característica utilitaria de esta tradición alfarera. Acabado alisado tosco con superficie porosa. Estado de conservación completo.',
+    metadata: 'Material: Cerámica · Cultura: Calima Ilama · Período: Ilama (1500–100 a.C.) · Dimensiones: Alt. 15.3 cm · ⌀ 20 cm · Técnica: Pasta semi-gruesa, atmósfera oxidante · Estado: Completo',
+    color: 0xa05030, roughness: 0.90, metalness: 0.01,
+    imagenes: [
+      'images/vasija-globular-asas-1.jpeg',
+      'images/vasija-globular-asas-2.jpeg',
+      'images/vasija-globular-asas-3.jpeg',
+      'images/vasija-globular-asas-4.jpeg',
+      'images/vasija-globular-asas-5.jpeg',
+      'images/vasija-globular-asas-6.jpeg'
+    ],
+    video: null,
+    modelUrl: 'models/vasija-globular-asas.glb',
+    restY: 1.19
+  },
+
+  // ── CUENCO MINIATURA CARENADO · Cultura Calima Ilama ─────────────
+  {
+    id: 'cuenco-miniatura-carenado',
+    nombre: 'Cuenco Miniatura Carenado con Aplique Digital',
+    procedencia: 'Cultura Calima Ilama, Valle del Cauca · Período Ilama (1600 a.C. – 100 d.C.)',
+    descripcion: 'Cuenco miniatura de cerámica prehispánica de la cultura Calima Ilama. Vasija u olla globular incompleta con bordes dentados y espinosos elaborados mediante aplique pastillado con impresiones digitales en la carenina. Pasta semigruesa con desgrasante de cuarzo y arena, cocción en atmósfera reductora con núcleo oscuro. El color grisáceo oscuro (Munsell 10YR 4/2) refleja la técnica reductora. Pieza miniatura de probable función ritual o votiva.',
+    metadata: 'Material: Cerámica · Cultura: Calima Ilama · Período: Ilama (1600 a.C.–100 d.C.) · Dimensiones: Alt. 6.5 cm · ⌀ 7 cm · Técnica: Atmósfera reductora, bordes dentados · Estado: Incompleto',
+    color: 0x5a4535, roughness: 0.92, metalness: 0.01,
+    imagenes: [
+      'images/cuenco-miniatura-1.jpeg',
+      'images/cuenco-miniatura-2.jpeg',
+      'images/cuenco-miniatura-3.jpeg',
+      'images/cuenco-miniatura-4.jpeg',
+      'images/cuenco-miniatura-5.jpeg',
+      'images/cuenco-miniatura-6.jpeg'
+    ],
+    video: null,
+    modelUrl: 'models/cuenco-miniatura-carenado.glb',
+    restY: 1.19
   }
 
 ];
