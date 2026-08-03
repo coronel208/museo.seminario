@@ -1033,12 +1033,27 @@ document.addEventListener('keydown', function(e){
 });
 document.addEventListener('keyup', function(e){ keys[e.code]=false; });
 
+function _fsLock(){
+  var el=document.documentElement;
+  var fsReq=el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen;
+  if(fsReq&&!document.fullscreenElement){
+    fsReq.call(el).then(function(){canvas.requestPointerLock();}).catch(function(){canvas.requestPointerLock();});
+  } else { canvas.requestPointerLock(); }
+}
 document.getElementById('btn-start').addEventListener('click', function(){
-  started=true; startEl.style.display='none'; canvas.requestPointerLock();
+  started=true; startEl.style.display='none'; _fsLock();
 });
 document.getElementById('pd-continue').addEventListener('click', function(){
-  pauseEl.style.display='none'; canvas.requestPointerLock();
+  pauseEl.style.display='none'; _fsLock();
 });
+// Auto-start when returning from sala1 (?fs=1)
+if(new URLSearchParams(location.search).has('fs')){
+  window.addEventListener('load', function(){
+    var el=document.documentElement;
+    var fsReq=el.requestFullscreen||el.webkitRequestFullscreen;
+    if(fsReq){ fsReq.call(el).then(function(){ started=true; startEl.style.display='none'; canvas.requestPointerLock(); }).catch(function(){}); }
+  });
+}
 document.getElementById('pd-abandon').addEventListener('click', function(){
   window.location.href='index.html';
 });
@@ -1071,13 +1086,13 @@ document.getElementById('ml-close').addEventListener('click', closeMal);
 malModal.addEventListener('click', function(e){ if(e.target===malModal) closeMal(); });
 resumeOverlay.addEventListener('click', function(){
   resumeOverlay.style.display='none';
-  canvas.requestPointerLock();
+  _fsLock();
 });
 
 // ── DOOR MODAL ────────────────────────────────────────────────────────────────
 var doorModal = document.getElementById('door-modal');
 var _doorSalaNum = 0;
-var SALA_URLS = ['recorrido.html', null, null, null, null];
+var SALA_URLS = ['sala1.html', null, null, null, null];
 
 function openDoor(salaNum){
   _doorSalaNum = salaNum;
@@ -1099,7 +1114,7 @@ document.getElementById('dm-close').addEventListener('click', closeDoor);
 document.getElementById('dm-cancel').addEventListener('click', closeDoor);
 doorModal.addEventListener('click', function(e){ if(e.target===doorModal) closeDoor(); });
 document.getElementById('dm-confirm').addEventListener('click', function(){
-  var url=SALA_URLS[_doorSalaNum-1]; if(url) window.location.href=url;
+  var url=SALA_URLS[_doorSalaNum-1]; if(url) window.location.href=url+'?fs=1';
 });
 
 // ── RAYCASTER ─────────────────────────────────────────────────────────────────

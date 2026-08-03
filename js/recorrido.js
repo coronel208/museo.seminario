@@ -54,7 +54,7 @@ gl.style.height = VH() + 'px';
 var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth <= 768;
 var renderer = new THREE.WebGLRenderer({ canvas: gl, antialias: !isMobile, powerPreference: 'high-performance' });
 renderer.setSize(VW(), VH());
-renderer.setPixelRatio(isMobile ? Math.min(window.devicePixelRatio, 1.0) : Math.min(window.devicePixelRatio, 1.5));
+renderer.setPixelRatio(isMobile ? Math.min(window.devicePixelRatio, 0.75) : Math.min(window.devicePixelRatio, 1.5));
 renderer.shadowMap.enabled = false;  // shadows off — ambient+point lights do the job cheaply
 renderer.toneMapping        = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
@@ -424,7 +424,7 @@ var murals = [];
 /* ── Back door at Z1 wall — same design as sala-central ─────────── */
 var backDoorMesh = null;
 (function() {
-  var DOOR_W = 3.8, DOOR_H = 6.5, COL_W = 0.5;
+  var DOOR_W = 3.8, DOOR_H = 5.0, COL_W = 0.5;
   var SIDE_W = (HW - DOOR_W) / 2;  // 3.1 each side
 
   // Wall with door opening (replaces solid Z1 wall removed above)
@@ -564,28 +564,38 @@ if (isMobile) {
   if (spMobile)  spMobile.style.display  = 'block';
 }
 
-document.getElementById('btn-start').addEventListener('click', function() {
+function _fsLock() {
   var el = document.documentElement;
-  if (!document.fullscreenElement) {
-    var fsReq = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen;
-    if (fsReq) fsReq.call(el).catch(function() {});
-  }
+  var fsReq = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen;
+  if (fsReq && !document.fullscreenElement) {
+    fsReq.call(el).then(function() { _doLock(); }).catch(function() { _doLock(); });
+  } else { _doLock(); }
+}
+function _doLock() {
   if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-    // Mobile: no pointer lock — just hide start-prompt and start
-    hasStarted = true;
-    startPrompt.style.display = 'none';
-    hudEl.style.display = 'none';
-    return;
-  }
-  safeLock();
+    hasStarted = true; startPrompt.style.display = 'none'; hudEl.style.display = 'none';
+  } else { safeLock(); }
+}
+document.getElementById('btn-start').addEventListener('click', function() {
+  hasStarted = true; startPrompt.style.display = 'none'; _fsLock();
 });
+// Auto-start when navigating from sala-central (?fs=1) — skip start prompt
+if (new URLSearchParams(location.search).has('fs')) {
+  window.addEventListener('load', function() {
+    var el = document.documentElement;
+    var fsReq = el.requestFullscreen || el.webkitRequestFullscreen;
+    hasStarted = true; startPrompt.style.display = 'none';
+    if (fsReq) fsReq.call(el).then(function() { _doLock(); }).catch(function() { _doLock(); });
+    else _doLock();
+  });
+}
 gl.addEventListener('click', function() { if (!isLocked && !modalOpen && !hasStarted) safeLock(); });
 
 var btnContinue = document.getElementById('pd-continue');
 var btnAbandon  = document.getElementById('pd-abandon');
 if (btnContinue) btnContinue.addEventListener('click', function() {
   if (pauseDialog) pauseDialog.style.display = 'none';
-  safeLock();
+  _fsLock();
 });
 if (btnAbandon) btnAbandon.addEventListener('click', function() {
   window.location.href = 'index.html';
@@ -704,6 +714,7 @@ gl.addEventListener('touchmove', function(e) {
   camera.rotation.order = 'YXZ';
   camera.rotation.y -= dx * 0.003;
   camera.rotation.x = Math.max(-Math.PI/2.1, Math.min(Math.PI/2.1, camera.rotation.x - dy * 0.003));
+  _mobileDirty = true;
   tLook = { x: t.clientX, y: t.clientY };
 }, { passive: true });
 
@@ -787,7 +798,7 @@ function checkHover() {
 
 gl.addEventListener('click', function() {
   if (!isLocked || modalOpen) return;
-  if (lastBackDoor) { window.location.href = 'sala-central.html'; return; }
+  if (lastBackDoor) { window.location.href = 'sala-central.html?fs=1'; return; }
   if (lastHovered)  { openPieceModal(lastHovered.pieceId); return; }
   if (lastMural)    { openMalaganaModal(); }
 });
@@ -1029,10 +1040,9 @@ function closePieceModalBase() {
   pmVidWrap.innerHTML = '';
 }
 
-// X button click = USER INTERACTION → can re-lock pointer directly
 document.getElementById('pm-close').addEventListener('click', function() {
   closePieceModalBase();
-  safeLock();
+  _fsLock();
 });
 
 // ESC key = browser refuses immediate relock → show pause dialog
@@ -1048,8 +1058,9 @@ var clock = new THREE.Clock();
 var _fwd   = new THREE.Vector3();
 var _right = new THREE.Vector3();
 var _up    = new THREE.Vector3(0, 1, 0);
-var _lastFrame = 0;
-var _tickCount = 0;
+var _lastFrame   = 0;
+var _tickCount   = 0;
+var _mobileDirty = true; // force first render
 var TARGET_INTERVAL = isMobile ? 33 : 0; // ~30fps on mobile, uncapped on desktop
 
 /* ── Malagana modal ─────────────────────────────────────────────── */
@@ -1068,8 +1079,7 @@ function closeMalaganaModal() {
   malaganaModal.classList.remove('open');
   justClosed = true;
   modalOpen  = false;
-  // Re-lock pointer directly (user clicked × = valid interaction, browser allows it)
-  setTimeout(function() { safeLock(); }, 80);
+  setTimeout(function() { _fsLock(); }, 80);
 }
 if (malaganaModal) {
   var mlClose = malaganaModal.querySelector('#ml-close');
@@ -1122,13 +1132,14 @@ function tick(now) {
 
   if (isLocked) checkHover();
 
-  if (!isMobile || _tickCount % 2 === 0) {
-    interactables.forEach(function(item) {
-      item.artifact.rotation.y += 0.010;
-    });
+  // On mobile: skip artifact rotation and skip render when nothing is happening
+  if (!isMobile) {
+    interactables.forEach(function(item) { item.artifact.rotation.y += 0.010; });
+    renderer.render(scene, camera);
+  } else if (anyMove || _mobileDirty) {
+    _mobileDirty = false;
+    renderer.render(scene, camera);
   }
-
-  renderer.render(scene, camera);
 }
 
 if (glbPending <= 0) hideLs();
