@@ -102,11 +102,24 @@ window.addEventListener('resize', function() {
 prog(16, 'Preparando escena…');
 
 /* ── Sala identity & color theme ─────────────────────────────── */
-var SALA_NUM     = 1;
-var SALA_CLR     = 0x2563eb;   // sala 1 = azul
-var SALA_CLR_HEX = '#2563eb';
-var SALA_BG      = 0x06080f;   // fondo oscuro azulado
-var SALA_AMB     = 0xe8eeff;   // luz ambiente azul-blanca
+var SALA_NUM = parseInt((location.pathname.match(/sala(\d+)/i) || ['','1'])[1]) || 1;
+var _SALA_THEMES = {
+  1: { clr:0x2563eb, hex:'#2563eb', bg:0x06080f, amb:0xe8eeff,
+       floor:0x0c1a30, ceil:0xbdd0ee,
+       wBase:'#3d5a80', wWainscot:'#0a1530',
+       wB1:'rgba(70,130,210,', wB2:'rgba(120,180,240,', wMot:'rgba(80,145,220,',
+       wAccL:'rgba(100,160,255,', wML:'rgba(60,120,200,', wML2:'rgba(100,160,230,' },
+  2: { clr:0x16a34a, hex:'#16a34a', bg:0x030d06, amb:0xe0f2e9,
+       floor:0x0a1f0e, ceil:0xc0e8d0,
+       wBase:'#2d5a3d', wWainscot:'#061a0a',
+       wB1:'rgba(50,160,80,', wB2:'rgba(80,200,120,', wMot:'rgba(60,180,90,',
+       wAccL:'rgba(80,200,100,', wML:'rgba(40,130,70,', wML2:'rgba(80,180,110,' },
+};
+var _st = _SALA_THEMES[SALA_NUM] || _SALA_THEMES[1];
+var SALA_CLR     = _st.clr;
+var SALA_CLR_HEX = _st.hex;
+var SALA_BG      = _st.bg;
+var SALA_AMB     = _st.amb;
 
 var scene = new THREE.Scene();
 scene.background = new THREE.Color(SALA_BG);
@@ -126,31 +139,31 @@ function makeWallMat(repX, repY) {
   if (isMobile) { var ctx0 = wc.getContext('2d'); ctx0.scale(0.5, 0.5); }
   var ctx = wc.getContext('2d');
 
-  // Base: blue slate museum panel
-  ctx.fillStyle = '#3d5a80'; ctx.fillRect(0, 0, 512, 512);
+  // Base: sala-colored museum panel
+  ctx.fillStyle = _st.wBase; ctx.fillRect(0, 0, 512, 512);
 
-  // Wainscot (bottom rail) — dark navy
-  ctx.fillStyle = '#0a1530'; ctx.fillRect(0, 426, 512, 86);
+  // Wainscot (bottom rail)
+  ctx.fillStyle = _st.wWainscot; ctx.fillRect(0, 426, 512, 86);
   ctx.fillStyle = 'rgba(0,0,0,0.30)'; ctx.fillRect(0, 426, 512, 3);
-  ctx.fillStyle = 'rgba(100,160,255,0.06)'; ctx.fillRect(0, 429, 512, 2);
+  ctx.fillStyle = _st.wAccL+'0.06)'; ctx.fillRect(0, 429, 512, 2);
 
   // Panel field (slightly recessed look)
   ctx.fillStyle = 'rgba(0,0,0,0.09)'; ctx.fillRect(16, 16, 480, 395);
 
-  // ── Outer moulding border — blue lines ──
-  ctx.strokeStyle = 'rgba(70,130,210,0.90)'; ctx.lineWidth = 5;
+  // ── Outer moulding border ──
+  ctx.strokeStyle = _st.wB1+'0.90)'; ctx.lineWidth = 5;
   ctx.strokeRect(14, 14, 484, 397);
-  ctx.strokeStyle = 'rgba(120,180,240,0.60)'; ctx.lineWidth = 2;
+  ctx.strokeStyle = _st.wB2+'0.60)'; ctx.lineWidth = 2;
   ctx.strokeRect(22, 22, 468, 381);
 
   // ── Inner inset panel ──
-  ctx.strokeStyle = 'rgba(70,130,210,0.75)'; ctx.lineWidth = 3;
+  ctx.strokeStyle = _st.wB1+'0.75)'; ctx.lineWidth = 3;
   ctx.strokeRect(36, 36, 440, 353);
-  ctx.strokeStyle = 'rgba(120,180,240,0.45)'; ctx.lineWidth = 1.5;
+  ctx.strokeStyle = _st.wB2+'0.45)'; ctx.lineWidth = 1.5;
   ctx.strokeRect(44, 44, 424, 337);
 
   // ── Center decorative motif ──
-  var blu = 'rgba(80,145,220,';
+  var blu = _st.wMot;
   ctx.strokeStyle = blu+'0.60)'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(256, 44); ctx.lineTo(256, 381); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(44, 212); ctx.lineTo(468, 212); ctx.stroke();
@@ -178,10 +191,10 @@ function makeWallMat(repX, repY) {
   ctx.beginPath(); ctx.arc(256, 212, 5.5, 0, Math.PI*2);
   ctx.fillStyle = blu+'0.75)'; ctx.fill();
 
-  // Wainscot top moulding line (blue accent)
-  ctx.strokeStyle = 'rgba(60,120,200,0.80)'; ctx.lineWidth = 3;
+  // Wainscot top moulding line
+  ctx.strokeStyle = _st.wML+'0.80)'; ctx.lineWidth = 3;
   ctx.beginPath(); ctx.moveTo(0, 426); ctx.lineTo(512, 426); ctx.stroke();
-  ctx.strokeStyle = 'rgba(100,160,230,0.45)'; ctx.lineWidth = 1.5;
+  ctx.strokeStyle = _st.wML2+'0.45)'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(0, 421); ctx.lineTo(512, 421); ctx.stroke();
 
   var tex = new THREE.CanvasTexture(wc);
@@ -194,8 +207,8 @@ function makeWallMat(repX, repY) {
 var sideWallM = makeWallMat(15, 2);
 // End walls (10m wide): 5 panels wide, 2 panels tall → each panel = 2m×4m
 var wallM     = makeWallMat(5, 2);
-var floorM  = new THREE.MeshStandardMaterial({ color: 0x0c1a30, roughness: 0.70, metalness: 0.05 });
-var ceilM   = new THREE.MeshStandardMaterial({ color: 0xbdd0ee, roughness: 0.80 });
+var floorM  = new THREE.MeshStandardMaterial({ color: _st.floor, roughness: 0.70, metalness: 0.05 });
+var ceilM   = new THREE.MeshStandardMaterial({ color: _st.ceil,  roughness: 0.80 });
 var woodM   = new THREE.MeshStandardMaterial({ color: 0x5a3010, roughness: 0.82 });
 var goldM   = new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.22, metalness: 0.88 });
 var marbleM = new THREE.MeshStandardMaterial({ color: 0xddd4c8, roughness: 0.38, metalness: 0.08 });
@@ -283,19 +296,25 @@ prog(58, 'Colocando piezas…');
 /* ── Display cases (vitrinas) ────────────────────────────────────── */
 prog(70, 'Instalando vitrinas…');
 
-// 9 vitrinas: pared izquierda (x=-3) y derecha (x=3), filas en z=16,8,0,-8,-16
-var LAYOUT = [
-  { piece: getPieceById('copa-1'),            x: -3.0, z:  16 },
-  { piece: getPieceById('jarron-3'),          x:  3.0, z:  16 },
-  { piece: getPieceById('cuenco-carenado'),   x: -3.0, z:  8 },
-  { piece: getPieceById('figura-1'),          x:  3.0, z:  8 },
-  { piece: getPieceById('volante-de-uso'),    x: -3.0, z:  0 },
-  { piece: getPieceById('volante-de-huso-2'), x:  3.0, z:  0 },
-  { piece: getPieceById('cuenco-1'),          x: -3.0, z: -8 },
-  { piece: getPieceById('jarron-1'),          x:  3.0, z: -8 },
-  { piece: getPieceById('cuenco-2'),          x: -3.0, z: -16 },
-  { piece: getPieceById('cuenco-asas'),       x:  3.0, z: -16 }
-];
+// Vitrinas por sala: pared izquierda (x=-3) y derecha (x=3), filas en z=16,8,0,-8,-16
+var _LAYOUTS = {
+  1: [
+    { piece: getPieceById('copa-1'),            x: -3.0, z:  16 },
+    { piece: getPieceById('jarron-3'),          x:  3.0, z:  16 },
+    { piece: getPieceById('cuenco-carenado'),   x: -3.0, z:  8  },
+    { piece: getPieceById('figura-1'),          x:  3.0, z:  8  },
+    { piece: getPieceById('volante-de-uso'),    x: -3.0, z:  0  },
+    { piece: getPieceById('volante-de-huso-2'), x:  3.0, z:  0  },
+    { piece: getPieceById('cuenco-1'),          x: -3.0, z: -8  },
+    { piece: getPieceById('jarron-1'),          x:  3.0, z: -8  },
+    { piece: getPieceById('cuenco-2'),          x: -3.0, z: -16 },
+    { piece: getPieceById('cuenco-asas'),       x:  3.0, z: -16 }
+  ],
+  2: [
+    // Añadir piezas aquí cuando estén disponibles en pieces-data.js
+  ]
+};
+var LAYOUT = _LAYOUTS[SALA_NUM] || _LAYOUTS[1];
 
 var interactables = [];
 var glbPending = LAYOUT.filter(function(c) { return c.piece && c.piece.modelUrl; }).length;
@@ -909,7 +928,8 @@ mCtrl.enableDamping = true; mCtrl.autoRotate = true; mCtrl.autoRotateSpeed = 1.4
 mCtrl.minDistance = 0.8; mCtrl.maxDistance = 6; mCtrl.target.set(0, 0.1, 0);
 
 function resizeMRdr() {
-  var w = pmCanvas.clientWidth, h = pmCanvas.clientHeight;
+  var el = pmCanvas.parentElement || pmCanvas;
+  var w = el.clientWidth, h = el.clientHeight;
   if (!w || !h) return;
   mRdr.setSize(w, h, false); mCam.aspect = w/h; mCam.updateProjectionMatrix();
 }
@@ -950,7 +970,12 @@ function setMView(v) {
   [btnM3d, btnMImg, btnMQr].forEach(function(b) { b.classList.remove('on'); });
   cancelAnimationFrame(mAnimId);
   if (v === '3d')  { pmCanvas.style.display    = 'block'; btnM3d.classList.add('on');  animM(); }
-  if (v === 'img') { pmSlideWrap.style.display = 'block'; btnMImg.classList.add('on'); }
+  if (v === 'img') {
+    pmSlideWrap.style.display = 'block'; btnMImg.classList.add('on');
+    if (currentPiece && currentPiece.imagenes.length) {
+      pmSlideImg.src = currentPiece.imagenes[mSlideIdx]; pmSlideImg.style.opacity = '1';
+    }
+  }
   if (v === 'qr') {
     pmQrWrap.style.display = 'flex';
     btnMQr.classList.add('on');
@@ -1075,8 +1100,12 @@ function openPieceModal(pieceId) {
     mMesh.add(buildArtifact(piece, 1.05));
   }
 
+  mCam.position.set(0, 0, 3);
+  mCtrl.target.set(0, 0, 0);
+  mCtrl.update();
+
   pieceModal.classList.add('open');
-  setTimeout(function() { resizeMRdr(); setMView('3d'); }, 30);
+  setTimeout(function() { resizeMRdr(); setMView('3d'); }, 60);
 }
 
 // ── Debounced lock helper (prevents double-lock issues) ─────────────

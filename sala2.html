@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Recorrido Virtual · Museo Seminario</title>
+  <title>Sala 2 · Museo Seminario</title>
   <link rel="stylesheet" href="css/estilo.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script type="importmap">
@@ -59,7 +59,6 @@
     #crosshair::after  { width:20px; height:1px; top:9px; left:0; }
     #crosshair .dot { position:absolute; width:4px; height:4px; background:#d4af37; border-radius:50%; top:8px; left:8px; }
     #hint-label { display:none; position:fixed; bottom:72px; left:50%; transform:translateX(-50%); background:rgba(212,175,55,.13); border:1px solid #d4af37; color:#d4af37; padding:5px 15px; border-radius:22px; font-size:.8rem; pointer-events:none; white-space:nowrap; z-index:300; }
-    /* Nunca mostrar crosshair ni HUD en dispositivos táctiles */
     @media (pointer:coarse) {
       #crosshair { display:none !important; }
       #hud       { display:none !important; }
@@ -151,7 +150,6 @@
     .no-media { text-align:center; color:#a99e8c; padding-top:3rem; }
     .no-media i { display:block; font-size:2.5rem; margin-bottom:.8rem; }
 
-    /* Bottom bar — identical to .media-controls in collection */
     .pm-ctrl { position:absolute; bottom:0; left:0; right:0; height:48px; background:rgba(0,0,0,0.72); border-top:1px solid rgba(212,175,55,0.18); backdrop-filter:blur(4px); display:flex; align-items:center; padding:0 12px; gap:8px; z-index:6; }
     .pm-ctrl button { background:rgba(0,0,0,.76); color:#bbb; border:1px solid rgba(212,175,55,.30); padding:5px 13px; border-radius:16px; cursor:pointer; font-size:.77rem; font-family:'Raleway',sans-serif; display:flex; align-items:center; gap:5px; transition:all .18s; }
     .pm-ctrl button:hover { color:#d4af37; }
@@ -184,7 +182,7 @@
     <div class="ls-ring">
       <img src="assets/logo.jpg" alt="Logo" onerror="this.parentElement.innerHTML='<div class=ls-fb>MS</div>'">
     </div>
-    <div class="ls-title"><h2>MUSEO SEMINARIO</h2><p>Diocesano de Cristo Sacerdote</p></div>
+    <div class="ls-title"><h2>MUSEO SEMINARIO</h2><p>Sala 2 · Colección</p></div>
     <div class="ls-track"><div id="ls-bar"></div></div>
     <div id="ls-status">Iniciando motor 3D…</div>
   </div>
@@ -209,8 +207,7 @@
 
   <!-- START PROMPT -->
   <div id="start-prompt">
-    <h2>Recorrido Virtual</h2>
-    <!-- desktop controls -->
+    <h2>Sala 2 · Recorrido Virtual</h2>
     <div class="ctrl-row" id="sp-desktop">
       <div class="ctrl-col">
         <div class="key-row"><div class="key">W</div></div>
@@ -226,7 +223,6 @@
         <span>Interactuar</span>
       </div>
     </div>
-    <!-- mobile controls -->
     <p id="sp-mobile" style="display:none;color:#a99e8c;font-size:.88rem;text-align:center;max-width:300px;line-height:1.65;">
       Usa el <strong style="color:#d4af37;">joystick</strong> para moverte<br>
       Arrastra la pantalla para <strong style="color:#d4af37;">mirar</strong><br>
@@ -238,7 +234,7 @@
   <!-- HUD -->
   <div id="hud"><i class="fas fa-lock"></i> ESC para pausar · Apunta a una vitrina y haz clic</div>
 
-  <!-- PAUSE DIALOG (shown when ESC pressed after starting — desktop only) -->
+  <!-- PAUSE DIALOG -->
   <div id="pause-dialog" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:800;align-items:center;justify-content:center;backdrop-filter:blur(6px);">
     <div style="background:#13151a;border:1.5px solid rgba(212,175,55,.45);border-radius:14px;padding:2.5rem 3rem;text-align:center;box-shadow:0 0 50px rgba(212,175,55,.22);max-width:440px;width:90%;">
       <div style="font-size:2rem;margin-bottom:.8rem;">⏸</div>
@@ -279,11 +275,9 @@
       <button class="pm-close" id="pm-close">&times;</button>
       <div class="pm-body">
         <div class="pm-viewer">
-          <!-- Content area (3D / images / video) -->
           <div class="pm-viewer-inner">
             <canvas id="pm-canvas"></canvas>
 
-            <!-- Slideshow -->
             <div id="pm-slide-wrap">
               <div id="pm-slide-dots"></div>
               <img id="pm-slide-img" src="" alt="Vista">
@@ -291,11 +285,9 @@
               <div class="pm-slide-arrow" id="pm-slide-next"><i class="fas fa-chevron-right"></i></div>
             </div>
 
-            <!-- Video -->
             <div id="pm-qr-wrap"></div>
           </div>
 
-          <!-- Bottom bar — same as collection -->
           <div class="pm-ctrl">
             <button class="on" id="pm-btn-3d"><i class="fas fa-cube"></i> 3D</button>
             <button id="pm-btn-img"><i class="fas fa-image"></i> Imágenes</button>
@@ -336,7 +328,6 @@
     <div style="background:#14161a;width:88%;max-width:1100px;height:80vh;border-radius:14px;border:1px solid rgba(212,175,55,.30);box-shadow:0 0 60px rgba(212,175,55,.18);overflow:hidden;display:flex;flex-direction:column;position:relative;">
       <button id="ml-close" style="position:absolute;top:12px;right:18px;background:none;border:none;color:#d4af37;font-size:26px;cursor:pointer;z-index:10;line-height:1;">&times;</button>
       <div style="display:flex;flex:1;min-height:0;">
-        <!-- Video side -->
         <div style="flex:2;background:#0c0e13;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;">
           <h3 style="font-family:'Cormorant Garamond',Georgia,serif;color:#d4af37;font-size:1.5rem;margin-bottom:1.2rem;text-align:center;letter-spacing:.05em;">
             <i class="fas fa-film" style="margin-right:.5rem;opacity:.7;"></i>Historia de la Cultura Malagana
@@ -348,7 +339,6 @@
             * Video ilustrativo — próximamente el video oficial del Seminario
           </p>
         </div>
-        <!-- Info side -->
         <div style="flex:1;padding:2rem;overflow-y:auto;border-left:1px solid #1e2025;display:flex;flex-direction:column;gap:1rem;">
           <h3 style="font-family:'Cormorant Garamond',Georgia,serif;color:#d4af37;font-size:1.8rem;line-height:1.2;">La Cultura Malagana</h3>
           <p style="color:#a99e8c;font-size:.82rem;"><i class="fas fa-map-pin"></i> &nbsp;Palmira, Valle del Cauca · 200 a.C. – 400 d.C.</p>
