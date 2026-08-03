@@ -904,7 +904,6 @@ function showPmLoad() {
     _pmLoadOv.innerHTML = '<span style="color:#a99e8c;font-size:.78rem;letter-spacing:.05em;">Cargando modelo 3D…</span>'
       + '<div style="width:160px;height:2px;background:rgba(212,175,55,.15);border-radius:2px;overflow:hidden;position:relative">'
       + '<div style="position:absolute;height:100%;width:45%;background:linear-gradient(90deg,#c8a832,#f0d060);border-radius:2px;animation:glb-sw 1.3s linear infinite"></div></div>';
-    pmCanvas.parentElement.style.position = 'relative';
     pmCanvas.parentElement.appendChild(_pmLoadOv);
   }
   _pmLoadOv.style.display = 'flex';
