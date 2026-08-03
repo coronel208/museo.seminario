@@ -843,17 +843,48 @@ function makePot(x, z, baseR, h, potColor){
 }
 function addPlant(x, z, type){
   if(type===0){
-    // Árbol tropical — matera de mármol negro con urna
-    var potTop=makePot(x,z,0.52,1.05,0x0d0d10);
-    var trM=new THREE.MeshStandardMaterial({color:0x1c2a0c,roughness:0.9});
-    var tr=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.07,1.15,7),trM);
-    tr.position.set(x,potTop+0.575,z); scene.add(tr);
-    var lM=new THREE.MeshStandardMaterial({color:0x1b4a10,roughness:0.96});
-    [[0,1.18,0,0.48],[0.44,0.88,0,0.34],[-0.44,0.88,0,0.34],[0,0.88,0.44,0.34],
-     [0,0.88,-0.44,0.34],[0.30,0.52,0.28,0.27],[-0.30,0.52,-0.28,0.27],
-     [0.26,0.30,-0.26,0.22],[-0.20,0.26,0.22,0.20]].forEach(function(f){
-      var lf=new THREE.Mesh(new THREE.SphereGeometry(f[3],8,6),lM);
-      lf.scale.set(1.1,0.78,1.1); lf.position.set(x+f[0],potTop+f[1],z+f[2]); scene.add(lf);
+    // Gualanday (Jacaranda caucana) — flores moradas llamativas
+    var potTop=makePot(x,z,0.54,1.10,0x1a0d2a);
+    var trM=new THREE.MeshStandardMaterial({color:0x4a3822,roughness:0.88});
+    // Tronco principal
+    var tr0=new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.095,1.60,8),trM);
+    tr0.position.set(x,potTop+0.80,z); tr0.rotation.z=0.06; scene.add(tr0);
+    // 4 ramas que se abren desde la copa
+    var branches=[
+      [0.55,1.55,0.10,0.70, 0.55, 0.08],
+      [-0.50,1.55,-0.08,0.66,-0.60, 0.05],
+      [0.12,1.58,0.52,0.62, 0.08, 0.52],
+      [-0.10,1.58,-0.48,0.60, 0.06,-0.55]
+    ];
+    branches.forEach(function(b){
+      var br=new THREE.Mesh(new THREE.CylinderGeometry(0.022,0.040,b[3],6),trM);
+      br.position.set(x+b[0],potTop+b[1],z+b[2]);
+      br.rotation.z=b[4]; br.rotation.x=b[5]; scene.add(br);
+    });
+    // Flores moradas — densa nube de racimos
+    var flM=new THREE.MeshStandardMaterial({
+      color:0x8b2fcc, roughness:0.85,
+      emissive:new THREE.Color(0x4a0a7a), emissiveIntensity:0.55
+    });
+    var flM2=new THREE.MeshStandardMaterial({
+      color:0xb44dff, roughness:0.88,
+      emissive:new THREE.Color(0x600090), emissiveIntensity:0.45
+    });
+    [
+      [0,1.95,0,0.34,flM],[0.42,1.78,0.12,0.28,flM2],[-0.38,1.80,-0.10,0.28,flM],
+      [0.14,1.82,0.40,0.26,flM2],[-0.12,1.80,-0.42,0.26,flM],[0.50,1.65,0.30,0.22,flM2],
+      [-0.46,1.68,-0.28,0.22,flM],[0.30,1.70,-0.36,0.20,flM2],[-0.28,1.72,0.34,0.20,flM],
+      [0.60,1.58,-0.08,0.18,flM],[-0.55,1.60,0.06,0.18,flM2],[0.08,1.60,0.56,0.17,flM],
+      [-0.06,1.62,-0.52,0.17,flM2],[0.35,1.90,0.30,0.16,flM],[-0.32,1.88,-0.32,0.16,flM2]
+    ].forEach(function(f){
+      var fl=new THREE.Mesh(new THREE.SphereGeometry(f[3],8,6),f[4]);
+      fl.position.set(x+f[0],potTop+f[1],z+f[2]); scene.add(fl);
+    });
+    // Follaje fino tenue (hojas pinnadas, muy discretas)
+    var lfM=new THREE.MeshStandardMaterial({color:0x2d5a1a,roughness:0.97});
+    [[0.22,1.50,0.18,0.10],[-0.18,1.48,-0.20,0.10],[0.06,1.46,0.36,0.09]].forEach(function(f){
+      var lf=new THREE.Mesh(new THREE.SphereGeometry(f[3],5,4),lfM);
+      lf.scale.set(1.6,0.5,1.6); lf.position.set(x+f[0],potTop+f[1],z+f[2]); scene.add(lf);
     });
   } else if(type===1){
     // Bonsái cerezo — matera de terracota con flores rosas
