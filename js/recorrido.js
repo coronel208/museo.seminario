@@ -83,7 +83,9 @@ camera.position.set(0, 1.75, 21.0);
 // Creates a museum-panel canvas texture.
 // 'repX, repY' control tiling frequency for each wall type.
 function makeWallMat(repX, repY) {
-  var wc = document.createElement('canvas'); wc.width = 512; wc.height = 512;
+  var WCS = isMobile ? 256 : 512;
+  var wc = document.createElement('canvas'); wc.width = WCS; wc.height = WCS;
+  if (isMobile) { var ctx0 = wc.getContext('2d'); ctx0.scale(0.5, 0.5); }
   var ctx = wc.getContext('2d');
 
   // Base: warm sandy-tan museum color
@@ -181,7 +183,7 @@ box(new THREE.BoxGeometry(HW, WT, HL), ceilM,   0, HH + WT/2, MZ);
 box(new THREE.BoxGeometry(WT, HH, HL), sideWallM, -HW/2, HH/2, MZ);  // left lateral
 box(new THREE.BoxGeometry(WT, HH, HL), sideWallM,  HW/2, HH/2, MZ);  // right lateral
 box(new THREE.BoxGeometry(HW, HH, WT), wallM,   0, HH/2, Z0);         // entrance end wall
-box(new THREE.BoxGeometry(HW, HH, WT), wallM,   0, HH/2, Z1);         // exit end wall
+// Z1 (exit) wall built in back-door block below
 
 // Gold baseboards & crown moulding
 [-HW/2 + 0.08, HW/2 - 0.08].forEach(function(x) {
@@ -196,8 +198,8 @@ box(new THREE.BoxGeometry(2.65, 0.015, HL), goldM, 0, 0.002, MZ);
 /* ── Lighting ────────────────────────────────────────────────────── */
 prog(38, 'Encendiendo luces…');
 
-// Very bright ambient so walls look white
-scene.add(new THREE.AmbientLight(0xfff8f0, 2.8));
+// Brighter ambient on mobile (no follow-spotlight to compensate)
+scene.add(new THREE.AmbientLight(0xfff8f0, isMobile ? 4.5 : 2.8));
 
 // Directional fill from above
 var topDir = new THREE.DirectionalLight(0xfff8ec, 0.8);
@@ -255,10 +257,13 @@ var interactables = [];
 var glbPending = LAYOUT.filter(function(c) { return c.piece && c.piece.modelUrl; }).length;
 function glbDone() { if (--glbPending <= 0) hideLs(); }
 
-// Single follow-spotlight replaces 18 per-vitrina lights (9 SpotLights + 9 PointLights)
-var _followSpot = new THREE.SpotLight(0xfff8e8, 4.0, 8, Math.PI / 5.5, 0.5, 1.5);
-_followSpot.target = new THREE.Object3D();
-scene.add(_followSpot); scene.add(_followSpot.target);
+// Follow-spotlight only on desktop (SpotLight is expensive on mobile GPUs)
+var _followSpot = null;
+if (!isMobile) {
+  _followSpot = new THREE.SpotLight(0xfff8e8, 4.0, 8, Math.PI / 5.5, 0.5, 1.5);
+  _followSpot.target = new THREE.Object3D();
+  scene.add(_followSpot); scene.add(_followSpot.target);
+}
 
 LAYOUT.forEach(function(cfg) {
   var piece = cfg.piece, x = cfg.x, z = cfg.z;
@@ -331,7 +336,8 @@ LAYOUT.forEach(function(cfg) {
 
   // ── Label plate ABOVE the case ──
   var lc = document.createElement('canvas');
-  lc.width = 640; lc.height = 200;
+  lc.width = isMobile ? 320 : 640; lc.height = isMobile ? 100 : 200;
+  if (isMobile) { var _lctx0 = lc.getContext('2d'); _lctx0.scale(0.5, 0.5); }
   var lctx = lc.getContext('2d');
   // Rich dark background
   var lgr = lctx.createLinearGradient(0, 0, 0, 200);
@@ -415,65 +421,76 @@ LAYOUT.forEach(function(cfg) {
 prog(78, 'Instalando puerta trasera…');
 var murals = [];
 
-/* ── Back door at Z1 wall (returns to sala-central.html) ─────────── */
+/* ── Back door at Z1 wall — same design as sala-central ─────────── */
 var backDoorMesh = null;
 (function() {
-  var DOOR_W = 2.5, DOOR_H = 6.5, WT = 0.3;
-  var wallY = HH / 2;
+  var DOOR_W = 3.8, DOOR_H = 6.5, COL_W = 0.5;
+  var SIDE_W = (HW - DOOR_W) / 2;  // 3.1 each side
 
-  // Side panels flanking the door opening
-  [[-HW/2, -DOOR_W/2], [DOOR_W/2, HW/2]].forEach(function(xs) {
-    var w = xs[1] - xs[0];
-    box(new THREE.BoxGeometry(w, HH, WT), wallM, (xs[0]+xs[1])/2, wallY, Z1);
+  // Wall with door opening (replaces solid Z1 wall removed above)
+  box(new THREE.BoxGeometry(SIDE_W, HH, WT), wallM, -(DOOR_W/2+SIDE_W/2), HH/2, Z1);
+  box(new THREE.BoxGeometry(SIDE_W, HH, WT), wallM,  (DOOR_W/2+SIDE_W/2), HH/2, Z1);
+  box(new THREE.BoxGeometry(DOOR_W, HH-DOOR_H, WT), wallM, 0, DOOR_H+(HH-DOOR_H)/2, Z1);
+
+  // Gold columns (same as sala-central)
+  var colH = DOOR_H + 0.08;
+  box(new THREE.BoxGeometry(COL_W, colH, WT+0.05), goldM, -(DOOR_W/2+COL_W/2), colH/2, Z1-0.01);
+  box(new THREE.BoxGeometry(COL_W, colH, WT+0.05), goldM,  (DOOR_W/2+COL_W/2), colH/2, Z1-0.01);
+  // Gold lintel
+  box(new THREE.BoxGeometry(DOOR_W+COL_W*2+0.12, 0.12, WT+0.06), goldM, 0, DOOR_H+0.06, Z1-0.01);
+
+  // Door canvas texture — exact copy of sala-central getDoorTex
+  var cvs = document.createElement('canvas'); cvs.width=512; cvs.height=1024;
+  var ctx = cvs.getContext('2d');
+  var g = ctx.createLinearGradient(0,0,512,0);
+  g.addColorStop(0,'#1c1008'); g.addColorStop(0.5,'#251508'); g.addColorStop(1,'#1c1008');
+  ctx.fillStyle=g; ctx.fillRect(0,0,512,1024);
+  for(var v=0;v<40;v++){
+    ctx.beginPath();
+    ctx.strokeStyle='rgba(180,120,55,'+(Math.random()*0.07+0.02)+')';
+    ctx.lineWidth=Math.random()*2.5+0.5;
+    var sy=Math.random()*1024;
+    ctx.moveTo(0,sy);
+    for(var s=0;s<10;s++){sy+=Math.random()*55-18; ctx.lineTo(s*52+Math.random()*30,sy);}
+    ctx.stroke();
+  }
+  [[28,28,220,450],[264,28,220,450],[28,508,220,480],[264,508,220,480]].forEach(function(p){
+    var x=p[0],y=p[1],w=p[2],h=p[3];
+    ctx.fillStyle='rgba(0,0,0,0.40)'; ctx.fillRect(x+4,y+4,w,h);
+    var pg=ctx.createLinearGradient(x,y,x+w,y+h);
+    pg.addColorStop(0,'#2e1a08'); pg.addColorStop(1,'#1c0e04');
+    ctx.fillStyle=pg; ctx.fillRect(x,y,w,h);
+    ctx.strokeStyle='rgba(212,175,55,0.55)'; ctx.lineWidth=2.5; ctx.strokeRect(x,y,w,h);
+    ctx.strokeStyle='rgba(212,175,55,0.20)'; ctx.lineWidth=1; ctx.strokeRect(x+10,y+10,w-20,h-20);
+    [[x+6,y+6],[x+w-6,y+6],[x+6,y+h-6],[x+w-6,y+h-6]].forEach(function(c){
+      ctx.beginPath(); ctx.arc(c[0],c[1],3,0,Math.PI*2);
+      ctx.fillStyle='rgba(212,175,55,0.40)'; ctx.fill();
+    });
   });
-  // Transom above door
-  box(new THREE.BoxGeometry(DOOR_W, HH - DOOR_H, WT), wallM, 0, DOOR_H + (HH - DOOR_H)/2, Z1);
+  ctx.beginPath(); ctx.arc(468,520,19,0,Math.PI*2);
+  var kg=ctx.createRadialGradient(462,514,3,468,520,19);
+  kg.addColorStop(0,'#fef080'); kg.addColorStop(0.45,'#d4af37'); kg.addColorStop(1,'#7a5a0a');
+  ctx.fillStyle=kg; ctx.fill();
+  ctx.strokeStyle='rgba(212,175,55,0.75)'; ctx.lineWidth=2; ctx.stroke();
+  ctx.fillStyle='rgba(0,0,0,0.6)';
+  ctx.beginPath(); ctx.arc(468,548,6,0,Math.PI*2); ctx.fill();
+  ctx.fillRect(464,554,8,14);
+  ctx.strokeStyle='rgba(212,175,55,0.65)'; ctx.lineWidth=10; ctx.strokeRect(5,5,502,1014);
+  ctx.strokeStyle='rgba(212,175,55,0.22)'; ctx.lineWidth=3; ctx.strokeRect(20,20,472,984);
 
-  // Gold frame around door opening
-  var frameParts = [
-    [DOOR_W + 0.22, 0.12, WT + 0.02, 0, DOOR_H + 0.06, Z1 - 0.01],  // top bar
-    [0.12, DOOR_H + 0.12, WT + 0.02, -(DOOR_W/2 + 0.06), DOOR_H/2, Z1 - 0.01],  // left upright
-    [0.12, DOOR_H + 0.12, WT + 0.02,  (DOOR_W/2 + 0.06), DOOR_H/2, Z1 - 0.01]   // right upright
-  ];
-  frameParts.forEach(function(p) {
-    box(new THREE.BoxGeometry(p[0], p[1], p[2]), goldM, p[3], p[4], p[5]);
-  });
-
-  // Door fill — wood panel (raycasting target), faces corridor (negative Z direction)
-  var doorMat = new THREE.MeshStandardMaterial({ color: 0x5c3317, roughness: 0.75, metalness: 0.05 });
-  var doorFill = new THREE.Mesh(new THREE.BoxGeometry(DOOR_W - 0.10, DOOR_H - 0.10, 0.08), doorMat);
-  doorFill.position.set(0, DOOR_H / 2, Z1 - WT / 2 - 0.05);
-  scene.add(doorFill);
-  backDoorMesh = doorFill;
-
-  // Door panels decoration
-  var panelMat = new THREE.MeshStandardMaterial({ color: 0x7a4520, roughness: 0.6, metalness: 0.05 });
-  [[0, 4.8], [0, 2.8]].forEach(function(pos) {
-    var pnl = new THREE.Mesh(new THREE.BoxGeometry(DOOR_W - 0.40, 0.80, 0.05), panelMat);
-    pnl.position.set(0, pos[1], Z1 - WT / 2 - 0.10);
-    scene.add(pnl);
-  });
-
-  // Door knob
-  var knobMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.22, metalness: 0.88 });
-  var knob = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 8), knobMat);
-  knob.position.set(DOOR_W/2 - 0.25, DOOR_H/2, Z1 - WT/2 - 0.15);
-  scene.add(knob);
-
-  // Hint label above door
-  var hintC = document.createElement('canvas'); hintC.width = 512; hintC.height = 96;
-  var hctx = hintC.getContext('2d');
-  hctx.fillStyle = '#1a0c04'; hctx.fillRect(0, 0, 512, 96);
-  hctx.strokeStyle = '#d4af37'; hctx.lineWidth = 3; hctx.strokeRect(3, 3, 506, 90);
-  hctx.fillStyle = '#f0c840'; hctx.font = 'Bold 32px Georgia'; hctx.textAlign = 'center';
-  hctx.fillText('← Sala Central', 256, 58);
-  var hintPlane = new THREE.Mesh(
-    new THREE.PlaneGeometry(2.2, 0.42),
-    new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(hintC), transparent: true, roughness: 0.3 })
+  // Door panel — raycasting target, DoubleSide so player can click from corridor side
+  var doorMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(DOOR_W-0.10, DOOR_H-0.08),
+    new THREE.MeshStandardMaterial({
+      map: new THREE.CanvasTexture(cvs),
+      roughness: 0.62, metalness: 0.04,
+      emissive: new THREE.Color(0x0a0604), emissiveIntensity: 0.5,
+      side: THREE.DoubleSide
+    })
   );
-  hintPlane.position.set(0, DOOR_H + 0.32, Z1 - WT/2 - 0.02);
-  hintPlane.rotation.y = Math.PI;
-  scene.add(hintPlane);
+  doorMesh.position.set(0, DOOR_H/2, Z1-WT/2-0.02);
+  scene.add(doorMesh);
+  backDoorMesh = doorMesh;
 })();
 
 /* ── Collision ───────────────────────────────────────────────────── */
@@ -1032,6 +1049,7 @@ var _fwd   = new THREE.Vector3();
 var _right = new THREE.Vector3();
 var _up    = new THREE.Vector3(0, 1, 0);
 var _lastFrame = 0;
+var _tickCount = 0;
 var TARGET_INTERVAL = isMobile ? 33 : 0; // ~30fps on mobile, uncapped on desktop
 
 /* ── Malagana modal ─────────────────────────────────────────────── */
@@ -1067,6 +1085,7 @@ function tick(now) {
     if (now - _lastFrame < TARGET_INTERVAL) return;
     _lastFrame = now;
   }
+  _tickCount++;
   var dt    = Math.min(clock.getDelta(), 0.1);
   var SPEED = 5.2;
   var anyMove = kb.w || kb.s || kb.a || kb.d || mb.w || mb.s || mb.a || mb.d;
@@ -1095,16 +1114,19 @@ function tick(now) {
     }
   }
 
-  // Follow spotlight tracks camera — replaces 18 per-vitrina lights
-  _followSpot.position.set(camera.position.x, camera.position.y + 2.0, camera.position.z);
-  _followSpot.target.position.set(camera.position.x, 1.2, camera.position.z);
-  _followSpot.target.updateMatrixWorld();
+  if (_followSpot) {
+    _followSpot.position.set(camera.position.x, camera.position.y + 2.0, camera.position.z);
+    _followSpot.target.position.set(camera.position.x, 1.2, camera.position.z);
+    _followSpot.target.updateMatrixWorld();
+  }
 
   if (isLocked) checkHover();
 
-  interactables.forEach(function(item) {
-    item.artifact.rotation.y += isMobile ? 0.004 : 0.005;
-  });
+  if (!isMobile || _tickCount % 2 === 0) {
+    interactables.forEach(function(item) {
+      item.artifact.rotation.y += 0.010;
+    });
+  }
 
   renderer.render(scene, camera);
 }
