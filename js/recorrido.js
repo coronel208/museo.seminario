@@ -76,7 +76,7 @@ scene.fog = new THREE.Fog(0x0e1015, 24, 55);
 
 var camera = new THREE.PerspectiveCamera(70, VW() / VH(), 0.05, 120);
 // Spawn near the far end (Z1=22), looking toward the arch and museum sign
-camera.position.set(0, 1.75, Z1 - 1.5);
+camera.position.set(0, 1.75, 21.0);
 
 /* ── Materials ───────────────────────────────────────────────────── */
 // ── Wall materials ─────────────────────────────────────────────────
@@ -173,7 +173,7 @@ function box(geo, mat, x, y, z) {
 /* ── Corridor  Z0=-24 … Z1=22 ────────────────────────────────────── */
 prog(28, 'Construyendo corredor…');
 
-var HW = 10, HH = 8, Z0 = -20, Z1 = 20;
+var HW = 10, HH = 8, Z0 = -24, Z1 = 22;
 var MZ = (Z0 + Z1) / 2, HL = Z1 - Z0, WT = 0.3;
 
 box(new THREE.BoxGeometry(HW, WT, HL), floorM,  0, -WT/2, MZ);
@@ -211,7 +211,7 @@ rFill.position.set(8, 3, MZ); scene.add(rFill);
 
 // Ceiling lamp fixtures — emissive only, no PointLights
 var _lampShM = new THREE.MeshStandardMaterial({ color: 0xfff8e8, roughness: 0.4, emissive: 0xfff4cc, emissiveIntensity: 4.0 });
-[Z0+4, Z0+14, Z0+24, Z0+34].forEach(function(lz) {
+[Z0+8, Z0+17, Z0+27, Z0+37, Z0+44].forEach(function(lz) {
   box(new THREE.BoxGeometry(0.50, 0.08, 0.50), goldM, 0, HH - 0.05, lz);
   box(new THREE.CylinderGeometry(0.016, 0.016, 0.50, 8), goldM, 0, HH - 0.32, lz);
   box(new THREE.CylinderGeometry(0.07, 0.23, 0.22, 12), _lampShM, 0, HH - 0.72, lz);
@@ -222,7 +222,7 @@ var _wallRecessM = new THREE.MeshStandardMaterial({ color: 0x0c0a06, roughness: 
 var _wallPanelM  = new THREE.MeshStandardMaterial({ color: 0xfff8e0, emissive: 0xfff4cc, emissiveIntensity: 6.0, roughness: 0.8 });
 [-HW/2 + 0.12, HW/2 - 0.12].forEach(function(sx) {
   var side = sx < 0 ? 1 : -1;
-  [Z0+8, Z0+20, Z0+32].forEach(function(sz) {
+  [Z0+11, Z0+23, Z0+35, Z0+45].forEach(function(sz) {
     var housing = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.18, 0.22), _wallRecessM);
     housing.position.set(sx, 2.6, sz); scene.add(housing);
     var panel = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.13, 0.17), _wallPanelM);
@@ -230,7 +230,9 @@ var _wallPanelM  = new THREE.MeshStandardMaterial({ color: 0xfff8e0, emissive: 0
   });
 });
 
-prog(48, 'Construyendo pasillo…');
+prog(48, 'Montando vitrinas…');
+
+prog(58, 'Colocando piezas…');
 
 /* ── Display cases (vitrinas) ────────────────────────────────────── */
 prog(70, 'Instalando vitrinas…');
@@ -410,40 +412,68 @@ LAYOUT.forEach(function(cfg) {
   interactables.push({ glassMesh: glassMesh, hlRing: hlRing, artifact: artifact, pieceId: piece.id });
 });
 
+prog(78, 'Instalando puerta trasera…');
 var murals = [];
 
-/* ── Back door (return to Sala Central) ─────────────────────────── */
+/* ── Back door at Z1 wall (returns to sala-central.html) ─────────── */
 var backDoorMesh = null;
-(function(){
-  var BD_W=2.8, BD_H=3.2;
-  var fdM=new THREE.MeshStandardMaterial({color:0xd4af37,roughness:0.22,metalness:0.88});
-  // Gold frame
-  box(new THREE.BoxGeometry(0.14, BD_H+0.24, 0.14), fdM, -(BD_W/2+0.07), BD_H/2, Z1);
-  box(new THREE.BoxGeometry(0.14, BD_H+0.24, 0.14), fdM,  BD_W/2+0.07,  BD_H/2, Z1);
-  box(new THREE.BoxGeometry(BD_W+0.44, 0.14, 0.14), fdM, 0, BD_H+0.07, Z1);
-  // Door canvas texture
-  var cvs=document.createElement('canvas'); cvs.width=512; cvs.height=768;
-  var ctx=cvs.getContext('2d');
-  var g=ctx.createLinearGradient(0,0,512,0);
-  g.addColorStop(0,'#1a0d06'); g.addColorStop(0.5,'#2e1810'); g.addColorStop(1,'#1a0d06');
-  ctx.fillStyle=g; ctx.fillRect(0,0,512,768);
-  var pm=ctx.createLinearGradient(0,0,512,0);
-  pm.addColorStop(0,'#3a2010'); pm.addColorStop(0.5,'#4a2c16'); pm.addColorStop(1,'#3a2010');
-  [[36,30,440,320],[36,390,440,330]].forEach(function(p){
-    ctx.fillStyle=pm; ctx.fillRect(p[0],p[1],p[2],p[3]);
-    ctx.strokeStyle='#d4af37'; ctx.lineWidth=2; ctx.strokeRect(p[0],p[1],p[2],p[3]);
+(function() {
+  var DOOR_W = 2.5, DOOR_H = 6.5, WT = 0.3;
+  var wallY = HH / 2;
+
+  // Side panels flanking the door opening
+  [[-HW/2, -DOOR_W/2], [DOOR_W/2, HW/2]].forEach(function(xs) {
+    var w = xs[1] - xs[0];
+    box(new THREE.BoxGeometry(w, HH, WT), wallM, (xs[0]+xs[1])/2, wallY, Z1);
   });
-  ctx.strokeStyle='#d4af37'; ctx.lineWidth=6; ctx.strokeRect(8,8,496,752);
-  ctx.fillStyle='#d4af37'; ctx.beginPath(); ctx.arc(430,384,20,0,Math.PI*2); ctx.fill();
-  var bdTex=new THREE.CanvasTexture(cvs);
-  backDoorMesh=new THREE.Mesh(
-    new THREE.PlaneGeometry(BD_W, BD_H),
-    new THREE.MeshStandardMaterial({map:bdTex,roughness:0.65,metalness:0.04,
-      emissive:new THREE.Color(0x0a0604),emissiveIntensity:0.5})
+  // Transom above door
+  box(new THREE.BoxGeometry(DOOR_W, HH - DOOR_H, WT), wallM, 0, DOOR_H + (HH - DOOR_H)/2, Z1);
+
+  // Gold frame around door opening
+  var frameParts = [
+    [DOOR_W + 0.22, 0.12, WT + 0.02, 0, DOOR_H + 0.06, Z1 - 0.01],  // top bar
+    [0.12, DOOR_H + 0.12, WT + 0.02, -(DOOR_W/2 + 0.06), DOOR_H/2, Z1 - 0.01],  // left upright
+    [0.12, DOOR_H + 0.12, WT + 0.02,  (DOOR_W/2 + 0.06), DOOR_H/2, Z1 - 0.01]   // right upright
+  ];
+  frameParts.forEach(function(p) {
+    box(new THREE.BoxGeometry(p[0], p[1], p[2]), goldM, p[3], p[4], p[5]);
+  });
+
+  // Door fill — wood panel (raycasting target), faces corridor (negative Z direction)
+  var doorMat = new THREE.MeshStandardMaterial({ color: 0x5c3317, roughness: 0.75, metalness: 0.05 });
+  var doorFill = new THREE.Mesh(new THREE.BoxGeometry(DOOR_W - 0.10, DOOR_H - 0.10, 0.08), doorMat);
+  doorFill.position.set(0, DOOR_H / 2, Z1 - WT / 2 - 0.05);
+  scene.add(doorFill);
+  backDoorMesh = doorFill;
+
+  // Door panels decoration
+  var panelMat = new THREE.MeshStandardMaterial({ color: 0x7a4520, roughness: 0.6, metalness: 0.05 });
+  [[0, 4.8], [0, 2.8]].forEach(function(pos) {
+    var pnl = new THREE.Mesh(new THREE.BoxGeometry(DOOR_W - 0.40, 0.80, 0.05), panelMat);
+    pnl.position.set(0, pos[1], Z1 - WT / 2 - 0.10);
+    scene.add(pnl);
+  });
+
+  // Door knob
+  var knobMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.22, metalness: 0.88 });
+  var knob = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 8), knobMat);
+  knob.position.set(DOOR_W/2 - 0.25, DOOR_H/2, Z1 - WT/2 - 0.15);
+  scene.add(knob);
+
+  // Hint label above door
+  var hintC = document.createElement('canvas'); hintC.width = 512; hintC.height = 96;
+  var hctx = hintC.getContext('2d');
+  hctx.fillStyle = '#1a0c04'; hctx.fillRect(0, 0, 512, 96);
+  hctx.strokeStyle = '#d4af37'; hctx.lineWidth = 3; hctx.strokeRect(3, 3, 506, 90);
+  hctx.fillStyle = '#f0c840'; hctx.font = 'Bold 32px Georgia'; hctx.textAlign = 'center';
+  hctx.fillText('← Sala Central', 256, 58);
+  var hintPlane = new THREE.Mesh(
+    new THREE.PlaneGeometry(2.2, 0.42),
+    new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(hintC), transparent: true, roughness: 0.3 })
   );
-  backDoorMesh.position.set(0, BD_H/2, Z1-WT/2-0.02);
-  backDoorMesh.rotation.y=Math.PI;
-  scene.add(backDoorMesh);
+  hintPlane.position.set(0, DOOR_H + 0.32, Z1 - WT/2 - 0.02);
+  hintPlane.rotation.y = Math.PI;
+  scene.add(hintPlane);
 })();
 
 /* ── Collision ───────────────────────────────────────────────────── */
@@ -453,7 +483,9 @@ var obstacles = [
   { x0:  HW/2-WT,  x1:  HW/2+0.5, z0: Z0-1, z1: Z1+1 },
   { x0: -HW/2, x1: HW/2, z0: Z0-0.5, z1: Z0+WT },
   { x0: -HW/2, x1: HW/2, z0: Z1-WT,  z1: Z1+0.5 },
-  // Back door is against the wall — wall collision prevents walking through
+  // Arch pillars
+  { x0: -5.10, x1: -4.50, z0: 10.65, z1: 11.35 },
+  { x0:  4.50, x1:  5.10, z0: 10.65, z1: 11.35 },
 ];
 LAYOUT.forEach(function(cfg) {
   obstacles.push({ x0: cfg.x-0.78, x1: cfg.x+0.78, z0: cfg.z-0.78, z1: cfg.z+0.78 });
@@ -699,9 +731,9 @@ gl.addEventListener('touchend', function(e) {
 /* ── Raycaster ───────────────────────────────────────────────────── */
 var raycaster   = new THREE.Raycaster();
 var CENTER      = new THREE.Vector2(0, 0);
-var lastHovered   = null;
-var lastMural     = null;
-var lastBackDoor  = false;
+var lastHovered  = null;
+var lastMural    = null;
+var lastBackDoor = false;
 
 function checkHover() {
   raycaster.setFromCamera(CENTER, camera);
@@ -717,42 +749,30 @@ function checkHover() {
     if (lastHovered) lastHovered.hlRing.material.opacity = 0.9;
     hintEl.style.display = 'block';
     hintEl.textContent   = '👆 Clic para inspeccionar';
-    lastMural = null;
+    lastMural = null; lastBackDoor = false;
   } else {
-    // Check murals
-    var muralMeshes = murals.map(function(m) { return m.mesh; });
-    var muralHits = raycaster.intersectObjects(muralMeshes, false);
-    if (muralHits.length > 0 && muralHits[0].distance < 7.0) {
-      if (lastHovered) { lastHovered.hlRing.material.opacity = 0; lastHovered = null; }
-      lastMural = murals[0];
-      hintEl.style.display = 'block';
-      hintEl.textContent   = '🎬 Clic para conocer la historia';
-    } else if (backDoorMesh) {
-      var bdHits = raycaster.intersectObjects([backDoorMesh], false);
-      if (bdHits.length > 0 && bdHits[0].distance < 9) {
-        if (lastHovered) { lastHovered.hlRing.material.opacity = 0; lastHovered = null; }
-        lastMural = null; lastBackDoor = true;
+    if (lastHovered) { lastHovered.hlRing.material.opacity = 0; lastHovered = null; }
+    lastMural = null;
+    // Check back door
+    if (backDoorMesh) {
+      var doorHits = raycaster.intersectObject(backDoorMesh, false);
+      if (doorHits.length > 0 && doorHits[0].distance < 8.0) {
+        lastBackDoor = true;
         hintEl.style.display = 'block';
-        hintEl.textContent = '🚪 Clic para volver a la Sala Central';
+        hintEl.textContent   = '🚪 Clic para volver a la Sala Central';
         return;
-      } else {
-        if (lastHovered) { lastHovered.hlRing.material.opacity = 0; lastHovered = null; }
-        lastMural = null; lastBackDoor = false;
-        hintEl.style.display = 'none';
       }
-    } else {
-      if (lastHovered) { lastHovered.hlRing.material.opacity = 0; lastHovered = null; }
-      lastMural = null; lastBackDoor = false;
-      hintEl.style.display = 'none';
     }
+    lastBackDoor = false;
+    hintEl.style.display = 'none';
   }
 }
 
 gl.addEventListener('click', function() {
   if (!isLocked || modalOpen) return;
+  if (lastBackDoor) { window.location.href = 'sala-central.html'; return; }
   if (lastHovered)  { openPieceModal(lastHovered.pieceId); return; }
-  if (lastMural)    { openMalaganaModal(); return; }
-  if (lastBackDoor) { window.location.href = 'sala-central.html'; }
+  if (lastMural)    { openMalaganaModal(); }
 });
 
 /* ── Piece modal ─────────────────────────────────────────────────── */
