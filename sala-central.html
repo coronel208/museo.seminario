@@ -716,6 +716,8 @@ for(var wi=0;wi<5;wi++){
       emissive: new THREE.Color(0x080808), emissiveIntensity: 1.8
     });
     if(wi===0 && si===1) window._muralMat = pmat;
+    if(wi===1 && si===0) window._photoMat_w1l = pmat;
+    if(wi===1 && si===1) window._photoMat_w1r = pmat;
     if(wi===3 && si===0) window._photoMat_w3l = pmat;
     if(wi===3 && si===1) window._photoMat_w3r = pmat;
     if(wi===4 && si===0) window._photoMat_w4l = pmat;
@@ -746,11 +748,18 @@ tl.load('assets/logo.jpg', function(t){
     window._welcomeTex.needsUpdate=true;
   }
 });
-['assets/palmira-parque.jpg','assets/festival-malagana.jpg','assets/palmira-catedral.jpg','assets/palmira-malagana.jpg'].forEach(function(url, i){
-  var keys=['_photoMat_w3l','_photoMat_w3r','_photoMat_w4l','_photoMat_w4r'];
-  tl.load(url, function(t){
+var _photoEntries = [
+  ['assets/palmira-catedral2.jpg', '_photoMat_w1l'],
+  ['assets/palmira-paisaje.jpg',   '_photoMat_w1r'],
+  ['assets/palmira-centro.jpg',    '_photoMat_w3l'],
+  ['assets/palmira-catedral2.jpg', '_photoMat_w3r'],
+  ['assets/palmira-paisaje.jpg',   '_photoMat_w4l'],
+  ['assets/palmira-centro.jpg',    '_photoMat_w4r']
+];
+_photoEntries.forEach(function(entry){
+  tl.load(entry[0], function(t){
     t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping;
-    var mat=window[keys[i]]; if(mat){mat.map=t;mat.emissiveIntensity=0.4;mat.needsUpdate=true;}
+    var mat=window[entry[1]]; if(mat){mat.map=t;mat.emissiveIntensity=0.4;mat.needsUpdate=true;}
   });
 });
 
