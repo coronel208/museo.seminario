@@ -248,6 +248,28 @@ var MUSEUM_CATALOG = [
     video: null
   }
 
+  ,{
+    id: 'vasija-antropomorfa',
+    nombre: 'Vasija Antropomorfa Globular con Pedestal',
+    material: 'Cerámica',
+    periodo: 'Período Ilama (Cultura Calima)',
+    donante: '',
+    descripcion: 'Vasija cerámica prehispánica adscrita al período Ilama de la cultura Calima. Copa globular con base anular y apliques modelados que representan un rostro antropomorfo con rasgos faciales en incisión fina. Pasta fina oxidante con engobe rojo-naranja, característica de las representaciones chamánicas de esta tradición. Estado completo con desgaste superficial moderado.',
+    procedencia: 'Valle del Cauca, Colombia',
+    dimensiones: 'Alt. 10.3 cm · ⌀ 17.2 cm',
+    donante: '',
+    modelUrl: 'models/vasija-antropomorfa.glb',
+    imagenes: [
+      'images/vasija-antropomorfa-1.jpeg',
+      'images/vasija-antropomorfa-2.jpeg',
+      'images/vasija-antropomorfa-3.jpeg',
+      'images/vasija-antropomorfa-4.jpeg',
+      'images/vasija-antropomorfa-5.jpeg',
+      'images/vasija-antropomorfa-6.jpeg'
+    ],
+    video: null
+  }
+
   // ── AGREGA MÁS PIEZAS AQUÍ ────────────────────────────────────────
   // Sigue el mismo patrón. El sistema soporta hasta 50 (o más).
 

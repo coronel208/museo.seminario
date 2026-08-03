@@ -203,10 +203,10 @@ function makeWallMat(repX, repY) {
   return new THREE.MeshStandardMaterial({ map: tex, roughness: 0.70, metalness: 0.02 });
 }
 
-// Lateral walls (46m long): 15 panels wide, 2 panels tall → each panel ≈ 3m×4m
-var sideWallM = makeWallMat(15, 2);
-// End walls (10m wide): 5 panels wide, 2 panels tall → each panel = 2m×4m
-var wallM     = makeWallMat(5, 2);
+// Lateral walls (46m long): 15 panels wide, 1 panel tall (no mid-stripe banding)
+var sideWallM = makeWallMat(15, 1);
+// End walls (10m wide): 5 panels wide, 1 panel tall
+var wallM     = makeWallMat(5, 1);
 var floorM  = new THREE.MeshStandardMaterial({ color: _st.floor, roughness: 0.70, metalness: 0.05 });
 var ceilM   = new THREE.MeshStandardMaterial({ color: _st.ceil,  roughness: 0.80 });
 var woodM   = new THREE.MeshStandardMaterial({ color: 0x5a3010, roughness: 0.82 });
@@ -311,7 +311,7 @@ var _LAYOUTS = {
     { piece: getPieceById('cuenco-asas'),       x:  3.0, z: -16 }
   ],
   2: [
-    // Añadir piezas aquí cuando estén disponibles en pieces-data.js
+    { piece: getPieceById('vasija-antropomorfa'), x: -3.0, z: 16 }
   ]
 };
 var LAYOUT = _LAYOUTS[SALA_NUM] || _LAYOUTS[1];
@@ -487,7 +487,7 @@ var murals = [];
 /* ── Back door at Z1 wall — same design as sala-central ─────────── */
 var backDoorMesh = null;
 (function() {
-  var DOOR_W = 3.8, DOOR_H = 5.0, COL_W = 0.5;
+  var DOOR_W = 2.4, DOOR_H = 3.6, COL_W = 0.4;
   var SIDE_W = (HW - DOOR_W) / 2;  // 3.1 each side
 
   // Wall with door opening (replaces solid Z1 wall removed above)
