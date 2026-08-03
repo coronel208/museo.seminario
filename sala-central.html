@@ -522,14 +522,21 @@ function makeGoldTransomTex(){
   return new THREE.CanvasTexture(cvs);
 }
 
+var SALA_COLORS=['#2563eb','#16a34a','#ca8a04','#dc2626','#7c3aed'];
 function makeSalaLabelTex(n){
   var cvs=document.createElement('canvas'); cvs.width=256; cvs.height=128;
   var ctx=cvs.getContext('2d');
-  ctx.fillStyle='#0c0904'; ctx.fillRect(0,0,256,128);
-  ctx.strokeStyle='#d4af37'; ctx.lineWidth=3; ctx.strokeRect(4,4,248,120);
-  ctx.fillStyle='#d4af37'; ctx.font='bold 28px Georgia'; ctx.textAlign='center'; ctx.fillText('SALA '+n,128,58);
-  ctx.fillStyle='rgba(212,175,55,0.45)'; ctx.fillRect(30,70,196,1);
-  ctx.fillStyle='#a09070'; ctx.font='15px Raleway,sans-serif'; ctx.fillText('Acceso próximamente',128,98);
+  var clr=SALA_COLORS[n-1]||'#d4af37';
+  ctx.fillStyle='#08080f'; ctx.fillRect(0,0,256,128);
+  ctx.strokeStyle=clr; ctx.lineWidth=3; ctx.strokeRect(4,4,248,120);
+  // colored glow strip at top
+  ctx.fillStyle=clr; ctx.globalAlpha=0.18; ctx.fillRect(4,4,248,24); ctx.globalAlpha=1;
+  ctx.fillStyle=clr; ctx.font='bold 32px Georgia'; ctx.textAlign='center'; ctx.fillText('SALA '+n,128,62);
+  ctx.fillStyle=clr+'70'; ctx.fillRect(30,72,196,1);
+  var isActive=n===1;
+  ctx.fillStyle=isActive?clr:'#706060';
+  ctx.font='14px Raleway,sans-serif';
+  ctx.fillText(isActive?'▶  Acceso disponible':'Próximamente',128,97);
   return new THREE.CanvasTexture(cvs);
 }
 

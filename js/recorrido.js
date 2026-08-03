@@ -50,7 +50,17 @@ function hideLs() {
           ov.remove();
           hasStarted = true;
           _enterFs();
-          if (!isMobile) safeLock(); else hudEl.style.display = 'none';
+          if (!isMobile) {
+            safeLock();
+            // Fallback: if lock wasn't acquired, show pause dialog so user can retry
+            setTimeout(function() {
+              if (!isLocked && hasStarted && !modalOpen) {
+                if (pauseDialog) pauseDialog.style.display = 'flex';
+              }
+            }, 1200);
+          } else {
+            hudEl.style.display = 'none';
+          }
         }, { once: true });
       } else {
         startPrompt.style.display = 'flex';
@@ -92,9 +102,16 @@ window.addEventListener('resize', function() {
 /* ── Scene & camera ──────────────────────────────────────────────── */
 prog(16, 'Preparando escena…');
 
+/* ── Sala identity & color theme ─────────────────────────────── */
+var SALA_NUM     = 1;
+var SALA_CLR     = 0x2563eb;   // sala 1 = azul
+var SALA_CLR_HEX = '#2563eb';
+var SALA_BG      = 0x06080f;   // fondo oscuro azulado
+var SALA_AMB     = 0xe8eeff;   // luz ambiente azul-blanca
+
 var scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0e1015);
-scene.fog = new THREE.Fog(0x0e1015, 24, 55);
+scene.background = new THREE.Color(SALA_BG);
+scene.fog = new THREE.Fog(SALA_BG, 24, 55);
 
 var camera = new THREE.PerspectiveCamera(70, VW() / VH(), 0.05, 120);
 // Spawn near the far end (Z1=22), looking toward the arch and museum sign
@@ -221,7 +238,7 @@ box(new THREE.BoxGeometry(2.65, 0.015, HL), goldM, 0, 0.002, MZ);
 prog(38, 'Encendiendo luces…');
 
 // Brighter ambient on mobile (no follow-spotlight to compensate)
-scene.add(new THREE.AmbientLight(0xfff8f0, isMobile ? 4.5 : 2.8));
+scene.add(new THREE.AmbientLight(SALA_AMB, isMobile ? 4.5 : 2.8));
 
 // Directional fill from above
 var topDir = new THREE.DirectionalLight(0xfff8ec, 0.8);
@@ -234,7 +251,7 @@ var rFill = new THREE.DirectionalLight(0xf0ead8, 0.35);
 rFill.position.set(8, 3, MZ); scene.add(rFill);
 
 // Ceiling lamp fixtures — emissive only, no PointLights
-var _lampShM = new THREE.MeshStandardMaterial({ color: 0xfff8e8, roughness: 0.4, emissive: 0xfff4cc, emissiveIntensity: 4.0 });
+var _lampShM = new THREE.MeshStandardMaterial({ color: 0xb0c8ff, roughness: 0.4, emissive: 0x90b0ff, emissiveIntensity: 4.0 });
 [Z0+8, Z0+17, Z0+27, Z0+37, Z0+44].forEach(function(lz) {
   box(new THREE.BoxGeometry(0.50, 0.08, 0.50), goldM, 0, HH - 0.05, lz);
   box(new THREE.CylinderGeometry(0.016, 0.016, 0.50, 8), goldM, 0, HH - 0.32, lz);
@@ -242,8 +259,8 @@ var _lampShM = new THREE.MeshStandardMaterial({ color: 0xfff8e8, roughness: 0.4,
 });
 
 // Recessed wall lights — emissive only, no PointLights
-var _wallRecessM = new THREE.MeshStandardMaterial({ color: 0x0c0a06, roughness: 1 });
-var _wallPanelM  = new THREE.MeshStandardMaterial({ color: 0xfff8e0, emissive: 0xfff4cc, emissiveIntensity: 6.0, roughness: 0.8 });
+var _wallRecessM = new THREE.MeshStandardMaterial({ color: 0x06080f, roughness: 1 });
+var _wallPanelM  = new THREE.MeshStandardMaterial({ color: 0x80aaff, emissive: SALA_CLR, emissiveIntensity: 5.0, roughness: 0.8 });
 [-HW/2 + 0.12, HW/2 - 0.12].forEach(function(sx) {
   var side = sx < 0 ? 1 : -1;
   [Z0+11, Z0+23, Z0+35, Z0+45].forEach(function(sz) {
@@ -253,6 +270,12 @@ var _wallPanelM  = new THREE.MeshStandardMaterial({ color: 0xfff8e0, emissive: 0
     panel.position.set(sx + side * 0.034, 2.6, sz); scene.add(panel);
   });
 });
+
+// Sala color accent lights — two subtle blue fills near ceiling
+var _accentL = new THREE.PointLight(SALA_CLR, isMobile ? 0 : 0.6, 20);
+_accentL.position.set(-HW/2+1, HH-0.8, MZ); scene.add(_accentL);
+var _accentR = new THREE.PointLight(SALA_CLR, isMobile ? 0 : 0.6, 20);
+_accentR.position.set(HW/2-1, HH-0.8, MZ); scene.add(_accentR);
 
 prog(48, 'Montando vitrinas…');
 
@@ -560,6 +583,10 @@ plc.addEventListener('lock', function() {
   if (pauseDialog) pauseDialog.style.display = 'none';
   hudEl.style.display       = 'block';
   crosshairEl.style.display = 'block';
+  // Apply sala color to UI hints
+  hintEl.style.borderColor  = SALA_CLR_HEX;
+  hintEl.style.color        = SALA_CLR_HEX;
+  hintEl.style.background   = 'rgba(37,99,235,0.13)';
 });
 
 plc.addEventListener('unlock', function() {
@@ -599,7 +626,19 @@ document.getElementById('btn-start').addEventListener('click', function() {
   _enterFs();
   if (!isMobile) safeLock(); else hudEl.style.display = 'none';
 });
-gl.addEventListener('click', function() { if (!isLocked && !modalOpen && !hasStarted) { _enterFs(); safeLock(); } });
+// Clicking the canvas when not locked re-acquires pointer lock (any state)
+gl.addEventListener('click', function() { if (!isLocked && !modalOpen) { _enterFs(); safeLock(); } });
+
+// Auto-pause: when tab becomes visible again and user is in the recorrido
+document.addEventListener('visibilitychange', function() {
+  if (document.hidden) return;
+  // Small delay to let the page settle after becoming visible
+  setTimeout(function() {
+    if (hasStarted && !modalOpen && !isLocked) {
+      if (pauseDialog) pauseDialog.style.display = 'flex';
+    }
+  }, 300);
+});
 
 var btnContinue = document.getElementById('pd-continue');
 var btnAbandon  = document.getElementById('pd-abandon');
