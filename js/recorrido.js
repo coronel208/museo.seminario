@@ -34,16 +34,26 @@ function hideLs() {
     lsEl.style.opacity    = '0';
     setTimeout(function() {
       lsEl.style.display = 'none';
-      if (hasStarted) return;             // already started (btn clicked before GLBs)
+      if (hasStarted) return;
       if (_autoStart) {
-        // Coming from sala-central — enter directly without start prompt
-        hasStarted = true;
-        var el = document.documentElement;
-        var fsReq = el.requestFullscreen || el.webkitRequestFullscreen;
-        if (fsReq && !document.fullscreenElement) fsReq.call(el).catch(function(){});
-        if (!isMobile) { try { plc.lock(); } catch(e){} }
+        // Browser always exits fullscreen+pointer-lock on page navigation.
+        // Show a minimal one-click overlay to re-acquire them with a fresh gesture.
+        var ov = document.createElement('div');
+        ov.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(6,8,10,.82);display:flex;align-items:center;justify-content:center;z-index:500;font-family:Georgia,serif;';
+        ov.innerHTML = '<div style="text-align:center;padding:2rem 3rem;border:1px solid rgba(212,175,55,.3);background:rgba(8,10,14,.92);border-radius:6px;max-width:340px;">'
+          + '<div style="color:#d4af37;font-size:2rem;margin-bottom:.8rem;">&#9654;</div>'
+          + '<div style="color:#e8dfc0;font-size:1rem;letter-spacing:.04em;margin-bottom:1.4rem;line-height:1.55;">La sala está lista.<br>Haz clic para continuar el recorrido.</div>'
+          + '<button id="auto-start-btn" style="background:#d4af37;color:#000;border:none;padding:.7rem 2rem;border-radius:4px;font-size:.92rem;font-weight:700;cursor:pointer;letter-spacing:.04em;font-family:inherit;">Continuar</button>'
+          + '</div>';
+        document.body.appendChild(ov);
+        ov.addEventListener('click', function() {
+          ov.remove();
+          hasStarted = true;
+          _enterFs();
+          if (!isMobile) safeLock(); else hudEl.style.display = 'none';
+        }, { once: true });
       } else {
-        document.getElementById('start-prompt').style.display = 'flex';
+        startPrompt.style.display = 'flex';
       }
     }, 750);
   }, 400);
