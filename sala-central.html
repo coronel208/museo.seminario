@@ -718,6 +718,8 @@ for(var wi=0;wi<5;wi++){
     if(wi===0 && si===1) window._muralMat = pmat;
     if(wi===1 && si===0) window._photoMat_w1l = pmat;
     if(wi===1 && si===1) window._photoMat_w1r = pmat;
+    if(wi===2 && si===0) window._photoMat_w2l = pmat;
+    if(wi===2 && si===1) window._photoMat_w2r = pmat;
     if(wi===3 && si===0) window._photoMat_w3l = pmat;
     if(wi===3 && si===1) window._photoMat_w3r = pmat;
     if(wi===4 && si===0) window._photoMat_w4l = pmat;
@@ -749,12 +751,14 @@ tl.load('assets/logo.jpg', function(t){
   }
 });
 var _photoEntries = [
-  ['assets/palmira-catedral2.jpg', '_photoMat_w1l'],
-  ['assets/palmira-paisaje.jpg',   '_photoMat_w1r'],
-  ['assets/palmira-centro.jpg',    '_photoMat_w3l'],
-  ['assets/palmira-catedral2.jpg', '_photoMat_w3r'],
-  ['assets/palmira-paisaje.jpg',   '_photoMat_w4l'],
-  ['assets/palmira-centro.jpg',    '_photoMat_w4r']
+  ['assets/seminario-logo.jpg',         '_photoMat_w1l'],
+  ['assets/palmira-catedral-diocesis.jpg','_photoMat_w1r'],
+  ['assets/palmira-paisaje.jpg',        '_photoMat_w2l'],
+  ['assets/palmira-centro.jpg',         '_photoMat_w2r'],
+  ['assets/palmira-panoramica.jpg',     '_photoMat_w3l'],
+  ['assets/palmira-catedral2.jpg',      '_photoMat_w3r'],
+  ['assets/palmira-parque2.jpg',        '_photoMat_w4l'],
+  ['assets/palmira-valle.jpg',          '_photoMat_w4r']
 ];
 _photoEntries.forEach(function(entry){
   tl.load(entry[0], function(t){
