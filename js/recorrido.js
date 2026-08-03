@@ -76,7 +76,7 @@ scene.fog = new THREE.Fog(0x0e1015, 24, 55);
 
 var camera = new THREE.PerspectiveCamera(70, VW() / VH(), 0.05, 120);
 // Spawn near the far end (Z1=22), looking toward the arch and museum sign
-camera.position.set(0, 1.75, 21.0);
+camera.position.set(0, 1.75, Z1 - 1.5);
 
 /* ── Materials ───────────────────────────────────────────────────── */
 // ── Wall materials ─────────────────────────────────────────────────
@@ -173,7 +173,7 @@ function box(geo, mat, x, y, z) {
 /* ── Corridor  Z0=-24 … Z1=22 ────────────────────────────────────── */
 prog(28, 'Construyendo corredor…');
 
-var HW = 10, HH = 8, Z0 = -24, Z1 = 22;
+var HW = 10, HH = 8, Z0 = -20, Z1 = 20;
 var MZ = (Z0 + Z1) / 2, HL = Z1 - Z0, WT = 0.3;
 
 box(new THREE.BoxGeometry(HW, WT, HL), floorM,  0, -WT/2, MZ);
@@ -211,7 +211,7 @@ rFill.position.set(8, 3, MZ); scene.add(rFill);
 
 // Ceiling lamp fixtures — emissive only, no PointLights
 var _lampShM = new THREE.MeshStandardMaterial({ color: 0xfff8e8, roughness: 0.4, emissive: 0xfff4cc, emissiveIntensity: 4.0 });
-[Z0+8, Z0+17, Z0+27, Z0+37, Z0+44].forEach(function(lz) {
+[Z0+4, Z0+14, Z0+24, Z0+34].forEach(function(lz) {
   box(new THREE.BoxGeometry(0.50, 0.08, 0.50), goldM, 0, HH - 0.05, lz);
   box(new THREE.CylinderGeometry(0.016, 0.016, 0.50, 8), goldM, 0, HH - 0.32, lz);
   box(new THREE.CylinderGeometry(0.07, 0.23, 0.22, 12), _lampShM, 0, HH - 0.72, lz);
@@ -222,7 +222,7 @@ var _wallRecessM = new THREE.MeshStandardMaterial({ color: 0x0c0a06, roughness: 
 var _wallPanelM  = new THREE.MeshStandardMaterial({ color: 0xfff8e0, emissive: 0xfff4cc, emissiveIntensity: 6.0, roughness: 0.8 });
 [-HW/2 + 0.12, HW/2 - 0.12].forEach(function(sx) {
   var side = sx < 0 ? 1 : -1;
-  [Z0+11, Z0+23, Z0+35, Z0+45].forEach(function(sz) {
+  [Z0+8, Z0+20, Z0+32].forEach(function(sz) {
     var housing = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.18, 0.22), _wallRecessM);
     housing.position.set(sx, 2.6, sz); scene.add(housing);
     var panel = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.13, 0.17), _wallPanelM);
@@ -230,168 +230,7 @@ var _wallPanelM  = new THREE.MeshStandardMaterial({ color: 0xfff8e0, emissive: 0
   });
 });
 
-/* ── Entrance arch (welcome zone z≈15) ──────────────────────────── */
-prog(48, 'Construyendo arco de entrada…');
-
-(function() {
-  var archZ = 11;
-  var pillarM = new THREE.MeshStandardMaterial({ color: 0xE8E0D5, roughness: 0.6 });
-
-  [-4.8, 4.8].forEach(function(x) {
-    box(new THREE.BoxGeometry(0.55, HH + 0.1, 0.55), pillarM, x, HH/2, archZ);
-    box(new THREE.BoxGeometry(0.75, 0.18, 0.75), goldM, x, HH - 0.05, archZ);
-    box(new THREE.BoxGeometry(0.75, 0.18, 0.75), goldM, x, 0.09, archZ);
-    [1.2, 2.5, 3.8].forEach(function(y) {
-      box(new THREE.BoxGeometry(0.60, 0.055, 0.60), goldM, x, y, archZ);
-    });
-  });
-  // Horizontal gold beam — pushed 0.02 in front of pillars to avoid z-fighting at junction
-  box(new THREE.BoxGeometry(10.0, 0.38, 0.53), goldM, 0, HH - 0.19, archZ + 0.02);
-
-  // NO archTube (removed)
-
-  // Sign attached near ceiling
-  var signY = HH - 1.05;
-  box(new THREE.BoxGeometry(9.2, 2.3, 0.16), woodM, 0, signY, archZ + 0.12);
-  box(new THREE.BoxGeometry(9.5, 2.6, 0.10), goldM, 0, signY, archZ + 0.05);
-
-  // "BIENVENIDOS" canvas
-  var cnv = document.createElement('canvas');
-  cnv.width = 1024; cnv.height = 256;
-  var ctx = cnv.getContext('2d');
-  var bg = ctx.createLinearGradient(0, 0, 0, 256);
-  bg.addColorStop(0, '#3c2010'); bg.addColorStop(1, '#1c0e04');
-  ctx.fillStyle = bg; ctx.fillRect(0, 0, 1024, 256);
-  ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 5;
-  ctx.strokeRect(8, 8, 1008, 240);
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#f0c840'; ctx.font = 'Bold 78px Georgia,serif';
-  ctx.fillText('BIENVENIDOS', 512, 112);
-  ctx.fillStyle = '#c8a050'; ctx.font = '36px Georgia,serif';
-  ctx.fillText('al Museo Seminario Diocesano', 512, 166);
-  ctx.fillStyle = '#907030'; ctx.font = '26px Georgia';
-  ctx.fillText('Colección Malagana · Palmira, Colombia', 512, 210);
-
-  var wPlane = new THREE.Mesh(
-    new THREE.PlaneGeometry(8.8, 2.1),
-    new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(cnv), roughness: 0.3 })
-  );
-  wPlane.position.set(0, signY, archZ + 0.21);
-  scene.add(wPlane);
-
-  // Back face — solid wood, visible from behind (must be behind the gold frame's back at archZ+0.00)
-  var wBack = new THREE.Mesh(
-    new THREE.PlaneGeometry(8.8, 2.1),
-    new THREE.MeshStandardMaterial({ color: 0x4a2c0e, roughness: 0.85 })
-  );
-  wBack.position.set(0, signY, archZ - 0.02);
-  wBack.rotation.y = Math.PI;
-  scene.add(wBack);
-
-  // Logo below sign board
-  new THREE.TextureLoader().load('assets/logo.jpg', function(t) {
-    var lp = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.2),
-      new THREE.MeshStandardMaterial({ map: t, transparent: true }));
-    lp.position.set(0, signY - 1.7, archZ + 0.3);
-    scene.add(lp);
-  }, undefined, function() {
-    var ec = document.createElement('canvas'); ec.width = ec.height = 200;
-    var ect = ec.getContext('2d');
-    ect.fillStyle = '#d4af37'; ect.beginPath(); ect.arc(100,100,96,0,Math.PI*2); ect.fill();
-    ect.fillStyle = '#3a2010'; ect.beginPath(); ect.arc(100,100,82,0,Math.PI*2); ect.fill();
-    ect.fillStyle = '#d4af37'; ect.font = 'Bold 40px Georgia'; ect.textAlign = 'center'; ect.textBaseline = 'middle';
-    ect.fillText('MS', 100, 100);
-    var ep = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.1),
-      new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(ec), transparent: true }));
-    ep.position.set(0, signY - 1.7, archZ + 0.3);
-    scene.add(ep);
-  });
-
-  var sp = new THREE.SpotLight(0xfff4dd, 3.5, 14, Math.PI/5.5, 0.4);
-  sp.position.set(0, HH - 0.1, archZ + 2.5);
-  sp.target.position.set(0, 3.0, archZ + 0.3);
-  scene.add(sp); scene.add(sp.target);
-})();
-
-/* ── Museum sign (far wall Z0) ───────────────────────────────────── */
-prog(58, 'Montando letrero del museo…');
-
-(function() {
-  box(new THREE.BoxGeometry(9.4, 3.0, 0.20), woodM, 0, 3.5, Z0 + 0.12);
-  box(new THREE.BoxGeometry(9.7, 3.3, 0.12), goldM, 0, 3.5, Z0 + 0.06);
-
-  [-4.3, 4.3].forEach(function(x) {
-    box(new THREE.CylinderGeometry(0.16, 0.20, 3.4, 16), marbleM, x, 3.5, Z0 + 0.18);
-    box(new THREE.SphereGeometry(0.20, 12, 10), goldM, x, 5.25, Z0 + 0.18);
-    box(new THREE.CylinderGeometry(0.22, 0.20, 0.12, 16), goldM, x, 1.9, Z0 + 0.18);
-  });
-
-  var cnv = document.createElement('canvas');
-  cnv.width = 1536; cnv.height = 512;
-  var ctx = cnv.getContext('2d');
-  var bg = ctx.createLinearGradient(0, 0, 0, 512);
-  bg.addColorStop(0, '#2e1808'); bg.addColorStop(0.5, '#1a0c04'); bg.addColorStop(1, '#2e1808');
-  ctx.fillStyle = bg; ctx.fillRect(0, 0, 1536, 512);
-
-  // Subtle grid pattern
-  ctx.strokeStyle = 'rgba(212,175,55,0.12)'; ctx.lineWidth = 1;
-  for (var gx = 0; gx < 1536; gx += 48) { ctx.beginPath(); ctx.moveTo(gx,0); ctx.lineTo(gx,512); ctx.stroke(); }
-  for (var gy = 0; gy < 512; gy += 48)  { ctx.beginPath(); ctx.moveTo(0,gy); ctx.lineTo(1536,gy); ctx.stroke(); }
-
-  ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 6; ctx.strokeRect(12, 12, 1512, 488);
-  ctx.strokeStyle = 'rgba(212,175,55,0.5)'; ctx.lineWidth = 2; ctx.strokeRect(24, 24, 1488, 464);
-
-  ctx.textAlign = 'center';
-  ctx.shadowColor = 'rgba(212,175,55,0.6)'; ctx.shadowBlur = 22;
-  ctx.fillStyle = '#f0c840'; ctx.font = 'Bold 92px Georgia,serif';
-  ctx.fillText('MUSEO SEMINARIO', 768, 142);
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = '#e8d0a0'; ctx.font = '52px Georgia,serif';
-  ctx.fillText('Diocesano de Cristo Sacerdote', 768, 224);
-
-  ctx.strokeStyle = 'rgba(212,175,55,0.55)'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.moveTo(100, 252); ctx.lineTo(1436, 252); ctx.stroke();
-
-  ctx.fillStyle = '#c8a040'; ctx.font = '34px Georgia,serif';
-  ctx.fillText('Colección Arqueológica Malagana', 768, 308);
-  ctx.fillStyle = '#a07828'; ctx.font = '28px Georgia';
-  ctx.fillText('Palmira, Valle del Cauca  ·  200 a.C. – 400 d.C.', 768, 355);
-
-  var sPlane = new THREE.Mesh(
-    new THREE.PlaneGeometry(8.8, 2.85),
-    new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(cnv), roughness: 0.3 })
-  );
-  sPlane.position.set(0, 3.5, Z0 + 0.24);
-  scene.add(sPlane);
-
-  // Logo on sign
-  new THREE.TextureLoader().load('assets/logo.jpg', function(t) {
-    var lp = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.5),
-      new THREE.MeshStandardMaterial({ map: t, transparent: true }));
-    lp.position.set(0, 1.4, Z0 + 0.24);
-    scene.add(lp);
-  }, undefined, function() {
-    var ec = document.createElement('canvas'); ec.width = ec.height = 256;
-    var ect = ec.getContext('2d');
-    ect.fillStyle = '#d4af37'; ect.beginPath(); ect.arc(128,128,120,0,Math.PI*2); ect.fill();
-    ect.fillStyle = '#3a2010'; ect.beginPath(); ect.arc(128,128,106,0,Math.PI*2); ect.fill();
-    ect.fillStyle = '#d4af37'; ect.font = 'Bold 48px Georgia'; ect.textAlign = 'center'; ect.textBaseline = 'middle';
-    ect.fillText('MS', 128, 128);
-    var ep = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 1.4),
-      new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(ec), transparent: true }));
-    ep.position.set(0, 1.4, Z0 + 0.24);
-    scene.add(ep);
-  });
-
-  var sp = new THREE.SpotLight(0xfff4dd, 5.0, 16, Math.PI/5, 0.42);
-  sp.position.set(0, HH - 0.2, Z0 + 5);
-  sp.target.position.set(0, 3.3, Z0 + 0.2);
-  scene.add(sp); scene.add(sp.target);
-
-  var al = new THREE.PointLight(0xffd070, 1.0, 10);
-  al.position.set(0, 5.4, Z0 + 1);
-  scene.add(al);
-})();
+prog(48, 'Construyendo pasillo…');
 
 /* ── Display cases (vitrinas) ────────────────────────────────────── */
 prog(70, 'Instalando vitrinas…');
@@ -571,109 +410,40 @@ LAYOUT.forEach(function(cfg) {
   interactables.push({ glassMesh: glassMesh, hlRing: hlRing, artifact: artifact, pieceId: piece.id });
 });
 
-/* ── Malagana mural (RIGHT wall, z=5 — between arch and vitrinas) ─── */
-prog(78, 'Montando mural Malagana…');
 var murals = [];
-(function() {
-  var muralZ = 5;    // between arch(z=11) and vitrinas(z=-4)
-  var muralY = 3.2;
-  var frameMat = new THREE.MeshStandardMaterial({ color: 0x2a1606, roughness: 0.55 });
 
-  // Painting plane: landscape horizontal (wide), placed on RIGHT wall
-  var paintingW = 5.8;  // wide landscape
-  var paintingH = 2.6;  // tall enough to be impressive
-
-  // Use the real Malagana painting image
-  var loader = new THREE.TextureLoader();
-  var paintingGroup = new THREE.Group();
-
-  // Gold outer frame — furthest back (z=0)
-  var goldBorder = new THREE.Mesh(
-    new THREE.BoxGeometry(paintingW + 0.30, paintingH + 0.30, 0.10),
-    goldM
-  );
-  goldBorder.position.z = 0;
-  paintingGroup.add(goldBorder);
-
-  // Dark wood stretcher — sits in front of gold (z=0.06)
-  var woodBorder = new THREE.Mesh(
-    new THREE.BoxGeometry(paintingW + 0.14, paintingH + 0.14, 0.10),
-    frameMat
-  );
-  woodBorder.position.z = 0.06;
-  paintingGroup.add(woodBorder);
-
-  // Fallback canvas (shows while image loads)
-  var fb = document.createElement('canvas'); fb.width = 256; fb.height = 128;
-  var fbx = fb.getContext('2d');
-  fbx.fillStyle = '#3a1a04'; fbx.fillRect(0, 0, 256, 128);
-  fbx.fillStyle = '#d4af37'; fbx.font = 'Bold 16px Georgia'; fbx.textAlign = 'center';
-  fbx.fillText('CULTURA MALAGANA', 128, 70);
-  var fallbackTex = new THREE.CanvasTexture(fb);
-
-  // Canvas side material (dark linen sides)
-  var sideMat = new THREE.MeshStandardMaterial({ color: 0x1a0e04, roughness: 0.9 });
-  // Front material with painting texture
-  var frontMat = new THREE.MeshStandardMaterial({
-    map: fallbackTex, roughness: 0.22, emissive: 0x050200, emissiveIntensity: 0.08
+/* ── Back door (return to Sala Central) ─────────────────────────── */
+var backDoorMesh = null;
+(function(){
+  var BD_W=2.8, BD_H=3.2;
+  var fdM=new THREE.MeshStandardMaterial({color:0xd4af37,roughness:0.22,metalness:0.88});
+  // Gold frame
+  box(new THREE.BoxGeometry(0.14, BD_H+0.24, 0.14), fdM, -(BD_W/2+0.07), BD_H/2, Z1);
+  box(new THREE.BoxGeometry(0.14, BD_H+0.24, 0.14), fdM,  BD_W/2+0.07,  BD_H/2, Z1);
+  box(new THREE.BoxGeometry(BD_W+0.44, 0.14, 0.14), fdM, 0, BD_H+0.07, Z1);
+  // Door canvas texture
+  var cvs=document.createElement('canvas'); cvs.width=512; cvs.height=768;
+  var ctx=cvs.getContext('2d');
+  var g=ctx.createLinearGradient(0,0,512,0);
+  g.addColorStop(0,'#1a0d06'); g.addColorStop(0.5,'#2e1810'); g.addColorStop(1,'#1a0d06');
+  ctx.fillStyle=g; ctx.fillRect(0,0,512,768);
+  var pm=ctx.createLinearGradient(0,0,512,0);
+  pm.addColorStop(0,'#3a2010'); pm.addColorStop(0.5,'#4a2c16'); pm.addColorStop(1,'#3a2010');
+  [[36,30,440,320],[36,390,440,330]].forEach(function(p){
+    ctx.fillStyle=pm; ctx.fillRect(p[0],p[1],p[2],p[3]);
+    ctx.strokeStyle='#d4af37'; ctx.lineWidth=2; ctx.strokeRect(p[0],p[1],p[2],p[3]);
   });
-
-  // BoxGeometry: faces order is +X,-X,+Y,-Y,+Z(front),-Z(back)
-  // For a group rotated -π/2 around Y: the +Z face will face the corridor
-  var CANVAS_DEPTH = 0.06;
-  var painting = new THREE.Mesh(
-    new THREE.BoxGeometry(paintingW, paintingH, CANVAS_DEPTH),
-    [sideMat, sideMat, sideMat, sideMat, frontMat, sideMat]
+  ctx.strokeStyle='#d4af37'; ctx.lineWidth=6; ctx.strokeRect(8,8,496,752);
+  ctx.fillStyle='#d4af37'; ctx.beginPath(); ctx.arc(430,384,20,0,Math.PI*2); ctx.fill();
+  var bdTex=new THREE.CanvasTexture(cvs);
+  backDoorMesh=new THREE.Mesh(
+    new THREE.PlaneGeometry(BD_W, BD_H),
+    new THREE.MeshStandardMaterial({map:bdTex,roughness:0.65,metalness:0.04,
+      emissive:new THREE.Color(0x0a0604),emissiveIntensity:0.5})
   );
-  painting.position.z = 0.14;  // clearly in front of woodBorder (0.06)
-  paintingGroup.add(painting);
-
-  // Load real image — replaces fallback when ready
-  loader.load('assets/mural_malagana.jpg', function(tex) {
-    tex.colorSpace = THREE.SRGBColorSpace;
-    // Add anisotropy for much better quality when viewed at an angle
-    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-    tex.needsUpdate = true;
-    frontMat.map = tex;
-    frontMat.needsUpdate = true;
-  });
-
-  // Position on RIGHT wall — pulled 0.55m away from wall surface to avoid z-fighting
-  // Wall inner surface is at x = HW/2 - WT/2 ≈ 4.85. Painting front face at x = 4.85 - 0.55 = 4.30
-  paintingGroup.position.set(HW/2 - 0.10, muralY, muralZ);
-  paintingGroup.rotation.y = -Math.PI / 2;  // right wall faces -X
-  scene.add(paintingGroup);
-
-  // Title plaque below the painting
-  var plqC = document.createElement('canvas'); plqC.width = 768; plqC.height = 80;
-  var pctx = plqC.getContext('2d');
-  // Dark navy background — high contrast with white text
-  pctx.fillStyle = '#0d1a2e'; pctx.fillRect(0, 0, 768, 80);
-  // Subtle gold border
-  pctx.strokeStyle = '#d4af37'; pctx.lineWidth = 3; pctx.strokeRect(3, 3, 762, 74);
-  pctx.textAlign = 'center';
-  // White text — maximum legibility
-  pctx.fillStyle = '#ffffff'; pctx.font = 'Bold 28px Georgia,serif';
-  pctx.shadowColor = 'rgba(212,175,55,0.6)'; pctx.shadowBlur = 6;
-  pctx.fillText('Cultura Malagana · Haz clic para conocer su historia', 384, 50);
-
-  var plqPlane = new THREE.Mesh(
-    new THREE.PlaneGeometry(paintingW, 0.38),
-    new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(plqC), roughness: 0.25, emissive: 0x0a0500, emissiveIntensity: 0.4 })
-  );
-  plqPlane.position.set(HW/2 - 0.12, muralY - paintingH/2 - 0.28, muralZ);
-  plqPlane.rotation.y = -Math.PI / 2;
-  scene.add(plqPlane);
-
-  // Two spotlights illuminating the painting from corridor ceiling
-  [-1.5, 1.5].forEach(function(dz) {
-    var ms = new THREE.SpotLight(0xfff8e8, 2.8, 10, Math.PI / 6.5, 0.35, 1.5);
-    ms.position.set(HW/2 - 3.5, HH - 0.4, muralZ + dz);
-    ms.target.position.set(HW/2 - 0.10, muralY, muralZ + dz);
-    scene.add(ms); scene.add(ms.target);
-  });
-
-  murals.push({ mesh: painting, type: 'malagana' });
+  backDoorMesh.position.set(0, BD_H/2, Z1-WT/2-0.02);
+  backDoorMesh.rotation.y=Math.PI;
+  scene.add(backDoorMesh);
 })();
 
 /* ── Collision ───────────────────────────────────────────────────── */
@@ -683,10 +453,7 @@ var obstacles = [
   { x0:  HW/2-WT,  x1:  HW/2+0.5, z0: Z0-1, z1: Z1+1 },
   { x0: -HW/2, x1: HW/2, z0: Z0-0.5, z1: Z0+WT },
   { x0: -HW/2, x1: HW/2, z0: Z1-WT,  z1: Z1+0.5 },
-  // Arch pillars
-  { x0: -5.10, x1: -4.50, z0: 10.65, z1: 11.35 },
-  { x0:  4.50, x1:  5.10, z0: 10.65, z1: 11.35 },
-  // Mural sits on the wall — wall collision already prevents walking through it
+  // Back door is against the wall — wall collision prevents walking through
 ];
 LAYOUT.forEach(function(cfg) {
   obstacles.push({ x0: cfg.x-0.78, x1: cfg.x+0.78, z0: cfg.z-0.78, z1: cfg.z+0.78 });
@@ -932,8 +699,9 @@ gl.addEventListener('touchend', function(e) {
 /* ── Raycaster ───────────────────────────────────────────────────── */
 var raycaster   = new THREE.Raycaster();
 var CENTER      = new THREE.Vector2(0, 0);
-var lastHovered = null;
-var lastMural   = null;
+var lastHovered   = null;
+var lastMural     = null;
+var lastBackDoor  = false;
 
 function checkHover() {
   raycaster.setFromCamera(CENTER, camera);
@@ -959,9 +727,22 @@ function checkHover() {
       lastMural = murals[0];
       hintEl.style.display = 'block';
       hintEl.textContent   = '🎬 Clic para conocer la historia';
+    } else if (backDoorMesh) {
+      var bdHits = raycaster.intersectObjects([backDoorMesh], false);
+      if (bdHits.length > 0 && bdHits[0].distance < 9) {
+        if (lastHovered) { lastHovered.hlRing.material.opacity = 0; lastHovered = null; }
+        lastMural = null; lastBackDoor = true;
+        hintEl.style.display = 'block';
+        hintEl.textContent = '🚪 Clic para volver a la Sala Central';
+        return;
+      } else {
+        if (lastHovered) { lastHovered.hlRing.material.opacity = 0; lastHovered = null; }
+        lastMural = null; lastBackDoor = false;
+        hintEl.style.display = 'none';
+      }
     } else {
       if (lastHovered) { lastHovered.hlRing.material.opacity = 0; lastHovered = null; }
-      lastMural = null;
+      lastMural = null; lastBackDoor = false;
       hintEl.style.display = 'none';
     }
   }
@@ -969,8 +750,9 @@ function checkHover() {
 
 gl.addEventListener('click', function() {
   if (!isLocked || modalOpen) return;
-  if (lastHovered) { openPieceModal(lastHovered.pieceId); return; }
-  if (lastMural)   { openMalaganaModal(); }
+  if (lastHovered)  { openPieceModal(lastHovered.pieceId); return; }
+  if (lastMural)    { openMalaganaModal(); return; }
+  if (lastBackDoor) { window.location.href = 'sala-central.html'; }
 });
 
 /* ── Piece modal ─────────────────────────────────────────────────── */

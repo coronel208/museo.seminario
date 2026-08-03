@@ -245,15 +245,15 @@ import * as THREE from 'three';
 var PEN_R    = 18;
 var PEN_A    = PEN_R * Math.cos(36 * Math.PI / 180);
 var PEN_SIDE = 2 * PEN_R * Math.sin(36 * Math.PI / 180);
-var HH       = 12;
+var HH       = 8;
 var WT       = 0.3;
 var DOOR_W   = 3.8;
-var DOOR_H   = 6.5;
+var DOOR_H   = 3.5;
 var SIDE_W   = (PEN_SIDE - DOOR_W) / 2;
 var TRANS_H  = HH - DOOR_H;
 var COL_W    = 0.5;
 var PANEL_W  = SIDE_W - COL_W - 0.7;
-var PANEL_H  = 3.2;
+var PANEL_H  = 1.8;
 
 // ── DOM ───────────────────────────────────────────────────────────────────────
 var startEl  = document.getElementById('start-prompt');
@@ -283,7 +283,7 @@ scene.background = new THREE.Color(0x060608);
 scene.fog = new THREE.Fog(0x060608, 18, 38);
 
 var camera = new THREE.PerspectiveCamera(72, 1, 0.1, 50);
-camera.position.set(0, 5.5, 0);
+camera.position.set(0, 1.75, 0);
 
 // ── MATERIALS ─────────────────────────────────────────────────────────────────
 var goldM = new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.18, metalness: 0.92 });
@@ -725,7 +725,7 @@ for(var wi=0;wi<5;wi++){
     if(wi===4 && si===0) window._photoMat_w4l = pmat;
     if(wi===4 && si===1) window._photoMat_w4r = pmat;
     var pmesh = new THREE.Mesh(new THREE.PlaneGeometry(PANEL_W, PANEL_H), pmat);
-    pmesh.position.set(cx, 3.8, WT/2+0.02);
+    pmesh.position.set(cx, 1.6, WT/2+0.02);
     grp.add(pmesh);
     interactables.push({mesh: pmesh, def: pdef});
 
@@ -733,7 +733,7 @@ for(var wi=0;wi<5;wi++){
     var fw = PANEL_W+0.08, fh = PANEL_H+0.08;
     [[fw,0.05,0,PANEL_H/2+0.025],[fw,0.05,0,-PANEL_H/2-0.025],[0.05,fh,PANEL_W/2+0.025,0],[0.05,fh,-PANEL_W/2-0.025,0]].forEach(function(f){
       var fm = new THREE.Mesh(new THREE.BoxGeometry(f[0],f[1],0.04), goldM);
-      fm.position.set(cx+f[2], 3.8+f[3], WT/2+0.02);
+      fm.position.set(cx+f[2], 1.6+f[3], WT/2+0.02);
       grp.add(fm);
     });
   });
