@@ -48,15 +48,14 @@ function hideLs() {
         document.body.appendChild(ov);
         ov.addEventListener('click', function() {
           ov.remove();
+          startPrompt.style.display = 'none';  // hide any startPrompt the unlock event may have shown
           hasStarted = true;
           _enterFs();
           if (!isMobile) {
             safeLock();
-            // Fallback: if lock wasn't acquired, show pause dialog so user can retry
+            // Fallback: if pointer lock wasn't acquired, show pause dialog so user can retry
             setTimeout(function() {
-              if (!isLocked && hasStarted && !modalOpen) {
-                if (pauseDialog) pauseDialog.style.display = 'flex';
-              }
+              if (!isLocked && hasStarted && !modalOpen) showPauseDialog();
             }, 1200);
           } else {
             hudEl.style.display = 'none';
@@ -127,32 +126,32 @@ function makeWallMat(repX, repY) {
   if (isMobile) { var ctx0 = wc.getContext('2d'); ctx0.scale(0.5, 0.5); }
   var ctx = wc.getContext('2d');
 
-  // Base: warm sandy-tan museum color
-  ctx.fillStyle = '#C4A87A'; ctx.fillRect(0, 0, 512, 512);
+  // Base: blue slate museum panel
+  ctx.fillStyle = '#3d5a80'; ctx.fillRect(0, 0, 512, 512);
 
-  // Wainscot (bottom rail) — richer dark stripe
-  ctx.fillStyle = '#6a3e18'; ctx.fillRect(0, 426, 512, 86);
-  ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(0, 426, 512, 3);
-  ctx.fillStyle = 'rgba(255,255,255,0.06)'; ctx.fillRect(0, 429, 512, 2);
+  // Wainscot (bottom rail) — dark navy
+  ctx.fillStyle = '#0a1530'; ctx.fillRect(0, 426, 512, 86);
+  ctx.fillStyle = 'rgba(0,0,0,0.30)'; ctx.fillRect(0, 426, 512, 3);
+  ctx.fillStyle = 'rgba(100,160,255,0.06)'; ctx.fillRect(0, 429, 512, 2);
 
   // Panel field (slightly recessed look)
   ctx.fillStyle = 'rgba(0,0,0,0.09)'; ctx.fillRect(16, 16, 480, 395);
 
-  // ── Outer moulding border — two gold lines ──
-  ctx.strokeStyle = 'rgba(160,118,28,0.90)'; ctx.lineWidth = 5;
+  // ── Outer moulding border — blue lines ──
+  ctx.strokeStyle = 'rgba(70,130,210,0.90)'; ctx.lineWidth = 5;
   ctx.strokeRect(14, 14, 484, 397);
-  ctx.strokeStyle = 'rgba(190,148,42,0.60)'; ctx.lineWidth = 2;
+  ctx.strokeStyle = 'rgba(120,180,240,0.60)'; ctx.lineWidth = 2;
   ctx.strokeRect(22, 22, 468, 381);
 
   // ── Inner inset panel ──
-  ctx.strokeStyle = 'rgba(160,118,28,0.75)'; ctx.lineWidth = 3;
+  ctx.strokeStyle = 'rgba(70,130,210,0.75)'; ctx.lineWidth = 3;
   ctx.strokeRect(36, 36, 440, 353);
-  ctx.strokeStyle = 'rgba(190,148,42,0.45)'; ctx.lineWidth = 1.5;
+  ctx.strokeStyle = 'rgba(120,180,240,0.45)'; ctx.lineWidth = 1.5;
   ctx.strokeRect(44, 44, 424, 337);
 
   // ── Center decorative motif ──
-  var gold = 'rgba(170,128,32,';
-  ctx.strokeStyle = gold+'0.60)'; ctx.lineWidth = 2;
+  var blu = 'rgba(80,145,220,';
+  ctx.strokeStyle = blu+'0.60)'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(256, 44); ctx.lineTo(256, 381); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(44, 212); ctx.lineTo(468, 212); ctx.stroke();
 
@@ -161,28 +160,28 @@ function makeWallMat(repX, repY) {
     var sizes = [30, 19, 9];
     var alphas = [0.70, 0.50, 0.30];
     sizes.forEach(function(s, i) {
-      ctx.strokeStyle = gold + alphas[i] + ')'; ctx.lineWidth = i === 0 ? 2.5 : 1.5;
+      ctx.strokeStyle = blu + alphas[i] + ')'; ctx.lineWidth = i === 0 ? 2.5 : 1.5;
       ctx.strokeRect(c[0]-s, c[1]-s, s*2, s*2);
     });
     ctx.beginPath(); ctx.arc(c[0], c[1], 4.5, 0, Math.PI*2);
-    ctx.fillStyle = gold + '0.70)'; ctx.fill();
+    ctx.fillStyle = blu + '0.70)'; ctx.fill();
   });
 
   // Center diamond ornament
   ctx.beginPath();
   ctx.moveTo(256, 160); ctx.lineTo(310, 212); ctx.lineTo(256, 264); ctx.lineTo(202, 212);
   ctx.closePath();
-  ctx.strokeStyle = gold+'0.65)'; ctx.lineWidth = 3; ctx.stroke();
-  ctx.fillStyle = gold+'0.15)'; ctx.fill();
+  ctx.strokeStyle = blu+'0.65)'; ctx.lineWidth = 3; ctx.stroke();
+  ctx.fillStyle = blu+'0.15)'; ctx.fill();
 
   // Small center dot
   ctx.beginPath(); ctx.arc(256, 212, 5.5, 0, Math.PI*2);
-  ctx.fillStyle = gold+'0.75)'; ctx.fill();
+  ctx.fillStyle = blu+'0.75)'; ctx.fill();
 
-  // Wainscot top moulding line (gold accent)
-  ctx.strokeStyle = 'rgba(180,138,35,0.80)'; ctx.lineWidth = 3;
+  // Wainscot top moulding line (blue accent)
+  ctx.strokeStyle = 'rgba(60,120,200,0.80)'; ctx.lineWidth = 3;
   ctx.beginPath(); ctx.moveTo(0, 426); ctx.lineTo(512, 426); ctx.stroke();
-  ctx.strokeStyle = 'rgba(210,168,55,0.45)'; ctx.lineWidth = 1.5;
+  ctx.strokeStyle = 'rgba(100,160,230,0.45)'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(0, 421); ctx.lineTo(512, 421); ctx.stroke();
 
   var tex = new THREE.CanvasTexture(wc);
@@ -195,8 +194,8 @@ function makeWallMat(repX, repY) {
 var sideWallM = makeWallMat(15, 2);
 // End walls (10m wide): 5 panels wide, 2 panels tall → each panel = 2m×4m
 var wallM     = makeWallMat(5, 2);
-var floorM  = new THREE.MeshStandardMaterial({ color: 0x252018, roughness: 0.55, metalness: 0.10 });
-var ceilM   = new THREE.MeshStandardMaterial({ color: 0xE8E4DC, roughness: 0.75 });
+var floorM  = new THREE.MeshStandardMaterial({ color: 0x0c1a30, roughness: 0.70, metalness: 0.05 });
+var ceilM   = new THREE.MeshStandardMaterial({ color: 0xbdd0ee, roughness: 0.80 });
 var woodM   = new THREE.MeshStandardMaterial({ color: 0x5a3010, roughness: 0.82 });
 var goldM   = new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.22, metalness: 0.88 });
 var marbleM = new THREE.MeshStandardMaterial({ color: 0xddd4c8, roughness: 0.38, metalness: 0.08 });
@@ -576,6 +575,13 @@ var hudEl       = document.getElementById('hud');
 var crosshairEl = document.getElementById('crosshair');
 var hintEl      = document.getElementById('hint-label');
 
+// Guard: never show the pause dialog if it's already visible
+function showPauseDialog() {
+  if (!pauseDialog || pauseDialog.style.display === 'flex') return;
+  startPrompt.style.display = 'none';  // always hide startPrompt when pause dialog appears
+  pauseDialog.style.display = 'flex';
+}
+
 plc.addEventListener('lock', function() {
   isLocked = true;
   hasStarted = true;
@@ -596,9 +602,9 @@ plc.addEventListener('unlock', function() {
   hintEl.style.display      = 'none';
   if (!modalOpen && !justClosed) {
     if (hasStarted) {
-      // Show pause dialog instead of start prompt
-      if (pauseDialog) pauseDialog.style.display = 'flex';
-    } else {
+      showPauseDialog();
+    } else if (!_autoStart) {
+      // Only show startPrompt when there is no _autoStart overlay pending
       startPrompt.style.display = 'flex';
     }
   }
@@ -632,11 +638,8 @@ gl.addEventListener('click', function() { if (!isLocked && !modalOpen) { _enterF
 // Auto-pause: when tab becomes visible again and user is in the recorrido
 document.addEventListener('visibilitychange', function() {
   if (document.hidden) return;
-  // Small delay to let the page settle after becoming visible
   setTimeout(function() {
-    if (hasStarted && !modalOpen && !isLocked) {
-      if (pauseDialog) pauseDialog.style.display = 'flex';
-    }
+    if (hasStarted && !modalOpen && !isLocked) showPauseDialog();
   }, 300);
 });
 
@@ -1102,7 +1105,7 @@ document.getElementById('pm-close').addEventListener('click', function() {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape' && modalOpen) {
     closePieceModalBase();
-    if (pauseDialog) pauseDialog.style.display = 'flex';
+    showPauseDialog();
   }
 });
 
