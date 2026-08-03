@@ -970,12 +970,14 @@ function setMView(v) {
   cancelAnimationFrame(mAnimId);
   if (v === '3d')  { pmCanvas.style.display    = 'block'; btnM3d.classList.add('on');  animM(); }
   if (v === 'img') {
+    hidePmLoad();
     pmSlideWrap.style.display = 'block'; btnMImg.classList.add('on');
     if (currentPiece && currentPiece.imagenes.length) {
       pmSlideImg.src = currentPiece.imagenes[mSlideIdx]; pmSlideImg.style.opacity = '1';
     }
   }
   if (v === 'qr') {
+    hidePmLoad();
     pmQrWrap.style.display = 'flex';
     btnMQr.classList.add('on');
     var qrUrl = (location.origin !== 'null' ? location.origin : 'https://museo-seminario.com') + '/coleccion.html?pieza=' + currentPiece.id;
@@ -1093,7 +1095,7 @@ function openPieceModal(pieceId) {
       var ctr  = bbox.getCenter(new THREE.Vector3());
       m.position.set(-ctr.x * sc, -ctr.y * sc, -ctr.z * sc);
       mMesh.add(m);
-    });
+    }, undefined, function() { hidePmLoad(); });
   } else {
     hidePmLoad();
     mMesh.add(buildArtifact(piece, 1.05));
