@@ -147,8 +147,7 @@
     .pm-slide-arrow:hover { background:rgba(212,175,55,.28); opacity:1; }
     #pm-slide-prev { left:8px; } #pm-slide-next { right:8px; }
 
-    #pm-vid-wrap { display:none; position:absolute; inset:0; background:#000; align-items:flex-start; justify-content:center; }
-    #pm-vid-wrap video { width:100%; height:100%; object-fit:contain; }
+    #pm-qr-wrap { display:none; position:absolute; inset:0; background:#0d0f14; align-items:center; justify-content:center; }
     .no-media { text-align:center; color:#a99e8c; padding-top:3rem; }
     .no-media i { display:block; font-size:2.5rem; margin-bottom:.8rem; }
 
@@ -293,14 +292,14 @@
             </div>
 
             <!-- Video -->
-            <div id="pm-vid-wrap"></div>
+            <div id="pm-qr-wrap"></div>
           </div>
 
           <!-- Bottom bar — same as collection -->
           <div class="pm-ctrl">
             <button class="on" id="pm-btn-3d"><i class="fas fa-cube"></i> 3D</button>
             <button id="pm-btn-img"><i class="fas fa-image"></i> Imágenes</button>
-            <button id="pm-btn-vid"><i class="fas fa-video"></i> Video</button>
+            <button id="pm-btn-qr"><i class="fas fa-qrcode"></i> QR</button>
             <div class="pm-right">
               <button id="pm-btn-ampliar" title="Ver ampliado"><i class="fas fa-expand-alt"></i></button>
             </div>
@@ -329,6 +328,7 @@
       menu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', closeM); });
     })();
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script type="module" src="js/recorrido.js"></script>
 
   <!-- Malagana cultural mural modal -->

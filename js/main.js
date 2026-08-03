@@ -108,10 +108,10 @@ var slideImg  = document.getElementById('slide-img');
 var slidePrev = document.getElementById('slide-prev');
 var slideNext = document.getElementById('slide-next');
 var slideDots = document.getElementById('slide-dots');
-var vidWrap   = document.getElementById('vid-wrap');
+var qrWrap    = document.getElementById('qr-wrap');
 var btn3d     = document.getElementById('view-3d');
 var btnImg    = document.getElementById('view-images');
-var btnVid    = document.getElementById('view-video');
+var btnQr     = document.getElementById('view-qr');
 
 var currentPiece = null;
 var slideIndex   = 0;
@@ -192,9 +192,9 @@ function setView(v) {
   /* hide all panels */
   mCanvas.style.display   = 'none';
   slideWrap.style.display = 'none';
-  vidWrap.style.display   = 'none';
+  qrWrap.style.display    = 'none';
   /* deactivate all buttons */
-  [btn3d, btnImg, btnVid].forEach(function(b) { b.classList.remove('active'); });
+  [btn3d, btnImg, btnQr].forEach(function(b) { b.classList.remove('active'); });
   /* cancel 3d loop */
   cancelAnimationFrame(mAnimId);
 
@@ -205,20 +205,23 @@ function setView(v) {
   } else if (v === 'img') {
     slideWrap.style.display = 'block';
     btnImg.classList.add('active');
-  } else if (v === 'vid') {
-    vidWrap.style.display = 'flex';
-    btnVid.classList.add('active');
-    if (currentPiece.video) {
-      vidWrap.innerHTML = '<video src="' + currentPiece.video + '" controls autoplay style="width:100%;height:100%;object-fit:contain;"></video>';
-    } else {
-      vidWrap.innerHTML = '<div class="no-media"><i class="fas fa-video-slash"></i><span>Video no disponible</span></div>';
+  } else if (v === 'qr') {
+    qrWrap.style.display = 'flex';
+    btnQr.classList.add('active');
+    var qrUrl = (location.origin !== 'null' ? location.origin : 'https://museo-seminario.com') + '/coleccion.html?pieza=' + currentPiece.id;
+    qrWrap.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;height:100%;padding:1rem;">'
+      + '<div id="col-qr-container" style="background:#fff;padding:12px;border-radius:8px;"></div>'
+      + '<span style="color:#a99e8c;font-size:.82rem;text-align:center;max-width:220px;">' + currentPiece.nombre + '</span>'
+      + '</div>';
+    if (window.QRCode) {
+      new window.QRCode(document.getElementById('col-qr-container'), { text: qrUrl, width: 180, height: 180, colorDark: '#000', colorLight: '#fff', correctLevel: window.QRCode.CorrectLevel.M });
     }
   }
 }
 
 btn3d.addEventListener('click',  function() { setView('3d');  });
 btnImg.addEventListener('click', function() { setView('img'); });
-btnVid.addEventListener('click', function() { setView('vid'); });
+btnQr.addEventListener('click',  function() { setView('qr'); });
 
 /* ── Open / close modal ──────────────────────────────────────────── */
 function openModal(pieceId) {
@@ -318,13 +321,14 @@ if (btnZoom) {
       img.src = currentPiece.imagenes[slideIndex] || currentPiece.imagenes[0];
       img.style.cssText = 'max-width:95vw;max-height:95vh;object-fit:contain;border-radius:4px;';
       ct.appendChild(img);
-    } else if (v === 'view-video') {
-      if (currentPiece.video) {
-        var vid = document.createElement('video');
-        vid.src = currentPiece.video; vid.controls = true; vid.autoplay = true; vid.muted = true;
-        vid.style.cssText = 'max-width:95vw;max-height:92vh;';
-        ct.appendChild(vid);
-      } else { ct.innerHTML = '<p style="color:#a99e8c;font-size:1.1rem;">Video no disponible</p>'; }
+    } else if (v === 'view-qr') {
+      var qrUrl3 = (location.origin !== 'null' ? location.origin : 'https://museo-seminario.com') + '/coleccion.html?pieza=' + currentPiece.id;
+      var qrDiv3 = document.createElement('div');
+      qrDiv3.style.cssText = 'background:#fff;padding:16px;border-radius:10px;';
+      ct.appendChild(qrDiv3);
+      if (window.QRCode) {
+        new window.QRCode(qrDiv3, { text: qrUrl3, width: 250, height: 250, colorDark: '#000', colorLight: '#fff', correctLevel: window.QRCode.CorrectLevel.M });
+      }
     } else {
       // 3D full window
       var oc = document.createElement('canvas');

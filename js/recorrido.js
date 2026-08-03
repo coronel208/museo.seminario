@@ -824,10 +824,10 @@ var pmSlideImg  = document.getElementById('pm-slide-img');
 var pmSlidePrev = document.getElementById('pm-slide-prev');
 var pmSlideNext = document.getElementById('pm-slide-next');
 var pmSlideDots = document.getElementById('pm-slide-dots');
-var pmVidWrap   = document.getElementById('pm-vid-wrap');
+var pmQrWrap    = document.getElementById('pm-qr-wrap');
 var btnM3d      = document.getElementById('pm-btn-3d');
 var btnMImg     = document.getElementById('pm-btn-img');
-var btnMVid     = document.getElementById('pm-btn-vid');
+var btnMQr      = document.getElementById('pm-btn-qr');
 
 // Modal loading overlay
 (function() {
@@ -904,25 +904,28 @@ function setMView(v) {
   mCurrentView = v;
   pmCanvas.style.display    = 'none';
   pmSlideWrap.style.display = 'none';
-  pmVidWrap.style.display   = 'none';
-  [btnM3d, btnMImg, btnMVid].forEach(function(b) { b.classList.remove('on'); });
+  pmQrWrap.style.display    = 'none';
+  [btnM3d, btnMImg, btnMQr].forEach(function(b) { b.classList.remove('on'); });
   cancelAnimationFrame(mAnimId);
   if (v === '3d')  { pmCanvas.style.display    = 'block'; btnM3d.classList.add('on');  animM(); }
   if (v === 'img') { pmSlideWrap.style.display = 'block'; btnMImg.classList.add('on'); }
-  if (v === 'vid') {
-    pmVidWrap.style.display = 'flex';
-    btnMVid.classList.add('on');
-    if (currentPiece.video) {
-      pmVidWrap.innerHTML = '<video src="' + currentPiece.video + '" controls autoplay style="width:100%;height:100%"></video>';
-    } else {
-      pmVidWrap.innerHTML = '<div class="no-media"><i class="fas fa-video-slash"></i><span>Video no disponible</span></div>';
+  if (v === 'qr') {
+    pmQrWrap.style.display = 'flex';
+    btnMQr.classList.add('on');
+    var qrUrl = (location.origin !== 'null' ? location.origin : 'https://museo-seminario.com') + '/coleccion.html?pieza=' + currentPiece.id;
+    pmQrWrap.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;height:100%;padding:1rem;">'
+      + '<div id="pm-qr-container" style="background:#fff;padding:12px;border-radius:8px;"></div>'
+      + '<span style="color:#a99e8c;font-size:.82rem;text-align:center;max-width:220px;">' + currentPiece.nombre + '</span>'
+      + '</div>';
+    if (window.QRCode) {
+      new window.QRCode(document.getElementById('pm-qr-container'), { text: qrUrl, width: 180, height: 180, colorDark: '#000', colorLight: '#fff', correctLevel: window.QRCode.CorrectLevel.M });
     }
   }
 }
 
 btnM3d.addEventListener('click',  function() { setMView('3d');  });
 btnMImg.addEventListener('click', function() { setMView('img'); });
-btnMVid.addEventListener('click', function() { setMView('vid'); });
+btnMQr.addEventListener('click',  function() { setMView('qr'); });
 
 // ── Ampliar overlay (piece modal) — created dynamically ──────────────
 var pmAmpOverlay = (function() {
@@ -957,13 +960,14 @@ if (pmBtnAmpliar) {
       img.src = currentPiece.imagenes[mSlideIdx] || currentPiece.imagenes[0];
       img.style.cssText = 'max-width:95vw;max-height:95vh;object-fit:contain;border-radius:4px;';
       ct.appendChild(img);
-    } else if (mCurrentView === 'vid') {
-      if (currentPiece.video) {
-        var vid = document.createElement('video');
-        vid.src = currentPiece.video; vid.controls = true; vid.autoplay = true; vid.muted = true;
-        vid.style.cssText = 'max-width:95vw;max-height:92vh;';
-        ct.appendChild(vid);
-      } else { ct.innerHTML = '<p style="color:#a99e8c;font-size:1.1rem;">Video no disponible</p>'; }
+    } else if (mCurrentView === 'qr') {
+      var qrUrl2 = (location.origin !== 'null' ? location.origin : 'https://museo-seminario.com') + '/coleccion.html?pieza=' + currentPiece.id;
+      var qrDiv = document.createElement('div');
+      qrDiv.style.cssText = 'background:#fff;padding:16px;border-radius:10px;';
+      ct.appendChild(qrDiv);
+      if (window.QRCode) {
+        new window.QRCode(qrDiv, { text: qrUrl2, width: 250, height: 250, colorDark: '#000', colorLight: '#fff', correctLevel: window.QRCode.CorrectLevel.M });
+      }
     } else {
       var oc = document.createElement('canvas');
       var W = Math.round(window.innerWidth * 0.92), H = Math.round(window.innerHeight * 0.90);
@@ -1012,7 +1016,7 @@ function openPieceModal(pieceId) {
   mSc.add(mMesh);
   if (piece.modelUrl) {
     showPmLoad();
-    makeGLTF().load(piece.modelUrl, function(gltf) {
+    _gltfLoader.load(piece.modelUrl, function(gltf) {
       hidePmLoad();
       var m = gltf.scene;
       var bbox = new THREE.Box3().setFromObject(m);
@@ -1047,7 +1051,7 @@ function closePieceModalBase() {
   justClosed = true;
   modalOpen  = false;
   cancelAnimationFrame(mAnimId);
-  pmVidWrap.innerHTML = '';
+  pmQrWrap.innerHTML = '';
 }
 
 document.getElementById('pm-close').addEventListener('click', function() {

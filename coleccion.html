@@ -53,14 +53,14 @@
             <div class="slide-arrow" id="slide-next"><i class="fas fa-chevron-right"></i></div>
           </div>
 
-          <!-- Video -->
-          <div id="vid-wrap"></div>
+          <!-- QR -->
+          <div id="qr-wrap"></div>
 
           <!-- Bottom bar: controls always visible, never on top of content -->
           <div class="media-controls">
             <button id="view-3d"     class="active"><i class="fas fa-cube"></i> 3D</button>
             <button id="view-images"><i class="fas fa-image"></i> Imágenes</button>
-            <button id="view-video" ><i class="fas fa-video"></i> Video</button>
+            <button id="view-qr"    ><i class="fas fa-qrcode"></i> QR</button>
             <button id="btn-zoom"   style="margin-left:auto;" title="Pantalla completa"><i class="fas fa-expand-alt"></i></button>
           </div>
         </div>
@@ -90,6 +90,7 @@
       menu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', close); });
     })();
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script type="module" src="js/main.js"></script>
 </body>
 </html>
