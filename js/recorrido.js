@@ -25,6 +25,8 @@ function prog(pct, msg) {
   lsStatus.textContent = msg;
 }
 
+var _autoStart = new URLSearchParams(location.search).has('fs');
+
 function hideLs() {
   prog(100, '¡Listo!');
   setTimeout(function() {
@@ -32,7 +34,17 @@ function hideLs() {
     lsEl.style.opacity    = '0';
     setTimeout(function() {
       lsEl.style.display = 'none';
-      document.getElementById('start-prompt').style.display = 'flex';
+      if (hasStarted) return;             // already started (btn clicked before GLBs)
+      if (_autoStart) {
+        // Coming from sala-central — enter directly without start prompt
+        hasStarted = true;
+        var el = document.documentElement;
+        var fsReq = el.requestFullscreen || el.webkitRequestFullscreen;
+        if (fsReq && !document.fullscreenElement) fsReq.call(el).catch(function(){});
+        if (!isMobile) { try { plc.lock(); } catch(e){} }
+      } else {
+        document.getElementById('start-prompt').style.display = 'flex';
+      }
     }, 750);
   }, 400);
 }
@@ -564,38 +576,26 @@ if (isMobile) {
   if (spMobile)  spMobile.style.display  = 'block';
 }
 
-function _fsLock() {
+// Helper: request fullscreen fire-and-forget, then lock immediately.
+// requestFullscreen is async but pointer lock MUST be in the sync user-gesture call.
+function _enterFs() {
   var el = document.documentElement;
   var fsReq = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen;
-  if (fsReq && !document.fullscreenElement) {
-    fsReq.call(el).then(function() { _doLock(); }).catch(function() { _doLock(); });
-  } else { _doLock(); }
+  if (fsReq && !document.fullscreenElement) fsReq.call(el).catch(function(){});
 }
-function _doLock() {
-  if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-    hasStarted = true; startPrompt.style.display = 'none'; hudEl.style.display = 'none';
-  } else { safeLock(); }
-}
+
 document.getElementById('btn-start').addEventListener('click', function() {
-  hasStarted = true; startPrompt.style.display = 'none'; _fsLock();
+  hasStarted = true; startPrompt.style.display = 'none';
+  _enterFs();
+  if (!isMobile) safeLock(); else hudEl.style.display = 'none';
 });
-// Auto-start when navigating from sala-central (?fs=1) — skip start prompt
-if (new URLSearchParams(location.search).has('fs')) {
-  window.addEventListener('load', function() {
-    var el = document.documentElement;
-    var fsReq = el.requestFullscreen || el.webkitRequestFullscreen;
-    hasStarted = true; startPrompt.style.display = 'none';
-    if (fsReq) fsReq.call(el).then(function() { _doLock(); }).catch(function() { _doLock(); });
-    else _doLock();
-  });
-}
-gl.addEventListener('click', function() { if (!isLocked && !modalOpen && !hasStarted) safeLock(); });
+gl.addEventListener('click', function() { if (!isLocked && !modalOpen && !hasStarted) { _enterFs(); safeLock(); } });
 
 var btnContinue = document.getElementById('pd-continue');
 var btnAbandon  = document.getElementById('pd-abandon');
 if (btnContinue) btnContinue.addEventListener('click', function() {
   if (pauseDialog) pauseDialog.style.display = 'none';
-  _fsLock();
+  _enterFs(); safeLock();
 });
 if (btnAbandon) btnAbandon.addEventListener('click', function() {
   window.location.href = 'index.html';
@@ -1042,7 +1042,7 @@ function closePieceModalBase() {
 
 document.getElementById('pm-close').addEventListener('click', function() {
   closePieceModalBase();
-  _fsLock();
+  _enterFs(); safeLock();
 });
 
 // ESC key = browser refuses immediate relock → show pause dialog
@@ -1079,7 +1079,7 @@ function closeMalaganaModal() {
   malaganaModal.classList.remove('open');
   justClosed = true;
   modalOpen  = false;
-  setTimeout(function() { _fsLock(); }, 80);
+  setTimeout(function() { _enterFs(); safeLock(); }, 80);
 }
 if (malaganaModal) {
   var mlClose = malaganaModal.querySelector('#ml-close');

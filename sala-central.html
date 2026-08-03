@@ -1033,25 +1033,23 @@ document.addEventListener('keydown', function(e){
 });
 document.addEventListener('keyup', function(e){ keys[e.code]=false; });
 
-function _fsLock(){
+function _enterFs(){
   var el=document.documentElement;
   var fsReq=el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen;
-  if(fsReq&&!document.fullscreenElement){
-    fsReq.call(el).then(function(){canvas.requestPointerLock();}).catch(function(){canvas.requestPointerLock();});
-  } else { canvas.requestPointerLock(); }
+  if(fsReq&&!document.fullscreenElement) fsReq.call(el).catch(function(){});
 }
 document.getElementById('btn-start').addEventListener('click', function(){
-  started=true; startEl.style.display='none'; _fsLock();
+  started=true; startEl.style.display='none'; _enterFs(); canvas.requestPointerLock();
 });
 document.getElementById('pd-continue').addEventListener('click', function(){
-  pauseEl.style.display='none'; _fsLock();
+  pauseEl.style.display='none'; _enterFs(); canvas.requestPointerLock();
 });
 // Auto-start when returning from sala1 (?fs=1)
-if(new URLSearchParams(location.search).has('fs')){
+var _scAutoStart=new URLSearchParams(location.search).has('fs');
+if(_scAutoStart){
   window.addEventListener('load', function(){
-    var el=document.documentElement;
-    var fsReq=el.requestFullscreen||el.webkitRequestFullscreen;
-    if(fsReq){ fsReq.call(el).then(function(){ started=true; startEl.style.display='none'; canvas.requestPointerLock(); }).catch(function(){}); }
+    started=true; startEl.style.display='none';
+    _enterFs(); canvas.requestPointerLock();
   });
 }
 document.getElementById('pd-abandon').addEventListener('click', function(){
@@ -1086,7 +1084,7 @@ document.getElementById('ml-close').addEventListener('click', closeMal);
 malModal.addEventListener('click', function(e){ if(e.target===malModal) closeMal(); });
 resumeOverlay.addEventListener('click', function(){
   resumeOverlay.style.display='none';
-  _fsLock();
+  _enterFs(); canvas.requestPointerLock();
 });
 
 // ── DOOR MODAL ────────────────────────────────────────────────────────────────
