@@ -1308,4 +1308,6 @@ function tick(now) {
 }
 
 if (glbPending <= 0) hideLs();
+// Safety: if GLBs hang (Draco decoder timeout, network, etc.), force-hide after 12s
+setTimeout(function(){ if(lsEl && lsEl.style.display !== 'none') hideLs(); }, 12000);
 requestAnimationFrame(tick);
