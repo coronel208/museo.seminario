@@ -50,9 +50,8 @@ function hideLs() {
           ov.remove();
           startPrompt.style.display = 'none';  // hide any startPrompt the unlock event may have shown
           hasStarted = true;
-          _enterFs();
           if (!isMobile) {
-            safeLock();
+            safeLock(); // fullscreen entered in lock handler after confirmation
             // Fallback: if pointer lock wasn't acquired, show pause dialog so user can retry
             setTimeout(function() {
               if (!isLocked && hasStarted && !modalOpen) showPauseDialog();
@@ -610,6 +609,8 @@ plc.addEventListener('lock', function() {
   if (pauseDialog) pauseDialog.style.display = 'none';
   hudEl.style.display       = 'block';
   crosshairEl.style.display = 'block';
+  // Enter fullscreen AFTER lock is confirmed (avoids race condition)
+  if (!isMobile && !document.fullscreenElement) _enterFs();
   // Apply sala color to UI hints
   hintEl.style.borderColor  = SALA_CLR_HEX;
   hintEl.style.color        = SALA_CLR_HEX;
@@ -650,11 +651,10 @@ function _enterFs() {
 
 document.getElementById('btn-start').addEventListener('click', function() {
   hasStarted = true; startPrompt.style.display = 'none';
-  _enterFs();
   if (!isMobile) safeLock(); else hudEl.style.display = 'none';
 });
 // Clicking the canvas when not locked re-acquires pointer lock (any state)
-gl.addEventListener('click', function() { if (!isLocked && !modalOpen) { _enterFs(); safeLock(); } });
+gl.addEventListener('click', function() { if (!isLocked && !modalOpen) { safeLock(); } });
 
 // Auto-pause: when tab becomes visible again and user is in the recorrido
 document.addEventListener('visibilitychange', function() {
@@ -668,8 +668,15 @@ var btnContinue = document.getElementById('pd-continue');
 var btnAbandon  = document.getElementById('pd-abandon');
 if (btnContinue) btnContinue.addEventListener('click', function() {
   if (pauseDialog) pauseDialog.style.display = 'none';
-  _enterFs(); safeLock();
+  safeLock();
 });
+
+// Stuck detector: auto-show pause dialog if pointer lock lost unexpectedly
+setInterval(function() {
+  if (hasStarted && !isLocked && !modalOpen && (!pauseDialog || pauseDialog.style.display !== 'flex')) {
+    showPauseDialog();
+  }
+}, 2500);
 if (btnAbandon) btnAbandon.addEventListener('click', function() {
   window.location.href = 'index.html';
 });
@@ -1130,7 +1137,7 @@ function closePieceModalBase() {
 
 document.getElementById('pm-close').addEventListener('click', function() {
   closePieceModalBase();
-  _enterFs(); safeLock();
+  safeLock();
 });
 
 // ESC key = browser refuses immediate relock → show pause dialog
@@ -1167,7 +1174,7 @@ function closeMalaganaModal() {
   malaganaModal.classList.remove('open');
   justClosed = true;
   modalOpen  = false;
-  setTimeout(function() { _enterFs(); safeLock(); }, 80);
+  setTimeout(function() { safeLock(); }, 80);
 }
 if (malaganaModal) {
   var mlClose = malaganaModal.querySelector('#ml-close');

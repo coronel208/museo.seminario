@@ -1023,7 +1023,14 @@ document.addEventListener('pointerlockchange', function(){
   locked = !!document.pointerLockElement;
   hudEl.style.display = locked ? 'block' : 'none';
   crossEl.style.display = locked ? 'block' : 'none';
-  if(!locked && started && !modalOpen) pauseEl.style.display='flex';
+  if(locked){
+    // Enter fullscreen AFTER lock is confirmed to avoid race condition
+    if(!document.fullscreenElement) _enterFs();
+    resumeOverlay.style.display = 'none';
+    pauseEl.style.display = 'none';
+  } else if(started && !modalOpen){
+    pauseEl.style.display = 'flex';
+  }
 });
 document.addEventListener('mousemove', function(e){
   if(!locked || modalOpen) return;
@@ -1046,19 +1053,24 @@ function _enterFs(){
   if(fsReq&&!document.fullscreenElement) fsReq.call(el).catch(function(){});
 }
 document.getElementById('btn-start').addEventListener('click', function(){
-  started=true; startEl.style.display='none'; _enterFs(); canvas.requestPointerLock();
+  started=true; startEl.style.display='none'; canvas.requestPointerLock();
 });
 document.getElementById('pd-continue').addEventListener('click', function(){
-  pauseEl.style.display='none'; _enterFs(); canvas.requestPointerLock();
+  pauseEl.style.display='none'; canvas.requestPointerLock();
 });
-// Auto-start when returning from sala1 (?fs=1)
+// Auto-start when returning from a sala (?fs=1): show resume overlay (pointer lock needs user gesture)
 var _scAutoStart=new URLSearchParams(location.search).has('fs');
 if(_scAutoStart){
-  window.addEventListener('load', function(){
-    started=true; startEl.style.display='none';
-    _enterFs(); canvas.requestPointerLock();
-  });
+  started=true; startEl.style.display='none';
+  resumeOverlay.style.display='flex';
 }
+
+// Stuck detector: if started and pointer lock was lost outside a modal/pause, show resume overlay
+setInterval(function(){
+  if(started && !locked && !modalOpen && pauseEl.style.display!=='flex'){
+    resumeOverlay.style.display='flex';
+  }
+}, 2500);
 document.getElementById('pd-abandon').addEventListener('click', function(){
   window.location.href='index.html';
 });
@@ -1091,7 +1103,7 @@ document.getElementById('ml-close').addEventListener('click', closeMal);
 malModal.addEventListener('click', function(e){ if(e.target===malModal) closeMal(); });
 resumeOverlay.addEventListener('click', function(){
   resumeOverlay.style.display='none';
-  _enterFs(); canvas.requestPointerLock();
+  canvas.requestPointerLock();
 });
 
 // ── DOOR MODAL ────────────────────────────────────────────────────────────────
