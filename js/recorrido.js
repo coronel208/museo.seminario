@@ -312,7 +312,8 @@ var _LAYOUTS = {
   2: [
     { piece: getPieceById('vasija-antropomorfa'),    x: -3.0, z: 16 },
     { piece: getPieceById('vasija-globular-asas'),   x:  3.0, z: 16 },
-    { piece: getPieceById('cuenco-miniatura-carenado'), x: -3.0, z:  8 }
+    { piece: getPieceById('cuenco-miniatura-carenado'), x: -3.0, z:  8 },
+    { piece: getPieceById('vasija-globular-sonso'),    x:  3.0, z:  8 }
   ]
 };
 var LAYOUT = _LAYOUTS[SALA_NUM] || _LAYOUTS[1];

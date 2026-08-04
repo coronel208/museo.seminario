@@ -266,6 +266,26 @@ export const PIECES = [
     video: null,
     modelUrl: 'models/cuenco-miniatura-carenado.glb',
     restY: 1.19
+  },
+
+  // ── VASIJA GLOBULAR CON APLIQUE DIGITADO · Calima Sonso ──────────────
+  {
+    id: 'vasija-globular-sonso',
+    nombre: 'Vasija Globular con Aplique Digitado',
+    procedencia: 'Cultura Calima — período Sonso, Valle del Cauca · 1200 d.C. – 1600 d.C.',
+    descripcion: 'Vasija cerámica globular con cuerpo esférico, cuello corto y borde evertido con labio redondeado. Presenta como elemento diagnóstico una banda de aplique con muescas o incisiones digitales en la base del cuello, rasgo típico de la alfarería utilitaria del período Sonso en el suroccidente colombiano. La pasta semigruesa refleja un cambio hacia la manufactura de enseres de uso cotidiano. La superficie muestra evidencias de exposición al fuego con áreas oscurecidas por hollín y pátinas de meteorización por depósito prolongado. Estado de conservación completo con integridad estructural notable.',
+    metadata: 'Material: Cerámica · Cultura: Calima · Período: Sonso (1200–1600 d.C.) · Dimensiones: Alt. 13.8 cm · Ancho 15.5 cm · ⌀ 16.2 cm · Técnica: Pasta semigruesa, desgrasante de cuarzo y tiesto molido, cocción reductora · Decoración: Banda aplique con incisiones digitales · Estado: Completo',
+    color: 0x7a3a20, roughness: 0.92, metalness: 0.01,
+    imagenes: [
+      'images/vasija-globular-sonso-1.jpeg',
+      'images/vasija-globular-sonso-2.jpeg',
+      'images/vasija-globular-sonso-3.jpeg',
+      'images/vasija-globular-sonso-4.jpeg',
+      'images/vasija-globular-sonso-5.jpeg'
+    ],
+    video: null,
+    modelUrl: 'models/vasija-globular-sonso.glb',
+    restY: 1.19
   }
 
 ];
