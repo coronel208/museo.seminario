@@ -91,6 +91,7 @@
   <div class="ls-title"><h2>MUSEO SEMINARIO</h2><p>Diocesano de Cristo Sacerdote</p></div>
   <div class="ls-track"><div id="ls-bar"></div></div>
   <div id="ls-status">Preparando lobby…</div>
+  <div style="color:#4a4540;font-size:.66rem;text-align:center;letter-spacing:.03em;max-width:260px;line-height:1.65;">Si en algún momento no puedes moverte,<br>recarga la página (F5) para comenzar de nuevo.</div>
 </div>
 
 <nav id="top-nav">
@@ -1024,8 +1025,6 @@ document.addEventListener('pointerlockchange', function(){
   hudEl.style.display = locked ? 'block' : 'none';
   crossEl.style.display = locked ? 'block' : 'none';
   if(locked){
-    // Enter fullscreen AFTER lock is confirmed to avoid race condition
-    if(!document.fullscreenElement) _enterFs();
     resumeOverlay.style.display = 'none';
     pauseEl.style.display = 'none';
   } else if(started && !modalOpen){
@@ -1065,9 +1064,11 @@ if(_scAutoStart){
   resumeOverlay.style.display='flex';
 }
 
-// Stuck detector: if started and pointer lock was lost outside a modal/pause, show resume overlay
+// Stuck detector: desktop only — if pointer lock lost outside a modal/pause, show resume overlay
+var _isMobSC = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth <= 768;
 setInterval(function(){
-  if(started && !locked && !modalOpen && pauseEl.style.display!=='flex'){
+  if(!_isMobSC && started && !locked && !modalOpen &&
+     pauseEl.style.display!=='flex' && resumeOverlay.style.display!=='flex'){
     resumeOverlay.style.display='flex';
   }
 }, 2500);

@@ -609,8 +609,6 @@ plc.addEventListener('lock', function() {
   if (pauseDialog) pauseDialog.style.display = 'none';
   hudEl.style.display       = 'block';
   crosshairEl.style.display = 'block';
-  // Enter fullscreen AFTER lock is confirmed (avoids race condition)
-  if (!isMobile && !document.fullscreenElement) _enterFs();
   // Apply sala color to UI hints
   hintEl.style.borderColor  = SALA_CLR_HEX;
   hintEl.style.color        = SALA_CLR_HEX;
