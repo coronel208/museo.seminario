@@ -555,7 +555,7 @@ var MUSEUM_CATALOG = [
       'images/cuenco-miniatura-pedestal-5.jpeg'
     ],
     video: null
-  }
+  },
 
   // ── SALA 3 · PIEZAS 26–30 ────────────────────────────────────────
 
