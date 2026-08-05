@@ -451,6 +451,212 @@ var MUSEUM_CATALOG = [
       'images/copa-pedestal-malagana-5.jpeg'
     ],
     video: null
+  },
+
+  // ── SALA 3 · PIEZAS 21–25 ────────────────────────────────────────
+
+  {
+    id: 'vasija-carenada-helicoidal',
+    nombre: 'Vasija Cerámica Carenada con Reborde Helicoidal',
+    material: 'Cerámica',
+    periodo: 'Período Yotoco · Cultura Calima (100 d.C. – 1200 d.C.)',
+    donante: '',
+    descripcion: 'Vasija globular carenada con cuello corto, doble asa vertical y un inusual cordón helicoidal en relieve que recorre el cuerpo. Engobe rojo diagnóstico del período Yotoco de la región Calima. Completa con daños menores en el borde.',
+    procedencia: 'Calima — Período Yotoco, Valle del Cauca',
+    dimensiones: 'Alt. 19 cm · Ancho 17.1 cm · ⌀ 17.4 cm',
+    modelUrl: 'models/vasija-carenada-helicoidal.glb',
+    imagenes: [
+      'images/vasija-carenada-helicoidal-1.jpeg',
+      'images/vasija-carenada-helicoidal-2.jpeg',
+      'images/vasija-carenada-helicoidal-3.jpeg',
+      'images/vasija-carenada-helicoidal-4.jpeg',
+      'images/vasija-carenada-helicoidal-5.jpeg',
+      'images/vasija-carenada-helicoidal-6.jpeg'
+    ],
+    video: null
+  },
+
+  {
+    id: 'vasija-globular-yotoco-asas',
+    nombre: 'Vasija Cerámica Globular con Asas',
+    material: 'Cerámica',
+    periodo: 'Período Yotoco · Cultura Calima (100 a.C. – 1300 d.C.)',
+    donante: '',
+    descripcion: 'Vasija subglobular con cuello cónico corto, borde evertido y asas verticales para suspensión. Pasta semigruesa con cocción mixta. Apliques pastillados discretos en el cuerpo. Estado completo.',
+    procedencia: 'Calima Yotoco, Valle del Cauca',
+    dimensiones: 'Alt. 16.2 cm · Ancho 18 cm · ⌀ 18 cm',
+    modelUrl: 'models/vasija-globular-yotoco-asas.glb',
+    imagenes: [
+      'images/vasija-globular-yotoco-asas-1.jpeg',
+      'images/vasija-globular-yotoco-asas-2.jpeg',
+      'images/vasija-globular-yotoco-asas-3.jpeg',
+      'images/vasija-globular-yotoco-asas-4.jpeg',
+      'images/vasija-globular-yotoco-asas-5.jpeg'
+    ],
+    video: null
+  },
+
+  {
+    id: 'volante-muisca-decorado',
+    nombre: 'Volante de Huso Cerámico Decorado',
+    material: 'Cerámica',
+    periodo: 'Cultura Muisca · Período Herrera a Tardío (400 a.C. – 1600 d.C.)',
+    donante: '',
+    descripcion: 'Volante de huso (tortera) troncocónico con cuello tubular y decoración incisa y punteada. Líneas diagonales, arcos y estrías horizontales en el cuello. Engobe rojo. Diagnóstico de la industria textil muisca del altiplano cundiboyacense.',
+    procedencia: 'Tradición Muisca, Cundinamarca',
+    dimensiones: 'Alt. 1.2 cm · ⌀ 5.1 cm',
+    modelUrl: 'models/volante-muisca-decorado.glb',
+    imagenes: [
+      'images/volante-muisca-decorado-1.jpeg',
+      'images/volante-muisca-decorado-2.jpeg',
+      'images/volante-muisca-decorado-3.jpeg',
+      'images/volante-muisca-decorado-4.jpeg',
+      'images/volante-muisca-decorado-5.jpeg',
+      'images/volante-muisca-decorado-6.jpeg'
+    ],
+    video: null
+  },
+
+  {
+    id: 'cuenco-utilitario-sonso',
+    nombre: 'Cuenco Cerámico Utilitario con Asas Tubulares',
+    material: 'Cerámica',
+    periodo: 'Período Sonso · Cultura Calima (1200 d.C. – 1600 d.C.)',
+    donante: '',
+    descripcion: 'Cuenco hemisférico de base convexa con par de asas tubulares perforadas características de la alfarería doméstica del período Sonso. Pasta gruesa de cocción irregular y superficie rugosa. Completo.',
+    procedencia: 'Calima — período Sonso, Valle del Cauca',
+    dimensiones: 'Alt. 2.7 cm · ⌀ 12.5 cm',
+    modelUrl: 'models/cuenco-utilitario-sonso.glb',
+    imagenes: [
+      'images/cuenco-utilitario-sonso-1.jpeg',
+      'images/cuenco-utilitario-sonso-2.jpeg',
+      'images/cuenco-utilitario-sonso-3.jpeg',
+      'images/cuenco-utilitario-sonso-4.jpeg',
+      'images/cuenco-utilitario-sonso-5.jpeg'
+    ],
+    video: null
+  },
+
+  {
+    id: 'cuenco-miniatura-pedestal',
+    nombre: 'Cuenco Miniatura sobre Pedestal',
+    material: 'Cerámica',
+    periodo: 'Período prehispánico (morfología Yotoco)',
+    donante: '',
+    descripcion: 'Cuenco miniatura carenado de morfología similar al estilo Yotoco, con pasta fina y engobe rojo uniforme. Función votiva o simbólica. Estado completo con mínimo desgaste tafonómico.',
+    procedencia: 'Valle del Cauca, Colombia',
+    dimensiones: 'Alt. 2.2 cm · ⌀ 10.5 cm',
+    modelUrl: 'models/cuenco-miniatura-pedestal.glb',
+    imagenes: [
+      'images/cuenco-miniatura-pedestal-1.jpeg',
+      'images/cuenco-miniatura-pedestal-2.jpeg',
+      'images/cuenco-miniatura-pedestal-3.jpeg',
+      'images/cuenco-miniatura-pedestal-4.jpeg',
+      'images/cuenco-miniatura-pedestal-5.jpeg'
+    ],
+    video: null
+  }
+
+  // ── SALA 3 · PIEZAS 26–30 ────────────────────────────────────────
+
+  {
+    id: 'olla-globular-ilama',
+    nombre: 'Olla Cerámica Globular Pequeña',
+    material: 'Cerámica',
+    periodo: 'Período Ilama · Cultura Calima (1500 a.C. – 100 a.C.)',
+    donante: '',
+    descripcion: 'Olla globular con cuello corto evertido. Pasta semigruesa con desgrasante de cuarzo y tiesto molido. Engobe rojo parcial. Uso utilitario doméstico típico del período Ilama en la cordillera Occidental. Conservación completa.',
+    procedencia: 'Calima Ilama, Valle del Cauca',
+    dimensiones: 'Alt. 15.6 cm · Ancho 18.8 cm · ⌀ 18.8 cm',
+    modelUrl: 'models/olla-globular-ilama.glb',
+    imagenes: [
+      'images/olla-globular-ilama-1.jpeg',
+      'images/olla-globular-ilama-2.jpeg',
+      'images/olla-globular-ilama-3.jpeg',
+      'images/olla-globular-ilama-4.jpeg',
+      'images/olla-globular-ilama-5.jpeg'
+    ],
+    video: null
+  },
+
+  {
+    id: 'vasija-miniatura-calima',
+    nombre: 'Vasija Miniatura Globular Cerámica',
+    material: 'Cerámica',
+    periodo: 'Período Tardío · Posiblemente Calima Sonso (1200 d.C. – 1600 d.C.)',
+    donante: '',
+    descripcion: 'Vasija miniatura globular de cuello corto y borde evertido. Pasta mediana con inclusiones de cuarzo y partículas micáceas. Acabado rústico sin decoración plástica compleja. Probable función doméstica o funeraria. Completa con fisura leve en el borde.',
+    procedencia: 'Posiblemente Calima Sonso, Valle del Cauca',
+    dimensiones: 'Alt. 8.1 cm · Ancho 11.3 cm · ⌀ 11.3 cm',
+    modelUrl: 'models/vasija-miniatura-calima.glb',
+    imagenes: [
+      'images/vasija-miniatura-calima-1.jpeg',
+      'images/vasija-miniatura-calima-2.jpeg',
+      'images/vasija-miniatura-calima-3.jpeg',
+      'images/vasija-miniatura-calima-4.jpeg',
+      'images/vasija-miniatura-calima-5.jpeg'
+    ],
+    video: null
+  },
+
+  {
+    id: 'vasija-globular-yotoco-28',
+    nombre: 'Vasija Cerámica Globular con Asa',
+    material: 'Cerámica',
+    periodo: 'Período Yotoco · Cultura Calima (100 a.C. – 1300 d.C.)',
+    donante: '',
+    descripcion: 'Vasija globular con cuello corto y asa vertical de cinta que conecta cuello y hombro. Pasta semifina con engobe rojo. Fracturas antiguas en el borde superior. Diagnóstica de la alfarería utilitaria Yotoco del Valle del Cauca.',
+    procedencia: 'Calima Yotoco, Valle del Cauca',
+    dimensiones: 'Alt. 20.3 cm · Ancho 21 cm · ⌀ 21 cm',
+    modelUrl: 'models/vasija-globular-yotoco-28.glb',
+    imagenes: [
+      'images/vasija-globular-yotoco-28-1.jpeg',
+      'images/vasija-globular-yotoco-28-2.jpeg',
+      'images/vasija-globular-yotoco-28-3.jpeg',
+      'images/vasija-globular-yotoco-28-4.jpeg',
+      'images/vasija-globular-yotoco-28-5.jpeg'
+    ],
+    video: null
+  },
+
+  {
+    id: 'vasija-globular-indeterminada',
+    nombre: 'Vasija Cerámica Globular con Asa Lateral',
+    material: 'Cerámica',
+    periodo: 'Período prehispánico (cultura indeterminada)',
+    donante: '',
+    descripcion: 'Vasija globular de gran tamaño con asa lateral y apéndices. Pasta mediana con desgrasante de cuarzo. Acabado tosco con superficie erosionada por tafonía. Función utilitaria de almacenamiento o vertido. Completa con desgaste significativo.',
+    procedencia: 'Valle del Cauca, Colombia (cultura indeterminada)',
+    dimensiones: 'Alt. 28.7 cm · Ancho 27 cm · ⌀ 27 cm',
+    modelUrl: 'models/vasija-globular-indeterminada.glb',
+    imagenes: [
+      'images/vasija-globular-indeterminada-1.jpeg',
+      'images/vasija-globular-indeterminada-2.jpeg',
+      'images/vasija-globular-indeterminada-3.jpeg',
+      'images/vasija-globular-indeterminada-4.jpeg',
+      'images/vasija-globular-indeterminada-5.jpeg'
+    ],
+    video: null
+  },
+
+  {
+    id: 'vasija-globular-calima-30',
+    nombre: 'Vasija Cerámica Globular Utilitaria',
+    material: 'Cerámica',
+    periodo: 'Período Tardío · Posiblemente Calima Sonso (1200 d.C. – 1600 d.C.)',
+    donante: '',
+    descripcion: 'Vasija globular utilitaria con cuello corto y borde evertido. Pasta semigruesa con manchas de reducción en la cocción. Alisado rústico sin decoración plástica, característico de la alfarería doméstica tardía del suroccidente colombiano. Completa con fractura menor en el borde.',
+    procedencia: 'Posiblemente Calima Sonso, Valle del Cauca',
+    dimensiones: 'Alt. 12.7 cm · Ancho 18.5 cm · ⌀ 18.5 cm',
+    modelUrl: 'models/vasija-globular-calima-30.glb',
+    imagenes: [
+      'images/vasija-globular-calima-30-1.jpeg',
+      'images/vasija-globular-calima-30-2.jpeg',
+      'images/vasija-globular-calima-30-3.jpeg',
+      'images/vasija-globular-calima-30-4.jpeg',
+      'images/vasija-globular-calima-30-5.jpeg'
+    ],
+    video: null
   }
 
   // ── AGREGA MÁS PIEZAS AQUÍ ────────────────────────────────────────

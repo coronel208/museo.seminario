@@ -6,6 +6,120 @@
   <title>Sobre Nosotros · Museo Seminario</title>
   <link rel="stylesheet" href="css/estilo.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ── About page extras ────────────────────────────────────────── */
+    .about-hero {
+      position: relative;
+      width: 100%;
+      max-height: 480px;
+      overflow: hidden;
+      border-radius: 12px;
+      margin-bottom: 3rem;
+    }
+    .about-hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .about-hero-caption {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 1.2rem 1.5rem;
+      background: linear-gradient(to top, rgba(0,0,0,.75), transparent);
+      color: #fff;
+      font-size: .9rem;
+      letter-spacing: .03em;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      margin-bottom: 3rem;
+    }
+    @media (max-width: 720px) {
+      .about-grid { grid-template-columns: 1fr; }
+    }
+
+    .about-block h3 {
+      font-size: 1.1rem;
+      color: var(--gold);
+      margin-bottom: .6rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .about-block p {
+      font-size: .92rem;
+      line-height: 1.7;
+      color: var(--text-secondary, #a99e8c);
+      margin-bottom: .5rem;
+    }
+    .about-block p i { margin-right: .4rem; }
+
+    .section-title {
+      font-size: 1.25rem;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin: 2.5rem 0 1.2rem;
+      padding-bottom: .5rem;
+      border-bottom: 1px solid rgba(212,175,55,.25);
+    }
+
+    .team-gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+    @media (max-width: 600px) {
+      .team-gallery { grid-template-columns: 1fr 1fr; }
+      .team-gallery .featured { grid-column: 1 / -1; }
+    }
+    .team-gallery img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid rgba(212,175,55,.2);
+      display: block;
+    }
+    .team-gallery .featured {
+      grid-column: 1 / -1;
+    }
+    .team-gallery .featured img {
+      aspect-ratio: 16/7;
+    }
+
+    .stat-row {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin: 1.5rem 0 2.5rem;
+    }
+    .stat-card {
+      background: rgba(212,175,55,.06);
+      border: 1px solid rgba(212,175,55,.18);
+      border-radius: 10px;
+      padding: 1rem 1.4rem;
+      min-width: 120px;
+      text-align: center;
+    }
+    .stat-card .num {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .stat-card .lbl {
+      font-size: .78rem;
+      color: var(--text-secondary, #a99e8c);
+      margin-top: .3rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+  </style>
 </head>
 <body>
   <nav class="navbar">
@@ -28,25 +142,57 @@
 
   <main class="page-content">
     <h2 class="page-title">Sobre Nosotros</h2>
-    <div class="about-container">
-      <div class="about-text">
-        <h3>Museo Seminario Diocesano de Cristo Sacerdote</h3>
-        <p>El museo nace en 2025 como una iniciativa del Seminario Diocesano para preservar y difundir el patrimonio cultural y religioso de la región. Alberga una importante colección arqueológica de la cultura Malagana, así como arte sacro y documentos históricos.</p>
+
+    <!-- Hero foto equipo -->
+    <div class="about-hero">
+      <img src="images/equipo-1.jpeg" alt="Equipo Museo Seminario" loading="lazy">
+      <div class="about-hero-caption">Equipo ArkeBot — Seminario Diocesano de Cristo Sacerdote, Palmira</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stat-row">
+      <div class="stat-card"><div class="num">30</div><div class="lbl">Piezas</div></div>
+      <div class="stat-card"><div class="num">3</div><div class="lbl">Salas</div></div>
+      <div class="stat-card"><div class="num">360°</div><div class="lbl">Recorrido Virtual</div></div>
+      <div class="stat-card"><div class="num">2025</div><div class="lbl">Fundación</div></div>
+    </div>
+
+    <!-- Texto institucional -->
+    <div class="about-grid">
+      <div class="about-block">
+        <h3>El Museo</h3>
+        <p>El Museo Seminario nace en 2025 como una iniciativa del Seminario Diocesano de Cristo Sacerdote para preservar y difundir el patrimonio cultural y arqueológico de la región. Alberga una importante colección cerámica prehispánica del Valle del Cauca y Cundinamarca, con piezas de las culturas Calima, Malagana y Muisca.</p>
         <p>Nuestra misión es educar y acercar la historia a todos mediante herramientas digitales innovadoras, ofreciendo recorridos virtuales inmersivos y acceso libre a nuestra colección.</p>
-        <h4>Misión</h4>
+      </div>
+      <div class="about-block">
+        <h3>Misión</h3>
         <p>Preservar, investigar y difundir el patrimonio arqueológico y cultural de la región, haciendo accesible nuestra historia a través de tecnología digital de vanguardia.</p>
-        <h4>Ubicación</h4>
+        <h3 style="margin-top:1.2rem">Ubicación</h3>
         <p><i class="fas fa-map-marker-alt" style="color:var(--gold)"></i> Calle 10 # 5-23, Palmira, Valle del Cauca, Colombia.</p>
-        <h4>Contacto</h4>
+        <h3 style="margin-top:1rem">Contacto</h3>
         <p>
           <i class="fas fa-envelope" style="color:var(--gold)"></i> museoeseminario@gmail.com<br>
           <i class="fas fa-phone" style="color:var(--gold)"></i> +57 (2) 123 4567
         </p>
       </div>
-      <div class="about-image">
-        <img src="https://images.pexels.com/photos/2079438/pexels-photo-2079438.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Seminario">
+    </div>
+
+    <!-- Equipo -->
+    <div class="section-title">Nuestro Equipo</div>
+    <div class="team-gallery">
+      <div class="featured">
+        <img src="images/equipo-3.jpeg" alt="Equipo ArkeBot en el Seminario" loading="lazy">
+      </div>
+      <div>
+        <img src="images/equipo-1.jpeg" alt="Equipo ArkeBot" loading="lazy">
+      </div>
+      <div>
+        <img src="images/equipo-2.jpeg" alt="Equipo ArkeBot" loading="lazy">
       </div>
     </div>
+    <p style="font-size:.88rem;color:var(--text-secondary,#a99e8c);line-height:1.7;margin-bottom:2rem;">
+      El proyecto es desarrollado por estudiantes del Seminario Diocesano de Cristo Sacerdote bajo la iniciativa <strong style="color:var(--gold)">ArkeBot</strong>, combinando arqueología, diseño 3D y tecnología web para digitalizar y divulgar el patrimonio cultural colombiano.
+    </p>
   </main>
 
   <footer>

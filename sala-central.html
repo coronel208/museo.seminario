@@ -1052,17 +1052,16 @@ function _enterFs(){
   if(fsReq&&!document.fullscreenElement) fsReq.call(el).catch(function(){});
 }
 document.getElementById('btn-start').addEventListener('click', function(){
-  started=true; startEl.style.display='none'; canvas.requestPointerLock();
+  started=true; startEl.style.display='none';
+  if(!document.fullscreenElement) _enterFs(); else canvas.requestPointerLock();
 });
 document.getElementById('pd-continue').addEventListener('click', function(){
-  pauseEl.style.display='none'; canvas.requestPointerLock();
+  pauseEl.style.display='none';
+  if(!document.fullscreenElement) _enterFs(); else canvas.requestPointerLock();
 });
-// Auto-start when returning from a sala (?fs=1): show resume overlay (pointer lock needs user gesture)
-var _scAutoStart=new URLSearchParams(location.search).has('fs');
-if(_scAutoStart){
-  started=true; startEl.style.display='none';
-  resumeOverlay.style.display='flex';
-}
+document.addEventListener('fullscreenchange', function(){
+  if(document.fullscreenElement && started && !document.pointerLockElement) canvas.requestPointerLock();
+});
 
 // Stuck detector: desktop only — if pointer lock lost outside a modal/pause, show resume overlay
 var _isMobSC = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth <= 768;
@@ -1104,7 +1103,7 @@ document.getElementById('ml-close').addEventListener('click', closeMal);
 malModal.addEventListener('click', function(e){ if(e.target===malModal) closeMal(); });
 resumeOverlay.addEventListener('click', function(){
   resumeOverlay.style.display='none';
-  canvas.requestPointerLock();
+  if(!document.fullscreenElement) _enterFs(); else canvas.requestPointerLock();
 });
 
 // ── DOOR MODAL ────────────────────────────────────────────────────────────────
@@ -1132,7 +1131,7 @@ document.getElementById('dm-close').addEventListener('click', closeDoor);
 document.getElementById('dm-cancel').addEventListener('click', closeDoor);
 doorModal.addEventListener('click', function(e){ if(e.target===doorModal) closeDoor(); });
 document.getElementById('dm-confirm').addEventListener('click', function(){
-  var url=SALA_URLS[_doorSalaNum-1]; if(url) window.location.href=url+'?fs=1';
+  var url=SALA_URLS[_doorSalaNum-1]; if(url) window.location.href=url;
 });
 
 // ── RAYCASTER ─────────────────────────────────────────────────────────────────

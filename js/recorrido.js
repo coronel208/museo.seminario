@@ -327,16 +327,16 @@ var _LAYOUTS = {
     { piece: getPieceById('copa-pedestal-malagana'),   x:  3.0, z:-16 }
   ],
   3: [
-    { piece: getPieceById('vasija-antropomorfa'),       x: -3.0, z: 16 },
-    { piece: getPieceById('vasija-globular-asas'),      x:  3.0, z: 16 },
-    { piece: getPieceById('cuenco-miniatura-carenado'), x: -3.0, z:  8 },
-    { piece: getPieceById('vasija-globular-sonso'),     x:  3.0, z:  8 },
-    { piece: getPieceById('cuenco-globular-yotoco'),    x: -3.0, z:  0 },
-    { piece: getPieceById('vasija-asas-yotoco'),        x:  3.0, z:  0 },
-    { piece: getPieceById('vasija-miniatura-sonso'),    x: -3.0, z: -8 },
-    { piece: getPieceById('copa-pedestal-yotoco'),      x:  3.0, z: -8 },
-    { piece: getPieceById('alcarraza-ilama'),           x: -3.0, z:-16 },
-    { piece: getPieceById('copa-pedestal-malagana'),    x:  3.0, z:-16 }
+    { piece: getPieceById('vasija-carenada-helicoidal'),    x: -3.0, z: 16 },
+    { piece: getPieceById('vasija-globular-yotoco-asas'),   x:  3.0, z: 16 },
+    { piece: getPieceById('volante-muisca-decorado'),       x: -3.0, z:  8 },
+    { piece: getPieceById('cuenco-utilitario-sonso'),       x:  3.0, z:  8 },
+    { piece: getPieceById('cuenco-miniatura-pedestal'),     x: -3.0, z:  0 },
+    { piece: getPieceById('olla-globular-ilama'),           x:  3.0, z:  0 },
+    { piece: getPieceById('vasija-miniatura-calima'),       x: -3.0, z: -8 },
+    { piece: getPieceById('vasija-globular-yotoco-28'),     x:  3.0, z: -8 },
+    { piece: getPieceById('vasija-globular-indeterminada'), x: -3.0, z:-16 },
+    { piece: getPieceById('vasija-globular-calima-30'),     x:  3.0, z:-16 }
   ]
 };
 var LAYOUT = _LAYOUTS[SALA_NUM] || _LAYOUTS[1];
@@ -690,7 +690,15 @@ function _enterFs() {
 
 document.getElementById('btn-start').addEventListener('click', function() {
   hasStarted = true; startPrompt.style.display = 'none';
-  if (!isMobile) safeLock(); else hudEl.style.display = 'none';
+  if (!isMobile) {
+    if (!document.fullscreenElement) _enterFs();
+    else safeLock();
+  } else {
+    hudEl.style.display = 'none';
+  }
+});
+document.addEventListener('fullscreenchange', function() {
+  if (document.fullscreenElement && hasStarted && !isLocked) safeLock();
 });
 // Clicking the canvas when not locked re-acquires pointer lock (any state)
 gl.addEventListener('click', function() { if (!isLocked && !modalOpen) { safeLock(); } });
@@ -707,7 +715,8 @@ var btnContinue = document.getElementById('pd-continue');
 var btnAbandon  = document.getElementById('pd-abandon');
 if (btnContinue) btnContinue.addEventListener('click', function() {
   if (pauseDialog) pauseDialog.style.display = 'none';
-  safeLock();
+  if (!document.fullscreenElement) _enterFs();
+  else safeLock();
 });
 
 // Stuck detector: auto-show pause dialog if pointer lock lost unexpectedly

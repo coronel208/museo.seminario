@@ -43,117 +43,140 @@ function showMLoad() {
 }
 function hideMLoad() { if (_mLoadOv) _mLoadOv.style.display = 'none'; }
 
-/* ── Shared renderer — UN solo contexto WebGL para todos los cards ── */
-var _cvs3d = document.createElement('canvas');
-_cvs3d.style.cssText = 'position:fixed;top:0;left:0;pointer-events:none;z-index:2;';
-document.body.appendChild(_cvs3d);
+/* ── Per-card renderers — lazy create/destroy, max 6 activos ────── */
+var _MAX_RDRS = 10;
+var _nActive  = 0;
+var _pending  = [];
 
-var _rdr3d = new THREE.WebGLRenderer({
-  canvas: _cvs3d, antialias: false, alpha: true, powerPreference: 'low-power'
-});
-_rdr3d.setClearColor(0x000000, 0);
-_rdr3d.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-_rdr3d.toneMapping = THREE.ACESFilmicToneMapping;
-_rdr3d.toneMappingExposure = 1.1;
-_rdr3d.autoClear = false;
-(function() { var W=window.innerWidth,H=window.innerHeight; _rdr3d.setSize(W,H); _cvs3d.style.width=W+'px'; _cvs3d.style.height=H+'px'; })();
-window.addEventListener('resize', function() { var W=window.innerWidth,H=window.innerHeight; _rdr3d.setSize(W,H); _cvs3d.style.width=W+'px'; _cvs3d.style.height=H+'px'; });
-
-var _pool3d  = [];  // { scene, cam, meshGroup, cont, piece, loaded, visible }
-var _nLoaded = 0;
-var _MAX_GPU = 6;   // máx modelos en GPU simultáneamente
-var _rafId3d = null;
-
-function _disposePool(e) {
-  e.loaded = false; _nLoaded--;
-  e.meshGroup.traverse(function(o) {
-    if (!o.isMesh) return;
-    if (o.geometry) o.geometry.dispose();
-    var mats = Array.isArray(o.material) ? o.material : [o.material];
-    mats.forEach(function(m) { if (m.map) m.map.dispose(); m.dispose(); });
-  });
-  while (e.meshGroup.children.length) e.meshGroup.remove(e.meshGroup.children[0]);
-  e.meshGroup.add(buildArtifact(e.piece, 0.92));
-}
-function _loadPool(e) {
-  if (e.loaded) return;
-  if (_nLoaded >= _MAX_GPU) {
-    for (var i = 0; i < _pool3d.length; i++) {
-      if (_pool3d[i].loaded && !_pool3d[i].visible) { _disposePool(_pool3d[i]); break; }
-    }
+function _createRdr(entry) {
+  _nActive++;
+  var rdr = new THREE.WebGLRenderer({ antialias: false, alpha: false, powerPreference: 'low-power' });
+  var W = entry.cont.clientWidth || 300;
+  rdr.setSize(W, 220);
+  rdr.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+  rdr.toneMapping = THREE.ACESFilmicToneMapping;
+  rdr.toneMappingExposure = 1.1;
+  rdr.domElement.style.cssText = 'width:100%;height:100%;display:block;';
+  entry.cont.appendChild(rdr.domElement);
+  entry.rdr = rdr;
+  entry.cam.aspect = W / 220;
+  entry.cam.updateProjectionMatrix();
+  if (entry.piece.modelUrl && !entry.modelLoaded) {
+    makeGLTF().load(entry.piece.modelUrl, function(gltf) {
+      if (!entry.rdr) return;
+      var m = gltf.scene;
+      var bbox = new THREE.Box3().setFromObject(m);
+      var sz   = bbox.getSize(new THREE.Vector3());
+      var sc2  = 1.6 / (Math.max(sz.x, sz.y, sz.z) || 1);
+      m.scale.setScalar(sc2);
+      var ctr  = bbox.getCenter(new THREE.Vector3());
+      m.position.set(-ctr.x * sc2, -ctr.y * sc2, -ctr.z * sc2);
+      while (entry.mg.children.length) entry.mg.remove(entry.mg.children[0]);
+      entry.mg.add(m);
+      entry.modelLoaded = true;
+    });
   }
-  e.loaded = true; _nLoaded++;
-  if (!e.piece.modelUrl) return;
-  makeGLTF().load(e.piece.modelUrl, function(gltf) {
-    if (!e.loaded) return;
-    var m = gltf.scene;
-    var bbox = new THREE.Box3().setFromObject(m);
-    var sz   = bbox.getSize(new THREE.Vector3());
-    var sc2  = 1.6 / (Math.max(sz.x, sz.y, sz.z) || 1);
-    m.scale.setScalar(sc2);
-    var ctr  = bbox.getCenter(new THREE.Vector3());
-    m.position.set(-ctr.x*sc2, -ctr.y*sc2, -ctr.z*sc2);
-    while (e.meshGroup.children.length) e.meshGroup.remove(e.meshGroup.children[0]);
-    e.meshGroup.add(m);
-  });
-}
-function _cardLoop() {
-  _rafId3d = requestAnimationFrame(_cardLoop);
-  var H = window.innerHeight, hasVis = false;
-  _rdr3d.clear(true, true, false);
-  for (var i = 0; i < _pool3d.length; i++) {
-    var e = _pool3d[i];
-    if (!e.visible) continue;
-    var r = e.cont.getBoundingClientRect();
-    if (r.width < 1 || r.height < 1) continue;
-    hasVis = true;
-    _rdr3d.setViewport(r.left, H - r.bottom, r.width, r.height);
-    _rdr3d.setScissor( r.left, H - r.bottom, r.width, r.height);
-    _rdr3d.setScissorTest(true);
-    e.cam.aspect = r.width / r.height;
-    e.cam.updateProjectionMatrix();
-    e.meshGroup.rotation.y += 0.007;
-    _rdr3d.render(e.scene, e.cam);
-  }
-  if (!hasVis) { cancelAnimationFrame(_rafId3d); _rafId3d = null; }
+  (function loop() {
+    if (!entry.rdr) return;
+    entry.rafId = requestAnimationFrame(loop);
+    entry.mg.rotation.y += 0.007;
+    entry.rdr.render(entry.sc, entry.cam);
+  })();
 }
 
-/* ── Build card grid ─────────────────────────────────────────────── */
+function _destroyRdr(entry) {
+  if (!entry.rdr) return;
+  cancelAnimationFrame(entry.rafId); entry.rafId = null;
+  entry.rdr.dispose();
+  if (entry.rdr.domElement.parentNode) entry.rdr.domElement.parentNode.removeChild(entry.rdr.domElement);
+  entry.rdr = null;
+  _nActive--;
+  if (_pending.length) _createRdr(_pending.shift());
+}
+
+/* ── Grid + Pagination ───────────────────────────────────────────── */
 var grid = document.getElementById('pieces-grid');
+var _PAGE_SIZE  = 10;
+var _curPage    = 1;
+var _totalPages = Math.ceil(PIECES.length / _PAGE_SIZE);
+var _allEntries = [];
 
-PIECES.forEach(function(piece) {
-  var card = document.createElement('div');
-  card.className = 'card';
-  card.innerHTML =
-    '<div class="card-3d" id="c3d-' + piece.id + '"></div>' +
-    '<div class="card-content"><h3>' + piece.nombre + '</h3><p>' + piece.procedencia + '</p></div>';
-  card.addEventListener('click', function() { openModal(piece.id); });
-  grid.appendChild(card);
-  spawnPreview(piece);
-});
+function _destroyAll() {
+  _pending.length = 0;
+  _allEntries.forEach(function(e) {
+    if (e.killTimer) { clearTimeout(e.killTimer); e.killTimer = null; }
+    if (e.rafId)     { cancelAnimationFrame(e.rafId); e.rafId = null; }
+    if (e.rdr) {
+      e.rdr.dispose();
+      if (e.rdr.domElement.parentNode) e.rdr.domElement.parentNode.removeChild(e.rdr.domElement);
+      e.rdr = null;
+    }
+  });
+  _allEntries = [];
+  _nActive = 0;
+}
+
+function _renderPagination() {
+  var pag = document.getElementById('paginacion');
+  if (!pag) return;
+  pag.innerHTML = '';
+  var n = _curPage;
+  function mkBtn(html, page, cls) {
+    var b = document.createElement('button');
+    b.className = 'pag-btn' + (cls ? ' ' + cls : '');
+    b.innerHTML = html;
+    b.addEventListener('click', function() { _goPage(page); });
+    return b;
+  }
+  if (n > 1) pag.appendChild(mkBtn('<i class="fas fa-chevron-left"></i>', n - 1, 'pag-arrow'));
+  for (var i = 1; i <= _totalPages; i++) {
+    pag.appendChild(mkBtn(i, i, i === n ? 'pag-active' : ''));
+  }
+  if (n < _totalPages) pag.appendChild(mkBtn('<i class="fas fa-chevron-right"></i>', n + 1, 'pag-arrow'));
+}
 
 function spawnPreview(piece) {
   var cont = document.getElementById('c3d-' + piece.id);
   if (!cont) return;
   var sc = new THREE.Scene();
-  var cam = new THREE.PerspectiveCamera(38, 300/220, 0.05, 60);
+  sc.background = new THREE.Color(0x181a1e);
+  var cam = new THREE.PerspectiveCamera(38, (cont.clientWidth || 300) / 220, 0.05, 60);
   cam.position.set(0, 0.4, 2.6);
   sc.add(new THREE.AmbientLight(0x404050, 1.1));
   var dl = new THREE.DirectionalLight(0xfff4dd, 2.2); dl.position.set(2, 4, 2); sc.add(dl);
   var fl = new THREE.PointLight(0x446688, 0.4, 8); fl.position.set(-2, 1, -1); sc.add(fl);
   var mg = new THREE.Group(); mg.position.y = -0.05; sc.add(mg);
   if (!piece.modelUrl) mg.add(buildArtifact(piece, 0.92));
-  var entry = { scene: sc, cam: cam, meshGroup: mg, cont: cont, piece: piece, loaded: false, visible: false };
-  _pool3d.push(entry);
-  var obs = new IntersectionObserver(function(ents) {
-    entry.visible = ents[0].isIntersecting;
-    if (entry.visible) {
-      if (!entry.loaded) _loadPool(entry);
-      if (!_rafId3d) _cardLoop();
-    }
-  }, { threshold: 0.05 });
-  obs.observe(cont);
+  var entry = { sc: sc, cam: cam, mg: mg, cont: cont, piece: piece,
+                rdr: null, rafId: null, modelLoaded: false, killTimer: null };
+  _allEntries.push(entry);
+  if (_nActive < _MAX_RDRS) _createRdr(entry);
+  else _pending.push(entry);
 }
+
+function _goPage(n) {
+  if (n < 1 || n > _totalPages) return;
+  _curPage = n;
+  _destroyAll();
+  grid.innerHTML = '';
+  var start = (n - 1) * _PAGE_SIZE;
+  var pagePieces = PIECES.slice(start, start + _PAGE_SIZE);
+  pagePieces.forEach(function(piece) {
+    var card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = '<div class="card-3d" id="c3d-' + piece.id + '"></div>'
+      + '<div class="card-content"><h3>' + piece.nombre + '</h3><p>' + piece.procedencia + '</p></div>';
+    card.addEventListener('click', function() { openModal(piece.id); });
+    grid.appendChild(card);
+  });
+  requestAnimationFrame(function() {
+    pagePieces.forEach(function(piece) { spawnPreview(piece); });
+  });
+  _renderPagination();
+  if (n > 1) window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+_goPage(1);
 
 
 /* ── Modal setup ─────────────────────────────────────────────────── */
