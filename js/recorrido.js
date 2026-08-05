@@ -313,7 +313,13 @@ var _LAYOUTS = {
     { piece: getPieceById('vasija-antropomorfa'),    x: -3.0, z: 16 },
     { piece: getPieceById('vasija-globular-asas'),   x:  3.0, z: 16 },
     { piece: getPieceById('cuenco-miniatura-carenado'), x: -3.0, z:  8 },
-    { piece: getPieceById('vasija-globular-sonso'),    x:  3.0, z:  8 }
+    { piece: getPieceById('vasija-globular-sonso'),    x:  3.0, z:  8 },
+    { piece: getPieceById('cuenco-globular-yotoco'),   x: -3.0, z:  0 },
+    { piece: getPieceById('vasija-asas-yotoco'),       x:  3.0, z:  0 },
+    { piece: getPieceById('vasija-miniatura-sonso'),   x: -3.0, z: -8 },
+    { piece: getPieceById('copa-pedestal-yotoco'),     x:  3.0, z: -8 },
+    { piece: getPieceById('alcarraza-ilama'),          x: -3.0, z:-16 },
+    { piece: getPieceById('copa-pedestal-malagana'),   x:  3.0, z:-16 }
   ]
 };
 var LAYOUT = _LAYOUTS[SALA_NUM] || _LAYOUTS[1];

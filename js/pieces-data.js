@@ -286,6 +286,128 @@ export const PIECES = [
     video: null,
     modelUrl: 'models/vasija-globular-sonso.glb',
     restY: 1.19
+  },
+
+  // ── CUENCO GLOBULAR CERÁMICO · Calima Yotoco ─────────────────────────
+  {
+    id: 'cuenco-globular-yotoco',
+    nombre: 'Cuenco Globular Cerámico',
+    procedencia: 'Cultura Calima Yotoco / Tradición Local, Valle del Cauca · Período prehispánico',
+    descripcion: 'Cuenco cerámico globular con perfil asociable al período tardío del suroccidente colombiano. Presenta cuerpo globular subesférico, cuello corto y borde evertido simple. La pasta muestra acabado tosco con desgrasante mineral visible y restos de engobe rojizo. Sin decoración plástica compleja, lo que refuerza su adscripción a utilería doméstica cotidiana. Presenta desgaste superficial por enterramiento y adherencias terrígenas propias de contextos de depósito prolongado.',
+    metadata: 'Material: Cerámica · Cultura: Calima Yotoco · Período: Prehispánico · Dimensiones: Alt. 8 cm · ⌀ 16.7 cm · Técnica: Pasta semigruesa, desgrasante de cuarzo y arena, cocción oxidante · Acabado: Engobe rojo parcial · Estado: Completo',
+    color: 0x8b3010, roughness: 0.91, metalness: 0.01,
+    imagenes: [
+      'images/cuenco-globular-yotoco-1.jpeg',
+      'images/cuenco-globular-yotoco-2.jpeg',
+      'images/cuenco-globular-yotoco-3.jpeg',
+      'images/cuenco-globular-yotoco-4.jpeg',
+      'images/cuenco-globular-yotoco-5.jpeg',
+      'images/cuenco-globular-yotoco-6.jpeg'
+    ],
+    video: null,
+    modelUrl: 'models/cuenco-globular-yotoco.glb',
+    restY: 1.19
+  },
+
+  // ── VASIJA GLOBULAR CON ASAS LATERALES · Calima Yotoco ───────────────
+  {
+    id: 'vasija-asas-yotoco',
+    nombre: 'Vasija Cerámica Globular con Asas Laterales',
+    procedencia: 'Cultura Calima Yotoco, Valle del Cauca · Período Yotoco (100 a.C. – 1300 d.C.)',
+    descripcion: 'Vasija cerámica globular de cuerpo amplio con cuello corto, borde evertido y dos asas laterales de cinta dispuestas simétricamente, rasgos típicos de la alfarería utilitaria del período Yotoco. Pasta semigruesa con inclusiones visibles de desgrasante y huellas de cocción irregular que sugieren uso práctico cotidiano. Estado completo con importantes signos de desgaste tafonómico — erosión superficial y concreciones propias de contextos de entierro. Notable por sus grandes dimensiones respecto a otras piezas de la colección.',
+    metadata: 'Material: Cerámica · Cultura: Calima Yotoco · Período: Yotoco (100 a.C.–1300 d.C.) · Dimensiones: Alt. 35.6 cm · Ancho 31.3 cm · ⌀ 32.6 cm · Técnica: Pasta semigruesa, desgrasante de cuarzo y tiesto molido, cocción oxidante con áreas reductoras · Estado: Completo',
+    color: 0x8b3010, roughness: 0.90, metalness: 0.01,
+    imagenes: [
+      'images/vasija-asas-yotoco-1.jpeg',
+      'images/vasija-asas-yotoco-2.jpeg',
+      'images/vasija-asas-yotoco-3.jpeg',
+      'images/vasija-asas-yotoco-4.jpeg',
+      'images/vasija-asas-yotoco-5.jpeg',
+      'images/vasija-asas-yotoco-6.jpeg'
+    ],
+    video: null,
+    modelUrl: 'models/vasija-asas-yotoco.glb',
+    restY: 1.19
+  },
+
+  // ── VASIJA GLOBULAR MINIATURA · Calima Sonso ─────────────────────────
+  {
+    id: 'vasija-miniatura-sonso',
+    nombre: 'Vasija Globular Miniatura',
+    procedencia: 'Cultura Calima — período Sonso, Valle del Cauca · 1200 d.C. – 1600 d.C.',
+    descripcion: 'Vasija cerámica globular miniatura de morfología carenada atribuible al período Sonso de la región Calima. Presenta cuerpo globular con carenación en el diámetro máximo, cuello corto y borde evertido. La manufactura menos depurada respecto a períodos anteriores incorpora formas utilitarias cotidianas. Superficie con alisado burdo, engobe rojo y posibles alteraciones térmicas. Morfología y acabados alineados con patrones cerámicos de asentamientos tardíos del Valle del Cauca.',
+    metadata: 'Material: Cerámica · Cultura: Calima · Período: Sonso (1200–1600 d.C.) · Dimensiones: Alt. 11.3 cm · Ancho 13.6 cm · ⌀ 13.6 cm · Técnica: Pasta semigruesa, cocción mixta con núcleo negro y zonas oxidantes · Decoración: Aplique modelado en zona del hombro · Estado: Completo',
+    color: 0x7a3520, roughness: 0.92, metalness: 0.01,
+    imagenes: [
+      'images/vasija-miniatura-sonso-1.jpeg',
+      'images/vasija-miniatura-sonso-2.jpeg',
+      'images/vasija-miniatura-sonso-3.jpeg',
+      'images/vasija-miniatura-sonso-4.jpeg',
+      'images/vasija-miniatura-sonso-5.jpeg'
+    ],
+    video: null,
+    modelUrl: 'models/vasija-miniatura-sonso.glb',
+    restY: 1.19
+  },
+
+  // ── COPA EN PEDESTAL · Calima Yotoco ─────────────────────────────────
+  {
+    id: 'copa-pedestal-yotoco',
+    nombre: 'Copa en Pedestal de Paredes Simples',
+    procedencia: 'Cultura Calima Yotoco, Valle del Cauca · Período Yotoco (100 a.C. – 1300 d.C.)',
+    descripcion: 'Copa cerámica en pedestal de paredes simples asociable al período Malagana de la cultura Calima, destacando por su cuerpo globular y soporte cónico sin decoración incisa compleja. El análisis iconográfico sugiere uso ceremonial vinculado a ajuares funerarios de la llanura aluvial del río Cauca. Estado de conservación bueno con integridad estructural completa, aunque muestra desgaste superficial moderado y pérdida parcial del engobe rojo por procesos tafonómicos de enterramiento. Apliques nodulares simples en la zona ecuatorial superior.',
+    metadata: 'Material: Cerámica · Cultura: Calima Yotoco · Período: Yotoco (100 a.C.–1300 d.C.) · Dimensiones: Alt. 14.7 cm · ⌀ 19.5 cm · Técnica: Pasta fina a semigruesa, desgrasante de cuarzo y arena fina, cocción oxidante · Acabado: Engobe rojo · Estado: Completo',
+    color: 0x9a3010, roughness: 0.88, metalness: 0.02,
+    imagenes: [
+      'images/copa-pedestal-yotoco-1.jpeg',
+      'images/copa-pedestal-yotoco-2.jpeg',
+      'images/copa-pedestal-yotoco-3.jpeg',
+      'images/copa-pedestal-yotoco-4.jpeg',
+      'images/copa-pedestal-yotoco-5.jpeg'
+    ],
+    video: null,
+    modelUrl: 'models/copa-pedestal-yotoco.glb',
+    restY: 1.19
+  },
+
+  // ── ALCARRAZA CERÁMICA GLOBULAR · Calima Ilama ───────────────────────
+  {
+    id: 'alcarraza-ilama',
+    nombre: 'Alcarraza Cerámica Globular',
+    procedencia: 'Cultura Calima, Valle del Cauca · Período Ilama (1600 a.C. – 100 d.C.)',
+    descripcion: 'Alcarraza monocroma de cuerpo globular y cuello largo evertido, morfológicamente consistente con la alfarería del período Ilama de la cultura Calima. La pasta fina y la morfología de cuerpo globular con cuello tubular son rasgos diagnósticos de este período. Estado de conservación notablemente íntegro, aunque presenta depósitos de manganeso y abrasión superficial por depósito prolongado. Acabado alisado monocromo, probable función utilitaria o ritual simple.',
+    metadata: 'Material: Cerámica · Cultura: Calima · Período: Ilama (1600 a.C.–100 d.C.) · Dimensiones: Alt. 12.2 cm · Ancho 10.3 cm · ⌀ 10.3 cm · Técnica: Pasta fina, desgrasante de cuarzo fino, cocción oxidante con núcleos reducidos · Acabado: Engobe Munsell 10YR 5/4 · Estado: Completo',
+    color: 0x9a6832, roughness: 0.86, metalness: 0.02,
+    imagenes: [
+      'images/alcarraza-ilama-1.jpeg',
+      'images/alcarraza-ilama-2.jpeg',
+      'images/alcarraza-ilama-3.jpeg',
+      'images/alcarraza-ilama-4.jpeg',
+      'images/alcarraza-ilama-5.jpeg'
+    ],
+    video: null,
+    modelUrl: 'models/alcarraza-ilama.glb',
+    restY: 1.19
+  },
+
+  // ── COPA EN PEDESTAL · Calima Malagana ───────────────────────────────
+  {
+    id: 'copa-pedestal-malagana',
+    nombre: 'Copa en Pedestal de Cerámica',
+    procedencia: 'Cultura Calima — período Malagana, Valle del Cauca · 200 a.C. – 400 d.C.',
+    descripcion: 'Copa cerámica en pedestal de paredes simples sin decoración incisa, lo que concuerda con los marcadores diagnósticos del período Malagana en la llanura aluvial del Valle del Cauca. La ausencia de incisiones complejas diferencia claramente esta pieza de las copas del período Yotoco de la cordillera. Engobe de tonalidad rojiza con evidencias de desgaste superficial, erosión y ligeras concreciones tafonómicas acordes con contextos de entierro en fosa. Pieza completa en buen estado general de conservación estructural.',
+    metadata: 'Material: Cerámica · Cultura: Calima · Período: Malagana (200 a.C.–400 d.C.) · Dimensiones: Alt. 14 cm · ⌀ 17.8 cm · Técnica: Pasta fina a media, desgrasante de cuarzo y arena fina, cocción oxidante · Acabado: Engobe rojo-naranja Munsell 10R 4/6 · Estado: Completo',
+    color: 0xa03010, roughness: 0.87, metalness: 0.02,
+    imagenes: [
+      'images/copa-pedestal-malagana-1.jpeg',
+      'images/copa-pedestal-malagana-2.jpeg',
+      'images/copa-pedestal-malagana-3.jpeg',
+      'images/copa-pedestal-malagana-4.jpeg',
+      'images/copa-pedestal-malagana-5.jpeg'
+    ],
+    video: null,
+    modelUrl: 'models/copa-pedestal-malagana.glb',
+    restY: 1.19
   }
 
 ];

@@ -329,6 +329,128 @@ var MUSEUM_CATALOG = [
       'images/vasija-globular-sonso-5.jpeg'
     ],
     video: null
+  },
+
+  {
+    id: 'cuenco-globular-yotoco',
+    nombre: 'Cuenco Globular Cerámico',
+    material: 'Cerámica',
+    periodo: 'Período Prehispánico · Cultura Calima Yotoco / Tradición Local',
+    donante: '',
+    descripcion: 'Cuenco globular subesférico de cuello corto y borde evertido. Pasta tosca con engobe rojizo. Sin decoración plástica compleja. Adscripción a utilería doméstica cotidiana del Valle del Cauca tardío.',
+    procedencia: 'Valle del Cauca, Colombia',
+    dimensiones: 'Alt. 8 cm · ⌀ 16.7 cm',
+    modelUrl: 'models/cuenco-globular-yotoco.glb',
+    imagenes: [
+      'images/cuenco-globular-yotoco-1.jpeg',
+      'images/cuenco-globular-yotoco-2.jpeg',
+      'images/cuenco-globular-yotoco-3.jpeg',
+      'images/cuenco-globular-yotoco-4.jpeg',
+      'images/cuenco-globular-yotoco-5.jpeg',
+      'images/cuenco-globular-yotoco-6.jpeg'
+    ],
+    video: null
+  },
+
+  {
+    id: 'vasija-asas-yotoco',
+    nombre: 'Vasija Cerámica Globular con Asas Laterales',
+    material: 'Cerámica',
+    periodo: 'Período Yotoco · Cultura Calima Yotoco (100 a.C. – 1300 d.C.)',
+    donante: '',
+    descripcion: 'Vasija globular de gran tamaño con cuello corto, borde evertido y dos asas laterales de cinta simétricas. Pasta semigruesa con cocción oxidante irregular. Notable por sus dimensiones y desgaste tafonómico.',
+    procedencia: 'Valle del Cauca, Colombia',
+    dimensiones: 'Alt. 35.6 cm · Ancho 31.3 cm · ⌀ 32.6 cm',
+    modelUrl: 'models/vasija-asas-yotoco.glb',
+    imagenes: [
+      'images/vasija-asas-yotoco-1.jpeg',
+      'images/vasija-asas-yotoco-2.jpeg',
+      'images/vasija-asas-yotoco-3.jpeg',
+      'images/vasija-asas-yotoco-4.jpeg',
+      'images/vasija-asas-yotoco-5.jpeg',
+      'images/vasija-asas-yotoco-6.jpeg'
+    ],
+    video: null
+  },
+
+  {
+    id: 'vasija-miniatura-sonso',
+    nombre: 'Vasija Globular Miniatura',
+    material: 'Cerámica',
+    periodo: 'Período Sonso · Cultura Calima (1200 d.C. – 1600 d.C.)',
+    donante: '',
+    descripcion: 'Vasija miniatura globular carenada de cuello corto y borde evertido. Aplique modelado en la zona del hombro. Pasta semigruesa con cocción mixta. Función doméstica o funeraria simplificada.',
+    procedencia: 'Valle del Cauca, Colombia',
+    dimensiones: 'Alt. 11.3 cm · ⌀ 13.6 cm',
+    modelUrl: 'models/vasija-miniatura-sonso.glb',
+    imagenes: [
+      'images/vasija-miniatura-sonso-1.jpeg',
+      'images/vasija-miniatura-sonso-2.jpeg',
+      'images/vasija-miniatura-sonso-3.jpeg',
+      'images/vasija-miniatura-sonso-4.jpeg',
+      'images/vasija-miniatura-sonso-5.jpeg'
+    ],
+    video: null
+  },
+
+  {
+    id: 'copa-pedestal-yotoco',
+    nombre: 'Copa en Pedestal de Paredes Simples',
+    material: 'Cerámica',
+    periodo: 'Período Yotoco · Cultura Calima (100 a.C. – 1300 d.C.)',
+    donante: '',
+    descripcion: 'Copa en pedestal de cuerpo globular con soporte cónico. Apliques nodulares simples en zona ecuatorial. Engobe rojo. Probable uso ceremonial en ajuares funerarios de la llanura aluvial del río Cauca.',
+    procedencia: 'Valle del Cauca, Colombia',
+    dimensiones: 'Alt. 14.7 cm · ⌀ 19.5 cm',
+    modelUrl: 'models/copa-pedestal-yotoco.glb',
+    imagenes: [
+      'images/copa-pedestal-yotoco-1.jpeg',
+      'images/copa-pedestal-yotoco-2.jpeg',
+      'images/copa-pedestal-yotoco-3.jpeg',
+      'images/copa-pedestal-yotoco-4.jpeg',
+      'images/copa-pedestal-yotoco-5.jpeg'
+    ],
+    video: null
+  },
+
+  {
+    id: 'alcarraza-ilama',
+    nombre: 'Alcarraza Cerámica Globular',
+    material: 'Cerámica',
+    periodo: 'Período Ilama · Cultura Calima (1600 a.C. – 100 d.C.)',
+    donante: '',
+    descripcion: 'Alcarraza monocroma de cuerpo globular y cuello largo evertido. Pasta fina con desgrasante de cuarzo fino. Acabado alisado monocromo. Probable función ritual o utilitaria simple del período Ilama.',
+    procedencia: 'Valle del Cauca, Colombia',
+    dimensiones: 'Alt. 12.2 cm · Ancho 10.3 cm · ⌀ 10.3 cm',
+    modelUrl: 'models/alcarraza-ilama.glb',
+    imagenes: [
+      'images/alcarraza-ilama-1.jpeg',
+      'images/alcarraza-ilama-2.jpeg',
+      'images/alcarraza-ilama-3.jpeg',
+      'images/alcarraza-ilama-4.jpeg',
+      'images/alcarraza-ilama-5.jpeg'
+    ],
+    video: null
+  },
+
+  {
+    id: 'copa-pedestal-malagana',
+    nombre: 'Copa en Pedestal de Cerámica',
+    material: 'Cerámica',
+    periodo: 'Período Malagana · Cultura Calima (200 a.C. – 400 d.C.)',
+    donante: '',
+    descripcion: 'Copa en pedestal sin decoración incisa, diagnóstica del período Malagana. Cuerpo globular sobre pedestal cónico. Engobe rojo-naranja con desgaste tafonómico por entierro en fosa. Completa y en buen estado estructural.',
+    procedencia: 'Valle del Cauca, Colombia',
+    dimensiones: 'Alt. 14 cm · ⌀ 17.8 cm',
+    modelUrl: 'models/copa-pedestal-malagana.glb',
+    imagenes: [
+      'images/copa-pedestal-malagana-1.jpeg',
+      'images/copa-pedestal-malagana-2.jpeg',
+      'images/copa-pedestal-malagana-3.jpeg',
+      'images/copa-pedestal-malagana-4.jpeg',
+      'images/copa-pedestal-malagana-5.jpeg'
+    ],
+    video: null
   }
 
   // ── AGREGA MÁS PIEZAS AQUÍ ────────────────────────────────────────
