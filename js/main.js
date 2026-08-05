@@ -43,7 +43,10 @@ function showMLoad() {
 }
 function hideMLoad() { if (_mLoadOv) _mLoadOv.style.display = 'none'; }
 
-/* ── Per-card renderers — lazy create/destroy, max 6 activos ────── */
+/* ── Mobile detection — show static images instead of WebGL on mobile ── */
+var _isMobileCol = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || ('ontouchstart' in window && window.innerWidth < 1024);
+
+/* ── Per-card renderers — lazy create/destroy, max 10 activos ────── */
 var _MAX_RDRS = 10;
 var _nActive  = 0;
 var _pending  = [];
@@ -138,6 +141,19 @@ function _renderPagination() {
 function spawnPreview(piece) {
   var cont = document.getElementById('c3d-' + piece.id);
   if (!cont) return;
+
+  if (_isMobileCol) {
+    if (piece.imagenes && piece.imagenes[0]) {
+      var img = document.createElement('img');
+      img.src = piece.imagenes[0];
+      img.style.cssText = 'width:100%;height:220px;object-fit:cover;display:block;border-radius:8px 8px 0 0;';
+      cont.appendChild(img);
+    } else {
+      cont.style.cssText = 'height:220px;background:#1a1a1a;';
+    }
+    return;
+  }
+
   var sc = new THREE.Scene();
   sc.background = new THREE.Color(0x181a1e);
   var cam = new THREE.PerspectiveCamera(38, (cont.clientWidth || 300) / 220, 0.05, 60);

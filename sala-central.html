@@ -57,6 +57,7 @@
     .nb-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.52); z-index:599; }
     .nb-overlay.open { display:block; }
     @media(max-width:1024px){ .nb-toggle{display:flex;} }
+    @media(orientation:landscape) and (min-width:769px){ .nb-toggle{display:none!important;} }
     @media(max-width:768px){
       #top-nav{padding:.6rem 1rem;}
       .nb-menu{position:fixed;top:0;right:0;width:min(290px,82vw);height:100%;flex-direction:column;align-items:flex-start;padding:72px 1.5rem 2rem;gap:4px;background:rgba(8,9,11,0.99);border-left:2px solid #d4af37;z-index:9999;transform:translateX(100%);transition:transform .3s cubic-bezier(.25,.46,.45,.94);overflow-y:auto;box-shadow:-8px 0 32px rgba(0,0,0,.6);}
@@ -1017,6 +1018,7 @@ followSpot.target = new THREE.Object3D();
 scene.add(followSpot); scene.add(followSpot.target);
 
 // ── INPUT ─────────────────────────────────────────────────────────────────────
+var _isMobSC = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth <= 900;
 var yaw=0, pitch=0.30, keys={}, locked=false, started=false;
 var modalOpen=false;
 
@@ -1053,18 +1055,17 @@ function _enterFs(){
 }
 document.getElementById('btn-start').addEventListener('click', function(){
   started=true; startEl.style.display='none';
-  if(!document.fullscreenElement) _enterFs(); else canvas.requestPointerLock();
+  if(!_isMobSC){ if(!document.fullscreenElement) _enterFs(); else canvas.requestPointerLock(); }
 });
 document.getElementById('pd-continue').addEventListener('click', function(){
   pauseEl.style.display='none';
-  if(!document.fullscreenElement) _enterFs(); else canvas.requestPointerLock();
+  if(!_isMobSC){ if(!document.fullscreenElement) _enterFs(); else canvas.requestPointerLock(); }
 });
 document.addEventListener('fullscreenchange', function(){
-  if(document.fullscreenElement && started && !document.pointerLockElement) canvas.requestPointerLock();
+  if(!_isMobSC && document.fullscreenElement && started && !document.pointerLockElement) canvas.requestPointerLock();
 });
 
-// Stuck detector: desktop only — if pointer lock lost outside a modal/pause, show resume overlay
-var _isMobSC = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth <= 768;
+// Stuck detector: desktop only
 setInterval(function(){
   if(!_isMobSC && started && !locked && !modalOpen &&
      pauseEl.style.display!=='flex' && resumeOverlay.style.display!=='flex'){
@@ -1088,13 +1089,13 @@ function openInfo(def){
 function closeInfo(){
   infoModal.classList.remove('open');
   modalOpen=false;
-  if(started) resumeOverlay.style.display='flex';
+  if(started && !_isMobSC) resumeOverlay.style.display='flex';
 }
 function closeMal(){
   malModal.style.display='none';
   var v=document.getElementById('ml-video'); if(v) v.pause();
   modalOpen=false;
-  if(started) resumeOverlay.style.display='flex';
+  if(started && !_isMobSC) resumeOverlay.style.display='flex';
 }
 
 document.getElementById('im-close').addEventListener('click', closeInfo);
@@ -1125,7 +1126,7 @@ function openDoor(salaNum){
 function closeDoor(){
   doorModal.style.display='none';
   modalOpen=false;
-  if(started) resumeOverlay.style.display='flex';
+  if(started && !_isMobSC) resumeOverlay.style.display='flex';
 }
 document.getElementById('dm-close').addEventListener('click', closeDoor);
 document.getElementById('dm-cancel').addEventListener('click', closeDoor);
@@ -1224,6 +1225,44 @@ document.addEventListener('touchmove',function(e){
 document.addEventListener('touchend',function(e){
   for(var i=0;i<e.changedTouches.length;i++) if(e.changedTouches[i].identifier===lookId) lookId=null;
 });
+
+// Tap detection for panel interaction on mobile
+var _tapInfo = null;
+document.addEventListener('touchstart', function(e){
+  for(var i=0;i<e.changedTouches.length;i++){
+    var t=e.changedTouches[i];
+    var jr=joyZone.getBoundingClientRect();
+    var inJ=t.clientX>=jr.left&&t.clientX<=jr.right&&t.clientY>=jr.top&&t.clientY<=jr.bottom;
+    if(!inJ && _tapInfo===null) _tapInfo={id:t.identifier,x:t.clientX,y:t.clientY,ms:Date.now()};
+  }
+},{passive:true});
+document.addEventListener('touchend', function(e){
+  if(!_tapInfo||!started){_tapInfo=null;return;}
+  for(var i=0;i<e.changedTouches.length;i++){
+    var t=e.changedTouches[i];
+    if(t.identifier!==_tapInfo.id) continue;
+    var dx=t.clientX-_tapInfo.x, dy=t.clientY-_tapInfo.y, dt=Date.now()-_tapInfo.ms;
+    _tapInfo=null;
+    if(dt>280||Math.sqrt(dx*dx+dy*dy)>14) return; // was a drag, not a tap
+    var rect=canvas.getBoundingClientRect();
+    var nx=((t.clientX-rect.left)/rect.width)*2-1;
+    var ny=-((t.clientY-rect.top)/rect.height)*2+1;
+    ray.setFromCamera(new THREE.Vector2(nx,ny),camera);
+    var hits=ray.intersectObjects(interactables.map(function(x){return x.mesh;}));
+    if(!hits.length||hits[0].distance>9) return;
+    var found=interactables.find(function(x){return x.mesh===hits[0].object;});
+    if(!found) return;
+    var def=found.def;
+    if(def.isDoor){openDoor(def.salaNum);return;}
+    if(def.isMalagana){modalOpen=true;malModal.style.display='flex';return;}
+    if(def.isProx){
+      document.getElementById('im-title').textContent='Próximamente';
+      document.getElementById('im-body').innerHTML='<p>Este contenido estará disponible próximamente.</p>';
+      modalOpen=true;infoModal.classList.add('open');return;
+    }
+    openInfo(def);
+  }
+},{passive:true});
 
 // ── COLLISION ─────────────────────────────────────────────────────────────────
 function canMove(nx, nz){

@@ -277,6 +277,11 @@ footer { text-align:center; padding:2rem; border-top:1px solid #1e2025; color:va
   .nav-toggle { display:flex; }
 }
 
+/* En landscape con ancho suficiente el menú ya es visible — ocultar hamburguesa */
+@media (orientation:landscape) and (min-width:769px) {
+  .nav-toggle { display:none !important; }
+}
+
 @media (max-width:768px) {
   /* Hamburger activado */
   .nav-toggle { display:flex; }
