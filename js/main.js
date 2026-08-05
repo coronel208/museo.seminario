@@ -9,30 +9,18 @@ _draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/')
 function makeGLTF() { var l = new GLTFLoader(); l.setDRACOLoader(_draco); return l; }
 
 /* ── Page loading overlay ────────────────────────────────────────── */
-var _pgOv   = document.getElementById('col-loading');
-var _pgBar  = document.getElementById('col-loading-bar');
-var _pgLbl  = document.getElementById('col-loading-lbl');
-var _pgDone = 0;
-var _pgTotal = PIECES.length;
+var _pgOv  = document.getElementById('col-loading');
+var _pgBar = document.getElementById('col-loading-bar');
 var _pgHidden = false;
-
 function _pgHide() {
-  if (_pgHidden) return;
-  _pgHidden = true;
+  if (_pgHidden) return; _pgHidden = true;
   if (!_pgOv) return;
   _pgOv.style.transition = 'opacity .5s';
   _pgOv.style.opacity = '0';
   setTimeout(function() { _pgOv.style.display = 'none'; }, 500);
 }
-function _pgTick() {
-  _pgDone++;
-  var pct = Math.round(_pgDone / _pgTotal * 100);
-  if (_pgBar) _pgBar.style.width = pct + '%';
-  if (_pgLbl) _pgLbl.textContent = _pgDone + ' / ' + _pgTotal;
-  if (_pgDone >= _pgTotal) setTimeout(_pgHide, 200);
-}
-// Fallback: hide after 12s aunque fallen algunas descargas
-setTimeout(function() { if (!_pgHidden) _pgHide(); }, 12000);
+if (_pgBar) { requestAnimationFrame(function() { _pgBar.style.transition = 'width 1s ease'; _pgBar.style.width = '100%'; }); }
+setTimeout(_pgHide, 1200);
 
 /* ── Loading overlay for modal 3D ───────────────────────────────── */
 (function() {
@@ -55,32 +43,117 @@ function showMLoad() {
 }
 function hideMLoad() { if (_mLoadOv) _mLoadOv.style.display = 'none'; }
 
+/* ── Shared renderer — UN solo contexto WebGL para todos los cards ── */
+var _cvs3d = document.createElement('canvas');
+_cvs3d.style.cssText = 'position:fixed;top:0;left:0;pointer-events:none;z-index:2;';
+document.body.appendChild(_cvs3d);
+
+var _rdr3d = new THREE.WebGLRenderer({
+  canvas: _cvs3d, antialias: false, alpha: true, powerPreference: 'low-power'
+});
+_rdr3d.setClearColor(0x000000, 0);
+_rdr3d.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+_rdr3d.toneMapping = THREE.ACESFilmicToneMapping;
+_rdr3d.toneMappingExposure = 1.1;
+_rdr3d.autoClear = false;
+(function() { var W=window.innerWidth,H=window.innerHeight; _rdr3d.setSize(W,H); _cvs3d.style.width=W+'px'; _cvs3d.style.height=H+'px'; })();
+window.addEventListener('resize', function() { var W=window.innerWidth,H=window.innerHeight; _rdr3d.setSize(W,H); _cvs3d.style.width=W+'px'; _cvs3d.style.height=H+'px'; });
+
+var _pool3d  = [];  // { scene, cam, meshGroup, cont, piece, loaded, visible }
+var _nLoaded = 0;
+var _MAX_GPU = 6;   // máx modelos en GPU simultáneamente
+var _rafId3d = null;
+
+function _disposePool(e) {
+  e.loaded = false; _nLoaded--;
+  e.meshGroup.traverse(function(o) {
+    if (!o.isMesh) return;
+    if (o.geometry) o.geometry.dispose();
+    var mats = Array.isArray(o.material) ? o.material : [o.material];
+    mats.forEach(function(m) { if (m.map) m.map.dispose(); m.dispose(); });
+  });
+  while (e.meshGroup.children.length) e.meshGroup.remove(e.meshGroup.children[0]);
+  e.meshGroup.add(buildArtifact(e.piece, 0.92));
+}
+function _loadPool(e) {
+  if (e.loaded) return;
+  if (_nLoaded >= _MAX_GPU) {
+    for (var i = 0; i < _pool3d.length; i++) {
+      if (_pool3d[i].loaded && !_pool3d[i].visible) { _disposePool(_pool3d[i]); break; }
+    }
+  }
+  e.loaded = true; _nLoaded++;
+  if (!e.piece.modelUrl) return;
+  makeGLTF().load(e.piece.modelUrl, function(gltf) {
+    if (!e.loaded) return;
+    var m = gltf.scene;
+    var bbox = new THREE.Box3().setFromObject(m);
+    var sz   = bbox.getSize(new THREE.Vector3());
+    var sc2  = 1.6 / (Math.max(sz.x, sz.y, sz.z) || 1);
+    m.scale.setScalar(sc2);
+    var ctr  = bbox.getCenter(new THREE.Vector3());
+    m.position.set(-ctr.x*sc2, -ctr.y*sc2, -ctr.z*sc2);
+    while (e.meshGroup.children.length) e.meshGroup.remove(e.meshGroup.children[0]);
+    e.meshGroup.add(m);
+  });
+}
+function _cardLoop() {
+  _rafId3d = requestAnimationFrame(_cardLoop);
+  var H = window.innerHeight, hasVis = false;
+  _rdr3d.clear(true, true, false);
+  for (var i = 0; i < _pool3d.length; i++) {
+    var e = _pool3d[i];
+    if (!e.visible) continue;
+    var r = e.cont.getBoundingClientRect();
+    if (r.width < 1 || r.height < 1) continue;
+    hasVis = true;
+    _rdr3d.setViewport(r.left, H - r.bottom, r.width, r.height);
+    _rdr3d.setScissor( r.left, H - r.bottom, r.width, r.height);
+    _rdr3d.setScissorTest(true);
+    e.cam.aspect = r.width / r.height;
+    e.cam.updateProjectionMatrix();
+    e.meshGroup.rotation.y += 0.007;
+    _rdr3d.render(e.scene, e.cam);
+  }
+  if (!hasVis) { cancelAnimationFrame(_rafId3d); _rafId3d = null; }
+}
+
 /* ── Build card grid ─────────────────────────────────────────────── */
 var grid = document.getElementById('pieces-grid');
 
 PIECES.forEach(function(piece) {
   var card = document.createElement('div');
   card.className = 'card';
-
-  var imgDiv = document.createElement('div');
-  imgDiv.className = 'card-3d';
-  var img = document.createElement('img');
-  img.src = piece.imagenes[0];
-  img.alt = piece.nombre;
-  img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
-  img.addEventListener('load',  _pgTick);
-  img.addEventListener('error', _pgTick);
-  imgDiv.appendChild(img);
-
-  var infoDiv = document.createElement('div');
-  infoDiv.className = 'card-content';
-  infoDiv.innerHTML = '<h3>' + piece.nombre + '</h3><p>' + piece.procedencia + '</p>';
-
-  card.appendChild(imgDiv);
-  card.appendChild(infoDiv);
+  card.innerHTML =
+    '<div class="card-3d" id="c3d-' + piece.id + '"></div>' +
+    '<div class="card-content"><h3>' + piece.nombre + '</h3><p>' + piece.procedencia + '</p></div>';
   card.addEventListener('click', function() { openModal(piece.id); });
   grid.appendChild(card);
+  spawnPreview(piece);
 });
+
+function spawnPreview(piece) {
+  var cont = document.getElementById('c3d-' + piece.id);
+  if (!cont) return;
+  var sc = new THREE.Scene();
+  var cam = new THREE.PerspectiveCamera(38, 300/220, 0.05, 60);
+  cam.position.set(0, 0.4, 2.6);
+  sc.add(new THREE.AmbientLight(0x404050, 1.1));
+  var dl = new THREE.DirectionalLight(0xfff4dd, 2.2); dl.position.set(2, 4, 2); sc.add(dl);
+  var fl = new THREE.PointLight(0x446688, 0.4, 8); fl.position.set(-2, 1, -1); sc.add(fl);
+  var mg = new THREE.Group(); mg.position.y = -0.05; sc.add(mg);
+  if (!piece.modelUrl) mg.add(buildArtifact(piece, 0.92));
+  var entry = { scene: sc, cam: cam, meshGroup: mg, cont: cont, piece: piece, loaded: false, visible: false };
+  _pool3d.push(entry);
+  var obs = new IntersectionObserver(function(ents) {
+    entry.visible = ents[0].isIntersecting;
+    if (entry.visible) {
+      if (!entry.loaded) _loadPool(entry);
+      if (!_rafId3d) _cardLoop();
+    }
+  }, { threshold: 0.05 });
+  obs.observe(cont);
+}
 
 
 /* ── Modal setup ─────────────────────────────────────────────────── */
