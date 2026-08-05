@@ -61,91 +61,27 @@ var grid = document.getElementById('pieces-grid');
 PIECES.forEach(function(piece) {
   var card = document.createElement('div');
   card.className = 'card';
-  card.innerHTML =
-    '<div class="card-3d" id="c3d-' + piece.id + '"></div>' +
-    '<div class="card-content"><h3>' + piece.nombre + '</h3><p>' + piece.procedencia + '</p></div>';
+
+  var imgDiv = document.createElement('div');
+  imgDiv.className = 'card-3d';
+  var img = document.createElement('img');
+  img.src = piece.imagenes[0];
+  img.alt = piece.nombre;
+  img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+  img.addEventListener('load',  _pgTick);
+  img.addEventListener('error', _pgTick);
+  imgDiv.appendChild(img);
+
+  var infoDiv = document.createElement('div');
+  infoDiv.className = 'card-content';
+  infoDiv.innerHTML = '<h3>' + piece.nombre + '</h3><p>' + piece.procedencia + '</p>';
+
+  card.appendChild(imgDiv);
+  card.appendChild(infoDiv);
   card.addEventListener('click', function() { openModal(piece.id); });
   grid.appendChild(card);
-
-  // Prefetch GLB into browser cache, track progress for loading overlay
-  if (piece.modelUrl) {
-    fetch(piece.modelUrl).then(_pgTick).catch(_pgTick);
-  } else {
-    _pgTick();
-  }
-
-  // Lazy: renderer created only when card enters viewport
-  spawnPreview(piece);
 });
 
-function spawnPreview(piece) {
-  var cont = document.getElementById('c3d-' + piece.id);
-  if (!cont) return;
-  var created = false;
-
-  var initObs = new IntersectionObserver(function(entries) {
-    if (entries[0].isIntersecting && !created) {
-      created = true;
-      initObs.disconnect();
-      _buildCardRenderer(piece, cont);
-    }
-  }, { threshold: 0.05 });
-  initObs.observe(cont);
-}
-
-function _buildCardRenderer(piece, cont) {
-  var W = cont.clientWidth || 300;
-  var H = 220;
-
-  var rdr = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-  rdr.setSize(W, H);
-  rdr.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  rdr.toneMapping = THREE.ACESFilmicToneMapping;
-  rdr.toneMappingExposure = 1.2;
-  cont.appendChild(rdr.domElement);
-
-  var sc = new THREE.Scene();
-  sc.background = new THREE.Color(0x181a1e);
-  var cam = new THREE.PerspectiveCamera(38, W / H, 0.05, 100);
-  cam.position.set(0, 0.4, 2.6);
-
-  sc.add(new THREE.AmbientLight(0x404050, 1.2));
-  var dl = new THREE.DirectionalLight(0xfff4dd, 2.4);
-  dl.position.set(2, 4, 2); sc.add(dl);
-  var fl = new THREE.PointLight(0x446688, 0.6, 10);
-  fl.position.set(-2, 1, -1); sc.add(fl);
-
-  var meshGroup = new THREE.Group();
-  meshGroup.position.y = -0.05;
-  sc.add(meshGroup);
-  if (piece.modelUrl) {
-    makeGLTF().load(piece.modelUrl, function(gltf) {
-      var m = gltf.scene;
-      var bbox = new THREE.Box3().setFromObject(m);
-      var sz   = bbox.getSize(new THREE.Vector3());
-      var maxD = Math.max(sz.x, sz.y, sz.z) || 1;
-      var sc2  = 1.6 / maxD;
-      m.scale.setScalar(sc2);
-      var ctr  = bbox.getCenter(new THREE.Vector3());
-      m.position.set(-ctr.x * sc2, -ctr.y * sc2, -ctr.z * sc2);
-      meshGroup.add(m);
-    });
-  } else {
-    meshGroup.add(buildArtifact(piece, 0.92));
-  }
-
-  var rafId;
-  function loop() {
-    rafId = requestAnimationFrame(loop);
-    meshGroup.rotation.y += 0.008;
-    rdr.render(sc, cam);
-  }
-
-  var visObs = new IntersectionObserver(function(entries) {
-    if (entries[0].isIntersecting) { loop(); } else { cancelAnimationFrame(rafId); }
-  }, { threshold: 0.1 });
-  visObs.observe(cont);
-}
 
 /* ── Modal setup ─────────────────────────────────────────────────── */
 var modal     = document.getElementById('piece-modal');

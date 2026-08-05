@@ -113,6 +113,11 @@ var _SALA_THEMES = {
        wBase:'#2d5a3d', wWainscot:'#061a0a',
        wB1:'rgba(50,160,80,', wB2:'rgba(80,200,120,', wMot:'rgba(60,180,90,',
        wAccL:'rgba(80,200,100,', wML:'rgba(40,130,70,', wML2:'rgba(80,180,110,' },
+  3: { clr:0xb45309, hex:'#b45309', bg:0x100802, amb:0xffe8c0,
+       floor:0x1a0c04, ceil:0xf0c870,
+       wBase:'#7c4020', wWainscot:'#1c0a02',
+       wB1:'rgba(200,110,30,', wB2:'rgba(240,150,50,', wMot:'rgba(220,130,40,',
+       wAccL:'rgba(255,170,60,', wML:'rgba(180,90,20,', wML2:'rgba(220,130,50,' },
 };
 var _st = _SALA_THEMES[SALA_NUM] || _SALA_THEMES[1];
 var SALA_CLR     = _st.clr;
@@ -320,6 +325,18 @@ var _LAYOUTS = {
     { piece: getPieceById('copa-pedestal-yotoco'),     x:  3.0, z: -8 },
     { piece: getPieceById('alcarraza-ilama'),          x: -3.0, z:-16 },
     { piece: getPieceById('copa-pedestal-malagana'),   x:  3.0, z:-16 }
+  ],
+  3: [
+    { piece: getPieceById('vasija-antropomorfa'),       x: -3.0, z: 16 },
+    { piece: getPieceById('vasija-globular-asas'),      x:  3.0, z: 16 },
+    { piece: getPieceById('cuenco-miniatura-carenado'), x: -3.0, z:  8 },
+    { piece: getPieceById('vasija-globular-sonso'),     x:  3.0, z:  8 },
+    { piece: getPieceById('cuenco-globular-yotoco'),    x: -3.0, z:  0 },
+    { piece: getPieceById('vasija-asas-yotoco'),        x:  3.0, z:  0 },
+    { piece: getPieceById('vasija-miniatura-sonso'),    x: -3.0, z: -8 },
+    { piece: getPieceById('copa-pedestal-yotoco'),      x:  3.0, z: -8 },
+    { piece: getPieceById('alcarraza-ilama'),           x: -3.0, z:-16 },
+    { piece: getPieceById('copa-pedestal-malagana'),    x:  3.0, z:-16 }
   ]
 };
 var LAYOUT = _LAYOUTS[SALA_NUM] || _LAYOUTS[1];
@@ -390,20 +407,6 @@ LAYOUT.forEach(function(cfg) {
   artifact.add(buildArtifact(piece, 0.62));
   grp.add(artifact);
   cfg._artifact = artifact;
-  if (piece.modelUrl) {
-    _gltfLoader.load(piece.modelUrl, function(gltf) {
-      var m = gltf.scene;
-      var bbox = new THREE.Box3().setFromObject(m);
-      var sz   = bbox.getSize(new THREE.Vector3());
-      var sc   = 0.85 / (Math.max(sz.x, sz.y, sz.z) || 1);
-      m.scale.setScalar(sc);
-      var ctr  = bbox.getCenter(new THREE.Vector3());
-      m.position.set(-ctr.x * sc, -bbox.min.y * sc, -ctr.z * sc);
-      while (artifact.children.length) artifact.remove(artifact.children[0]);
-      artifact.add(m);
-      glbDone();
-    }, undefined, function() { glbDone(); });
-  }
 
   // ── Label plate ABOVE the case ──
   var lc = document.createElement('canvas');
@@ -488,6 +491,37 @@ LAYOUT.forEach(function(cfg) {
   scene.add(grp);
   interactables.push({ glassMesh: glassMesh, hlRing: hlRing, artifact: artifact, pieceId: piece.id });
 });
+
+// ── Carga secuencial por parejas, frente→fondo ────────────────────────
+(function() {
+  var sorted = LAYOUT.slice().sort(function(a, b) { return b.z - a.z; });
+  var pairs = [];
+  for (var i = 0; i < sorted.length; i += 2) pairs.push(sorted.slice(i, i + 2));
+
+  function loadPair(idx) {
+    if (idx >= pairs.length) return;
+    var pair = pairs[idx];
+    var rem = pair.length;
+    function done() { if (--rem <= 0) loadPair(idx + 1); }
+    pair.forEach(function(cfg) {
+      if (!cfg.piece || !cfg.piece.modelUrl) { glbDone(); done(); return; }
+      var art = cfg._artifact;
+      _gltfLoader.load(cfg.piece.modelUrl, function(gltf) {
+        var m = gltf.scene;
+        var bbox = new THREE.Box3().setFromObject(m);
+        var sz   = bbox.getSize(new THREE.Vector3());
+        var sc   = 0.85 / (Math.max(sz.x, sz.y, sz.z) || 1);
+        m.scale.setScalar(sc);
+        var ctr  = bbox.getCenter(new THREE.Vector3());
+        m.position.set(-ctr.x * sc, -bbox.min.y * sc, -ctr.z * sc);
+        while (art.children.length) art.remove(art.children[0]);
+        art.add(m);
+        glbDone(); done();
+      }, undefined, function() { glbDone(); done(); });
+    });
+  }
+  loadPair(0);
+})();
 
 prog(78, 'Instalando puerta trasera…');
 var murals = [];
