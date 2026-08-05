@@ -7,117 +7,100 @@
   <link rel="stylesheet" href="css/estilo.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    /* ── About page extras ────────────────────────────────────────── */
-    .about-hero {
-      position: relative;
-      width: 100%;
-      max-height: 480px;
-      overflow: hidden;
-      border-radius: 12px;
-      margin-bottom: 3rem;
+    .sn-wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 1.5rem 4rem;
     }
-    .about-hero img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    .about-hero-caption {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      padding: 1.2rem 1.5rem;
-      background: linear-gradient(to top, rgba(0,0,0,.75), transparent);
-      color: #fff;
-      font-size: .9rem;
-      letter-spacing: .03em;
+    .sn-lead {
+      color: #c8b88a;
+      font-size: 1.08rem;
+      line-height: 1.75;
+      margin: 0 0 2.5rem;
+      max-width: 640px;
     }
 
-    .about-grid {
+    /* Stats */
+    .sn-stats {
+      display: flex;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      margin-bottom: 3rem;
+    }
+    .sn-stat {
+      background: rgba(212,175,55,.07);
+      border: 1px solid rgba(212,175,55,.20);
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      min-width: 110px;
+      text-align: center;
+    }
+    .sn-stat .num {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #d4af37;
+      line-height: 1;
+    }
+    .sn-stat .lbl {
+      font-size: .72rem;
+      color: #a99e8c;
+      margin-top: .3rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    /* Divider title */
+    .sn-section {
+      font-size: 1.05rem;
+      color: #d4af37;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin: 2.8rem 0 1.2rem;
+      padding-bottom: .5rem;
+      border-bottom: 1px solid rgba(212,175,55,.22);
+    }
+
+    /* 2-col info */
+    .sn-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 2.5rem;
-      margin-bottom: 3rem;
-    }
-    @media (max-width: 720px) {
-      .about-grid { grid-template-columns: 1fr; }
-    }
-
-    .about-block h3 {
-      font-size: 1.1rem;
-      color: var(--gold);
-      margin-bottom: .6rem;
-      letter-spacing: .04em;
-      text-transform: uppercase;
-    }
-    .about-block p {
-      font-size: .92rem;
-      line-height: 1.7;
-      color: var(--text-secondary, #a99e8c);
       margin-bottom: .5rem;
     }
-    .about-block p i { margin-right: .4rem; }
-
-    .section-title {
-      font-size: 1.25rem;
-      color: var(--gold);
+    @media (max-width: 680px) { .sn-grid { grid-template-columns: 1fr; } }
+    .sn-block h3 {
+      font-size: .9rem;
+      color: #d4af37;
       text-transform: uppercase;
-      letter-spacing: .08em;
-      margin: 2.5rem 0 1.2rem;
-      padding-bottom: .5rem;
-      border-bottom: 1px solid rgba(212,175,55,.25);
+      letter-spacing: .05em;
+      margin: 0 0 .5rem;
     }
+    .sn-block p {
+      font-size: .9rem;
+      color: #a99e8c;
+      line-height: 1.75;
+      margin: 0 0 .8rem;
+    }
+    .sn-block p i { color: #d4af37; margin-right: .4rem; }
 
-    .team-gallery {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-bottom: 2.5rem;
+    /* Team photo — natural size, centered, no crop */
+    .sn-team-photo {
+      display: flex;
+      justify-content: center;
+      margin: 1.2rem 0 1.5rem;
     }
-    @media (max-width: 600px) {
-      .team-gallery { grid-template-columns: 1fr 1fr; }
-      .team-gallery .featured { grid-column: 1 / -1; }
-    }
-    .team-gallery img {
+    .sn-team-photo img {
+      max-width: 680px;
       width: 100%;
-      aspect-ratio: 4/3;
-      object-fit: cover;
-      border-radius: 8px;
-      border: 1px solid rgba(212,175,55,.2);
+      border-radius: 10px;
+      border: 1px solid rgba(212,175,55,.22);
       display: block;
     }
-    .team-gallery .featured {
-      grid-column: 1 / -1;
-    }
-    .team-gallery .featured img {
-      aspect-ratio: 16/7;
-    }
-
-    .stat-row {
-      display: flex;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-      margin: 1.5rem 0 2.5rem;
-    }
-    .stat-card {
-      background: rgba(212,175,55,.06);
-      border: 1px solid rgba(212,175,55,.18);
-      border-radius: 10px;
-      padding: 1rem 1.4rem;
-      min-width: 120px;
-      text-align: center;
-    }
-    .stat-card .num {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--gold);
-      line-height: 1;
-    }
-    .stat-card .lbl {
-      font-size: .78rem;
-      color: var(--text-secondary, #a99e8c);
-      margin-top: .3rem;
-      letter-spacing: .04em;
-      text-transform: uppercase;
+    .sn-team-caption {
+      font-size: .85rem;
+      color: #a99e8c;
+      line-height: 1.75;
+      max-width: 640px;
     }
   </style>
 </head>
@@ -141,50 +124,48 @@
   <div class="nav-overlay" id="nav-overlay"></div>
 
   <main class="page-content">
-    <h2 class="page-title">Sobre Nosotros</h2>
+    <div class="sn-wrap">
+      <h2 class="page-title">Sobre Nosotros</h2>
+      <p class="sn-lead">Preservamos y difundimos el patrimonio arqueológico del Seminario Diocesano de Cristo Sacerdote a través de tecnología 3D interactiva.</p>
 
-    <!-- Hero foto equipo -->
-    <div class="about-hero">
-      <img src="images/team.jpeg" alt="Equipo ArkeBot — Seminario Diocesano" loading="lazy">
-      <div class="about-hero-caption">Equipo ArkeBot — Seminario Diocesano de Cristo Sacerdote, Palmira</div>
-    </div>
-
-    <!-- Stats -->
-    <div class="stat-row">
-      <div class="stat-card"><div class="num">30</div><div class="lbl">Piezas</div></div>
-      <div class="stat-card"><div class="num">3</div><div class="lbl">Salas</div></div>
-      <div class="stat-card"><div class="num">360°</div><div class="lbl">Recorrido Virtual</div></div>
-      <div class="stat-card"><div class="num">2025</div><div class="lbl">Fundación</div></div>
-    </div>
-
-    <!-- Texto institucional -->
-    <div class="about-grid">
-      <div class="about-block">
-        <h3>El Museo</h3>
-        <p>El Museo Seminario nace en 2025 como una iniciativa del Seminario Diocesano de Cristo Sacerdote para preservar y difundir el patrimonio cultural y arqueológico de la región. Alberga una importante colección cerámica prehispánica del Valle del Cauca y Cundinamarca, con piezas de las culturas Calima, Malagana y Muisca.</p>
-        <p>Nuestra misión es educar y acercar la historia a todos mediante herramientas digitales innovadoras, ofreciendo recorridos virtuales inmersivos y acceso libre a nuestra colección.</p>
+      <!-- Stats -->
+      <div class="sn-stats">
+        <div class="sn-stat"><div class="num">30</div><div class="lbl">Piezas</div></div>
+        <div class="sn-stat"><div class="num">3</div><div class="lbl">Salas</div></div>
+        <div class="sn-stat"><div class="num">360°</div><div class="lbl">Recorrido Virtual</div></div>
+        <div class="sn-stat"><div class="num">2025</div><div class="lbl">Fundación</div></div>
       </div>
-      <div class="about-block">
-        <h3>Misión</h3>
-        <p>Preservar, investigar y difundir el patrimonio arqueológico y cultural de la región, haciendo accesible nuestra historia a través de tecnología digital de vanguardia.</p>
-        <h3 style="margin-top:1.2rem">Ubicación</h3>
-        <p><i class="fas fa-map-marker-alt" style="color:var(--gold)"></i> Calle 10 # 5-23, Palmira, Valle del Cauca, Colombia.</p>
-        <h3 style="margin-top:1rem">Contacto</h3>
-        <p>
-          <i class="fas fa-envelope" style="color:var(--gold)"></i> museoeseminario@gmail.com<br>
-          <i class="fas fa-phone" style="color:var(--gold)"></i> +57 (2) 123 4567
-        </p>
-      </div>
-    </div>
 
-    <!-- Equipo -->
-    <div class="section-title">Nuestro Equipo</div>
-    <div style="border-radius:10px;overflow:hidden;border:1px solid rgba(212,175,55,.2);margin-bottom:1.5rem;max-height:520px;">
-      <img src="images/team.jpeg" alt="Equipo ArkeBot" loading="lazy" style="width:100%;height:100%;max-height:520px;object-fit:cover;object-position:top;display:block;">
+      <!-- El Museo + Misión -->
+      <div class="sn-section">El Museo</div>
+      <div class="sn-grid">
+        <div class="sn-block">
+          <h3>¿Quiénes somos?</h3>
+          <p>El Museo Seminario nace en 2025 como iniciativa del Seminario Diocesano de Cristo Sacerdote para preservar y difundir el patrimonio cultural y arqueológico de la región. Alberga una colección cerámica prehispánica del Valle del Cauca y Cundinamarca, con piezas de las culturas Calima, Malagana y Muisca.</p>
+          <p>Nuestra misión es educar y acercar la historia a todos mediante herramientas digitales innovadoras, ofreciendo recorridos virtuales inmersivos y acceso libre a nuestra colección.</p>
+        </div>
+        <div class="sn-block">
+          <h3>Misión</h3>
+          <p>Preservar, investigar y difundir el patrimonio arqueológico y cultural de la región, haciendo accesible nuestra historia a través de tecnología digital de vanguardia.</p>
+          <h3>Ubicación</h3>
+          <p><i class="fas fa-map-marker-alt"></i>Calle 10 # 5-23, Palmira, Valle del Cauca, Colombia.</p>
+          <h3>Contacto</h3>
+          <p>
+            <i class="fas fa-envelope"></i>museoeseminario@gmail.com<br>
+            <i class="fas fa-phone"></i>+57 (2) 123 4567
+          </p>
+        </div>
+      </div>
+
+      <!-- Equipo -->
+      <div class="sn-section">Nuestro Equipo</div>
+      <div class="sn-team-photo">
+        <img src="images/equipo-1.jpeg" alt="Equipo ArkeBot — Seminario Diocesano de Cristo Sacerdote">
+      </div>
+      <p class="sn-team-caption">
+        El proyecto es desarrollado por estudiantes del Seminario Diocesano de Cristo Sacerdote bajo la iniciativa <strong style="color:#d4af37">ArkeBot</strong>, combinando arqueología, diseño 3D y tecnología web para digitalizar y divulgar el patrimonio cultural colombiano.
+      </p>
     </div>
-    <p style="font-size:.88rem;color:var(--text-secondary,#a99e8c);line-height:1.7;margin-bottom:2rem;">
-      El proyecto es desarrollado por estudiantes del Seminario Diocesano de Cristo Sacerdote bajo la iniciativa <strong style="color:var(--gold)">ArkeBot</strong>, combinando arqueología, diseño 3D y tecnología web para digitalizar y divulgar el patrimonio cultural colombiano.
-    </p>
   </main>
 
   <footer>
