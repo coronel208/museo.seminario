@@ -29,6 +29,15 @@
   </nav>
   <div class="nav-overlay" id="nav-overlay"></div>
 
+  <!-- Pantalla de carga -->
+  <div id="col-loading" style="position:fixed;inset:0;z-index:9990;background:#0d0f14;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1.4rem;">
+    <p style="color:#a99e8c;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;">Cargando Colección</p>
+    <div style="width:220px;height:3px;background:rgba(212,175,55,.12);border-radius:2px;overflow:hidden;">
+      <div id="col-loading-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#c8a832,#f0d060);border-radius:2px;transition:width .35s ease;"></div>
+    </div>
+    <p id="col-loading-lbl" style="color:#504540;font-size:.7rem;letter-spacing:.05em;"></p>
+  </div>
+
   <main class="coleccion-page">
     <h2 class="page-title">Colección Completa</h2>
     <p class="page-subtitle">Cultura Malagana · Valle del Cauca · 200 a.C. – 400 d.C.</p>

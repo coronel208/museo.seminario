@@ -8,6 +8,32 @@ var _draco = new DRACOLoader();
 _draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
 function makeGLTF() { var l = new GLTFLoader(); l.setDRACOLoader(_draco); return l; }
 
+/* ── Page loading overlay ────────────────────────────────────────── */
+var _pgOv   = document.getElementById('col-loading');
+var _pgBar  = document.getElementById('col-loading-bar');
+var _pgLbl  = document.getElementById('col-loading-lbl');
+var _pgDone = 0;
+var _pgTotal = PIECES.length;
+var _pgHidden = false;
+
+function _pgHide() {
+  if (_pgHidden) return;
+  _pgHidden = true;
+  if (!_pgOv) return;
+  _pgOv.style.transition = 'opacity .5s';
+  _pgOv.style.opacity = '0';
+  setTimeout(function() { _pgOv.style.display = 'none'; }, 500);
+}
+function _pgTick() {
+  _pgDone++;
+  var pct = Math.round(_pgDone / _pgTotal * 100);
+  if (_pgBar) _pgBar.style.width = pct + '%';
+  if (_pgLbl) _pgLbl.textContent = _pgDone + ' / ' + _pgTotal;
+  if (_pgDone >= _pgTotal) setTimeout(_pgHide, 200);
+}
+// Fallback: hide after 12s aunque fallen algunas descargas
+setTimeout(function() { if (!_pgHidden) _pgHide(); }, 12000);
+
 /* ── Loading overlay for modal 3D ───────────────────────────────── */
 (function() {
   var s = document.createElement('style');
@@ -40,12 +66,34 @@ PIECES.forEach(function(piece) {
     '<div class="card-content"><h3>' + piece.nombre + '</h3><p>' + piece.procedencia + '</p></div>';
   card.addEventListener('click', function() { openModal(piece.id); });
   grid.appendChild(card);
+
+  // Prefetch GLB into browser cache, track progress for loading overlay
+  if (piece.modelUrl) {
+    fetch(piece.modelUrl).then(_pgTick).catch(_pgTick);
+  } else {
+    _pgTick();
+  }
+
+  // Lazy: renderer created only when card enters viewport
   spawnPreview(piece);
 });
 
 function spawnPreview(piece) {
   var cont = document.getElementById('c3d-' + piece.id);
   if (!cont) return;
+  var created = false;
+
+  var initObs = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting && !created) {
+      created = true;
+      initObs.disconnect();
+      _buildCardRenderer(piece, cont);
+    }
+  }, { threshold: 0.05 });
+  initObs.observe(cont);
+}
+
+function _buildCardRenderer(piece, cont) {
   var W = cont.clientWidth || 300;
   var H = 220;
 
@@ -93,10 +141,10 @@ function spawnPreview(piece) {
     rdr.render(sc, cam);
   }
 
-  var obs = new IntersectionObserver(function(entries) {
+  var visObs = new IntersectionObserver(function(entries) {
     if (entries[0].isIntersecting) { loop(); } else { cancelAnimationFrame(rafId); }
   }, { threshold: 0.1 });
-  obs.observe(cont);
+  visObs.observe(cont);
 }
 
 /* ── Modal setup ─────────────────────────────────────────────────── */
