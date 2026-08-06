@@ -84,7 +84,7 @@ gl.style.height = VH() + 'px';
 var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth <= 768;
 var renderer = new THREE.WebGLRenderer({ canvas: gl, antialias: !isMobile, powerPreference: 'high-performance' });
 renderer.setSize(VW(), VH());
-renderer.setPixelRatio(isMobile ? Math.min(window.devicePixelRatio, 0.75) : Math.min(window.devicePixelRatio, 1.5));
+renderer.setPixelRatio(isMobile ? Math.min(window.devicePixelRatio, 0.5) : Math.min(window.devicePixelRatio, 1.5));
 renderer.shadowMap.enabled = false;  // shadows off — ambient+point lights do the job cheaply
 renderer.toneMapping        = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
@@ -492,34 +492,58 @@ LAYOUT.forEach(function(cfg) {
   interactables.push({ glassMesh: glassMesh, hlRing: hlRing, artifact: artifact, pieceId: piece.id });
 });
 
-// ── Carga secuencial por parejas, frente→fondo ────────────────────────
+// ── Carga de modelos GLB ──────────────────────────────────────────────
 (function() {
-  if (isMobile) { hideLs(); return; }
   var sorted = LAYOUT.slice().sort(function(a, b) { return b.z - a.z; });
+
+  function _loadGlb(cfg, cb) {
+    if (!cfg.piece || !cfg.piece.modelUrl) { glbDone(); cb(); return; }
+    var art = cfg._artifact;
+    _gltfLoader.load(cfg.piece.modelUrl, function(gltf) {
+      var m = gltf.scene;
+      if (isMobile) {
+        // Keep 1 of every 4 triangles to reduce GPU memory on mobile
+        m.traverse(function(child) {
+          if (child.isMesh && child.geometry && child.geometry.index) {
+            var src = child.geometry.index.array;
+            var newIdx = [];
+            for (var i = 0; i < src.length; i += 12) {
+              if (i + 2 < src.length) newIdx.push(src[i], src[i+1], src[i+2]);
+            }
+            child.geometry.setIndex(newIdx);
+            child.geometry.computeBoundingSphere();
+          }
+        });
+      }
+      var bbox = new THREE.Box3().setFromObject(m);
+      var sz   = bbox.getSize(new THREE.Vector3());
+      var sc   = 0.85 / (Math.max(sz.x, sz.y, sz.z) || 1);
+      m.scale.setScalar(sc);
+      var ctr  = bbox.getCenter(new THREE.Vector3());
+      m.position.set(-ctr.x * sc, -bbox.min.y * sc, -ctr.z * sc);
+      while (art.children.length) art.remove(art.children[0]);
+      art.add(m);
+      glbDone(); cb();
+    }, undefined, function() { glbDone(); cb(); });
+  }
+
+  if (isMobile) {
+    // Mobile: load one at a time to limit peak memory
+    var _mi = 0;
+    function _nextMob() { if (_mi < sorted.length) _loadGlb(sorted[_mi++], _nextMob); }
+    _nextMob();
+    return;
+  }
+
+  // Desktop: load in pairs (front→back)
   var pairs = [];
   for (var i = 0; i < sorted.length; i += 2) pairs.push(sorted.slice(i, i + 2));
-
   function loadPair(idx) {
     if (idx >= pairs.length) return;
     var pair = pairs[idx];
     var rem = pair.length;
     function done() { if (--rem <= 0) loadPair(idx + 1); }
-    pair.forEach(function(cfg) {
-      if (!cfg.piece || !cfg.piece.modelUrl) { glbDone(); done(); return; }
-      var art = cfg._artifact;
-      _gltfLoader.load(cfg.piece.modelUrl, function(gltf) {
-        var m = gltf.scene;
-        var bbox = new THREE.Box3().setFromObject(m);
-        var sz   = bbox.getSize(new THREE.Vector3());
-        var sc   = 0.85 / (Math.max(sz.x, sz.y, sz.z) || 1);
-        m.scale.setScalar(sc);
-        var ctr  = bbox.getCenter(new THREE.Vector3());
-        m.position.set(-ctr.x * sc, -bbox.min.y * sc, -ctr.z * sc);
-        while (art.children.length) art.remove(art.children[0]);
-        art.add(m);
-        glbDone(); done();
-      }, undefined, function() { glbDone(); done(); });
-    });
+    pair.forEach(function(cfg) { _loadGlb(cfg, done); });
   }
   loadPair(0);
 })();

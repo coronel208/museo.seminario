@@ -138,7 +138,13 @@ export const PIECES = [
     descripcion: 'Vasija subglobular con carenación marcada en el cuerpo y cuello cónico corto evertido. Pasta semi-fina con desgrasante de cuarzo y arena, cocción oxidante incompleta. Superficie alisada rústica con engobe Munsell 7.5YR 5/4 (brown). Manufactura utilitaria doméstica. Estado completo con leves desgastes en el borde.',
     metadata: 'Material: Cerámica · Técnica: Pasta semi-fina, cocción oxidante · Dimensiones: Alt. 16.9 × ⌀ 20.5 cm · Estado: Completo · Registro ICANH',
     color: 0x8B5520, roughness: 0.87, metalness: 0.02,
-    imagenes: [],
+    imagenes: [
+      'images/cuenco-carenado-1.jpeg',
+      'images/cuenco-carenado-2.jpeg',
+      'images/cuenco-carenado-3.jpeg',
+      'images/cuenco-carenado-4.jpeg',
+      'images/cuenco-carenado-5.jpeg'
+    ],
     video: null,
     modelUrl: 'models/cuenco-carenado.glb',
     restY: 1.19
