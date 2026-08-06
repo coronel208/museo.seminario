@@ -32,6 +32,7 @@ export const PIECES = [
     descripcion: 'Fusayola o volante de huso de morfología discoidal simple fabricada en cerámica utilitaria. Presenta perforación central cilíndrica para el paso del eje del huso, con desgaste superficial generalizado y pátina de alteración edáfica. Artefacto común en contextos domésticos de los Andes colombianos asociados a la actividad textil prehispánica y colonial temprana. La pieza se encuentra completa a pesar del desgaste acumulado.',
     metadata: 'Material: Cerámica · Técnica: Pasta semi-gruesa, cocción oxidante · Dimensiones: ⌀ 4.4 × 2.4 cm · Estado: Completo',
     color: 0x8B3A1A, roughness: 0.90, metalness: 0.02,
+    previewImg: 'images/volante-de-huso-2-2.jpg',
     imagenes: [
       'images/volante-de-huso-2-1.jpg',
       'images/volante-de-huso-2-2.jpg',
@@ -94,6 +95,7 @@ export const PIECES = [
     descripcion: 'Copa cerámica prehispánica en pedestal de paredes simples sin decoración incisa, atribuible al período Malagana de la región Calima. La pasta moderadamente burda y arenosa, con desgrasante de cuarzo y tiesto molido, es característica del complejo Malagana de la llanura aluvial del río Cauca. Presenta manchas tafonómicas por exposición al fuego o contacto con sedimentos reductores. La base muestra anotaciones de inventario museográfico.',
     metadata: 'Material: Cerámica · Técnica: Pasta burda oxidante, desgrasante de cuarzo · Dimensiones: ⌀ 15.8 × 11.7 cm · Decoración: Ausente · Estado: Completo',
     color: 0xA0603A, roughness: 0.88, metalness: 0.02,
+    previewImg: 'images/cuenco-2-2.jpg',
     imagenes: [
       'images/cuenco-2-1.jpg',
       'images/cuenco-2-2.jpg',

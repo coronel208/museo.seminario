@@ -43,8 +43,6 @@ function showMLoad() {
 }
 function hideMLoad() { if (_mLoadOv) _mLoadOv.style.display = 'none'; }
 
-/* ── Mobile detection — show static images instead of WebGL on mobile ── */
-var _isMobileCol = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || ('ontouchstart' in window && window.innerWidth < 1024);
 
 /* ── Per-card renderers — lazy create/destroy, max 10 activos ────── */
 var _MAX_RDRS = 10;
@@ -142,19 +140,16 @@ function spawnPreview(piece) {
   var cont = document.getElementById('c3d-' + piece.id);
   if (!cont) return;
 
-  if (_isMobileCol) {
-    if (piece.imagenes && piece.imagenes[0]) {
-      var img = document.createElement('img');
-      img.src = piece.imagenes[0];
-      img.style.cssText = 'width:100%;height:220px;object-fit:cover;display:block;border-radius:8px 8px 0 0;';
-      cont.appendChild(img);
-    } else {
-      cont.style.cssText = 'height:220px;background:#1a1a1a;';
-    }
-    return;
+  var _prevSrc = piece.previewImg || (piece.imagenes && piece.imagenes[0]);
+  if (_prevSrc) {
+    var img = document.createElement('img');
+    img.src = _prevSrc;
+    img.style.cssText = 'width:100%;height:220px;object-fit:cover;display:block;border-radius:8px 8px 0 0;';
+    cont.appendChild(img);
+  } else {
+    cont.style.cssText = 'height:220px;background:#1a1a1a;';
   }
-
-  var sc = new THREE.Scene();
+  return;
   sc.background = new THREE.Color(0x181a1e);
   var cam = new THREE.PerspectiveCamera(38, (cont.clientWidth || 300) / 220, 0.05, 60);
   cam.position.set(0, 0.4, 2.6);

@@ -74,12 +74,15 @@
     #joystick-zone{display:none;position:fixed;bottom:28px;left:24px;width:120px;height:120px;z-index:300;touch-action:none;user-select:none;border-radius:50%;border:2px solid rgba(212,175,55,0.35);background:rgba(0,0,0,0.30);}
     #joy-thumb{position:absolute;top:50%;left:50%;width:44px;height:44px;border-radius:50%;background:rgba(212,175,55,0.55);border:2px solid rgba(212,175,55,0.80);transform:translate(-50%,-50%);pointer-events:none;}
     @media(pointer:coarse),(max-width:900px){#joystick-zone{display:block;}}
-    #info-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:2000;align-items:center;justify-content:center;}
+    #info-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:2000;align-items:center;justify-content:center;padding:1rem;}
     #info-modal.open{display:flex;}
-    .im-box{background:#14161a;width:88%;max-width:680px;border-radius:14px;border:1px solid rgba(212,175,55,.30);box-shadow:0 0 60px rgba(212,175,55,.15);overflow:hidden;position:relative;padding:2.5rem 2.5rem 2rem;}
-    .im-close{position:absolute;top:12px;right:18px;background:none;border:none;color:#d4af37;font-size:26px;cursor:pointer;line-height:1;}
-    .im-box h3{font-family:'Cormorant Garamond',Georgia,serif;color:#d4af37;font-size:1.7rem;margin-bottom:.9rem;}
+    .im-box{background:#14161a;width:100%;max-width:680px;max-height:88vh;border-radius:14px;border:1px solid rgba(212,175,55,.30);box-shadow:0 0 60px rgba(212,175,55,.15);display:flex;flex-direction:column;overflow:hidden;position:relative;}
+    .im-head{flex-shrink:0;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;padding:1.8rem 1.8rem 0;}
+    .im-close{flex-shrink:0;background:none;border:none;color:#d4af37;font-size:26px;cursor:pointer;line-height:1;padding:0;}
+    .im-box h3{font-family:'Cormorant Garamond',Georgia,serif;color:#d4af37;font-size:1.5rem;margin:0;line-height:1.25;}
+    .im-scroll{overflow-y:auto;flex:1;padding:1rem 1.8rem 1.8rem;}
     .im-box p{color:#ccc;font-size:.9rem;line-height:1.75;margin-bottom:.65rem;}
+    @media(max-width:500px){.im-head{padding:1.2rem 1.2rem 0;}.im-scroll{padding:.8rem 1.2rem 1.2rem;}.im-box h3{font-size:1.2rem;}}
     #pause-dialog{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:800;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
   </style>
 </head>
@@ -163,9 +166,11 @@
 
 <div id="info-modal">
   <div class="im-box">
-    <button class="im-close" id="im-close">&times;</button>
-    <h3 id="im-title"></h3>
-    <div id="im-body"></div>
+    <div class="im-head">
+      <h3 id="im-title"></h3>
+      <button class="im-close" id="im-close">&times;</button>
+    </div>
+    <div class="im-scroll" id="im-body"></div>
   </div>
 </div>
 
@@ -273,7 +278,9 @@ var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 var NAV_H = 52;
 function resize(){
-  var w = window.innerWidth, h = window.innerHeight - NAV_H;
+  var navEl = document.getElementById('top-nav');
+  var navH = (navEl && navEl.style.display === 'none') ? 0 : NAV_H;
+  var w = window.innerWidth, h = window.innerHeight - navH;
   renderer.setSize(w, h);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
@@ -1055,14 +1062,21 @@ function _enterFs(){
 }
 document.getElementById('btn-start').addEventListener('click', function(){
   started=true; startEl.style.display='none';
-  if(!_isMobSC){ if(!document.fullscreenElement) _enterFs(); else canvas.requestPointerLock(); }
+  if(!document.fullscreenElement) _enterFs();
+  else if(!_isMobSC) canvas.requestPointerLock();
 });
 document.getElementById('pd-continue').addEventListener('click', function(){
   pauseEl.style.display='none';
-  if(!_isMobSC){ if(!document.fullscreenElement) _enterFs(); else canvas.requestPointerLock(); }
+  if(!document.fullscreenElement) _enterFs();
+  else if(!_isMobSC) canvas.requestPointerLock();
 });
 document.addEventListener('fullscreenchange', function(){
-  if(!_isMobSC && document.fullscreenElement && started && !document.pointerLockElement) canvas.requestPointerLock();
+  var inFs = !!document.fullscreenElement;
+  var navEl = document.getElementById('top-nav');
+  navEl.style.display = inFs ? 'none' : '';
+  canvas.style.top = inFs ? '0' : NAV_H + 'px';
+  resize();
+  if(inFs && started && !_isMobSC && !document.pointerLockElement) canvas.requestPointerLock();
 });
 
 // Stuck detector: desktop only
