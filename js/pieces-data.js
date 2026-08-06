@@ -95,7 +95,7 @@ export const PIECES = [
     descripcion: 'Copa cerámica prehispánica en pedestal de paredes simples sin decoración incisa, atribuible al período Malagana de la región Calima. La pasta moderadamente burda y arenosa, con desgrasante de cuarzo y tiesto molido, es característica del complejo Malagana de la llanura aluvial del río Cauca. Presenta manchas tafonómicas por exposición al fuego o contacto con sedimentos reductores. La base muestra anotaciones de inventario museográfico.',
     metadata: 'Material: Cerámica · Técnica: Pasta burda oxidante, desgrasante de cuarzo · Dimensiones: ⌀ 15.8 × 11.7 cm · Decoración: Ausente · Estado: Completo',
     color: 0xA0603A, roughness: 0.88, metalness: 0.02,
-    previewImg: 'images/cuenco-2-2.jpg',
+    previewImg: 'images/cuenco-2-3.jpg',
     imagenes: [
       'images/cuenco-2-1.jpg',
       'images/cuenco-2-2.jpg',
@@ -586,6 +586,7 @@ export const PIECES = [
     descripcion: 'Gran vasija globular con asa lateral y apéndices. Pasta mediana con desgrasante de cuarzo. Acabado tosco con superficie erosionada por tafonía prolongada. La morfología sugiere función utilitaria de almacenamiento o vertido. Completa con desgaste superficial significativo.',
     metadata: 'Material: Cerámica · Cultura: Indeterminada · Período: No determinado · Dimensiones: Alt. 28.7 cm · ⌀ 27 cm · Técnica: pasta mediana a gruesa, desgrasante cuarzo y arena, cocción parcialmente oxidante · Acabado: alisado tosco Munsell 10R 5/4 · Estado: Completa con desgaste superficial',
     color: 0x7a3012, roughness: 0.93, metalness: 0.01,
+    previewImg: 'images/vasija-globular-indeterminada-5.jpeg',
     imagenes: [
       'images/vasija-globular-indeterminada-1.jpeg',
       'images/vasija-globular-indeterminada-2.jpeg',

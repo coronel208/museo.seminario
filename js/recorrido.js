@@ -494,6 +494,7 @@ LAYOUT.forEach(function(cfg) {
 
 // ── Carga secuencial por parejas, frente→fondo ────────────────────────
 (function() {
+  if (isMobile) { hideLs(); return; }
   var sorted = LAYOUT.slice().sort(function(a, b) { return b.z - a.z; });
   var pairs = [];
   for (var i = 0; i < sorted.length; i += 2) pairs.push(sorted.slice(i, i + 2));
