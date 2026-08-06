@@ -479,7 +479,7 @@ export const PIECES = [
     ],
     video: null,
     modelUrl: 'models/volante-muisca-decorado.glb',
-    restY: 0.75
+    restY: 1.19
   },
 
   // ── CUENCO UTILITARIO · Calima Sonso ─────────────────────────────
@@ -499,7 +499,7 @@ export const PIECES = [
     ],
     video: null,
     modelUrl: 'models/cuenco-utilitario-sonso.glb',
-    restY: 0.72
+    restY: 1.19
   },
 
   // ── CUENCO MINIATURA · morfología Yotoco ─────────────────────────
@@ -519,7 +519,7 @@ export const PIECES = [
     ],
     video: null,
     modelUrl: 'models/cuenco-miniatura-pedestal.glb',
-    restY: 0.68
+    restY: 1.19
   },
 
   // ── SALA 3 · PIEZAS 26–30 ────────────────────────────────────────
@@ -561,7 +561,7 @@ export const PIECES = [
     ],
     video: null,
     modelUrl: 'models/vasija-miniatura-calima.glb',
-    restY: 0.95
+    restY: 1.19
   },
 
   // ── VASIJA GLOBULAR CON ASA · Calima Yotoco ──────────────────────

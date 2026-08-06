@@ -118,6 +118,11 @@ var _SALA_THEMES = {
        wBase:'#7c4020', wWainscot:'#1c0a02',
        wB1:'rgba(200,110,30,', wB2:'rgba(240,150,50,', wMot:'rgba(220,130,40,',
        wAccL:'rgba(255,170,60,', wML:'rgba(180,90,20,', wML2:'rgba(220,130,50,' },
+  4: { clr:0x7c3aed, hex:'#7c3aed', bg:0x060412, amb:0xede8ff,
+       floor:0x0f0822, ceil:0xd4c8f5,
+       wBase:'#3d2870', wWainscot:'#110830',
+       wB1:'rgba(110,70,210,', wB2:'rgba(160,120,255,', wMot:'rgba(130,90,230,',
+       wAccL:'rgba(160,120,255,', wML:'rgba(90,60,190,', wML2:'rgba(130,100,220,' },
 };
 var _st = _SALA_THEMES[SALA_NUM] || _SALA_THEMES[1];
 var SALA_CLR     = _st.clr;
@@ -337,7 +342,8 @@ var _LAYOUTS = {
     { piece: getPieceById('vasija-globular-yotoco-28'),     x:  3.0, z: -8 },
     { piece: getPieceById('vasija-globular-indeterminada'), x: -3.0, z:-16 },
     { piece: getPieceById('vasija-globular-calima-30'),     x:  3.0, z:-16 }
-  ]
+  ],
+  4: []
 };
 var LAYOUT = _LAYOUTS[SALA_NUM] || _LAYOUTS[1];
 
@@ -492,6 +498,34 @@ LAYOUT.forEach(function(cfg) {
   interactables.push({ glassMesh: glassMesh, hlRing: hlRing, artifact: artifact, pieceId: piece.id });
 });
 
+// ── Mobile proximity loader: load real GLB when player approaches ────
+var _mobActiveLoads = 0;
+function _mobProximityCheck() {
+  for (var _pi = 0; _pi < LAYOUT.length; _pi++) {
+    if (_mobActiveLoads >= 2) break;
+    var _pc = LAYOUT[_pi];
+    if (_pc._mobLoaded || _pc._mobLoading || !_pc.piece || !_pc.piece.modelUrl) continue;
+    var _dx = camera.position.x - _pc.x, _dz = camera.position.z - _pc.z;
+    if (Math.sqrt(_dx*_dx + _dz*_dz) < 8.5) {
+      _pc._mobLoading = true; _mobActiveLoads++;
+      (function(_cfg) {
+        _gltfLoader.load(_cfg.piece.modelUrl, function(gltf) {
+          var m = gltf.scene;
+          var bbox = new THREE.Box3().setFromObject(m);
+          var sz = bbox.getSize(new THREE.Vector3());
+          var sc = 0.85 / (Math.max(sz.x, sz.y, sz.z) || 1);
+          m.scale.setScalar(sc);
+          var ctr = bbox.getCenter(new THREE.Vector3());
+          m.position.set(-ctr.x * sc, -bbox.min.y * sc, -ctr.z * sc);
+          while (_cfg._artifact.children.length) _cfg._artifact.remove(_cfg._artifact.children[0]);
+          _cfg._artifact.add(m);
+          _cfg._mobLoaded = true; _cfg._mobLoading = false; _mobActiveLoads--;
+        }, undefined, function() { _cfg._mobLoaded = true; _cfg._mobLoading = false; _mobActiveLoads--; });
+      })(_pc);
+    }
+  }
+}
+
 // ── Carga de modelos GLB ──────────────────────────────────────────────
 (function() {
   var sorted = LAYOUT.slice().sort(function(a, b) { return b.z - a.z; });
@@ -501,20 +535,6 @@ LAYOUT.forEach(function(cfg) {
     var art = cfg._artifact;
     _gltfLoader.load(cfg.piece.modelUrl, function(gltf) {
       var m = gltf.scene;
-      if (isMobile) {
-        // Keep 1 of every 4 triangles to reduce GPU memory on mobile
-        m.traverse(function(child) {
-          if (child.isMesh && child.geometry && child.geometry.index) {
-            var src = child.geometry.index.array;
-            var newIdx = [];
-            for (var i = 0; i < src.length; i += 12) {
-              if (i + 2 < src.length) newIdx.push(src[i], src[i+1], src[i+2]);
-            }
-            child.geometry.setIndex(newIdx);
-            child.geometry.computeBoundingSphere();
-          }
-        });
-      }
       var bbox = new THREE.Box3().setFromObject(m);
       var sz   = bbox.getSize(new THREE.Vector3());
       var sc   = 0.85 / (Math.max(sz.x, sz.y, sz.z) || 1);
@@ -528,10 +548,10 @@ LAYOUT.forEach(function(cfg) {
   }
 
   if (isMobile) {
-    // Mobile: load one at a time to limit peak memory
-    var _mi = 0;
-    function _nextMob() { if (_mi < sorted.length) _loadGlb(sorted[_mi++], _nextMob); }
-    _nextMob();
+    // Show placeholders immediately; real models load as player approaches
+    LAYOUT.forEach(function(cfg) { cfg._mobLoaded = false; cfg._mobLoading = false; });
+    var _mpc = glbPending;
+    for (var _gi = 0; _gi < _mpc; _gi++) glbDone();
     return;
   }
 
@@ -660,6 +680,20 @@ var pauseDialog = document.getElementById('pause-dialog');
 var hudEl       = document.getElementById('hud');
 var crosshairEl = document.getElementById('crosshair');
 var hintEl      = document.getElementById('hint-label');
+
+// Exit-room confirmation dialog (created dynamically, shared across all salas)
+var _exitDlg = document.createElement('div');
+_exitDlg.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:900;align-items:center;justify-content:center;backdrop-filter:blur(6px);';
+_exitDlg.innerHTML = '<div style="background:#13151a;border:1.5px solid rgba(212,175,55,.45);border-radius:14px;padding:2.5rem 3rem;text-align:center;box-shadow:0 0 50px rgba(212,175,55,.22);max-width:400px;width:90%;"><div style="font-size:2rem;margin-bottom:.8rem;">🚪</div><h3 style="font-family:Georgia,serif;color:#d4af37;font-size:1.4rem;margin-bottom:.6rem;">¿Salir de esta sala?</h3><p style="color:#a99e8c;font-size:.88rem;margin-bottom:1.8rem;line-height:1.6;">¿Deseas volver a la Sala Central?</p><div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;"><button id="exit-stay" style="background:transparent;color:#a99e8c;border:1px solid #444;padding:.7rem 1.8rem;border-radius:4px;font-size:.9rem;cursor:pointer;font-family:inherit;">Quedarse</button><button id="exit-go" style="background:#d4af37;color:#000;border:none;padding:.75rem 2.2rem;border-radius:4px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;">Volver a Central</button></div></div>';
+document.body.appendChild(_exitDlg);
+function _showExitDlg() { _exitDlg.style.display = 'flex'; }
+document.getElementById('exit-stay').addEventListener('click', function() {
+  _exitDlg.style.display = 'none';
+  if (!isMobile) { if (!document.fullscreenElement) _enterFs(); else safeLock(); }
+});
+document.getElementById('exit-go').addEventListener('click', function() {
+  window.location.href = 'sala-central.html?fs=1';
+});
 
 // Guard: never show the pause dialog if it's already visible
 function showPauseDialog() {
@@ -895,6 +929,10 @@ gl.addEventListener('touchend', function(e) {
               }
             }
           } else {
+            if (backDoorMesh) {
+              var _dh = raycaster.intersectObject(backDoorMesh, false);
+              if (_dh.length > 0 && _dh[0].distance < 9) { _showExitDlg(); }
+            }
             var muralMeshes = murals.map(function(m) { return m.mesh; });
             var mHits = raycaster.intersectObjects(muralMeshes, false);
             if (mHits.length > 0 && mHits[0].distance < 9) openMalaganaModal();
@@ -951,7 +989,7 @@ function checkHover() {
 
 gl.addEventListener('click', function() {
   if (!isLocked || modalOpen) return;
-  if (lastBackDoor) { window.location.href = 'sala-central.html?fs=1'; return; }
+  if (lastBackDoor) { _showExitDlg(); return; }
   if (lastHovered)  { openPieceModal(lastHovered.pieceId); return; }
   if (lastMural)    { openMalaganaModal(); }
 });
@@ -1299,6 +1337,7 @@ function tick(now) {
   }
 
   if (isLocked) checkHover();
+  if (isMobile && hasStarted) _mobProximityCheck();
 
   // On mobile: skip artifact rotation and skip render when nothing is happening
   if (!isMobile) {

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Recorrido Virtual · Museo Seminario</title>
+  <link rel="stylesheet" href="css/estilo.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script type="importmap">
+    {"imports":{"three":"https://unpkg.com/three@0.158.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.158.0/examples/jsm/"}}
+  </script>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html, body { width:100%; height:100%; overflow:hidden; background:#000; font-family:'Raleway','Segoe UI',sans-serif; }
+
+    /* ── NAV ── */
+    #top-nav { position:fixed; top:0; left:0; right:0; height:52px; display:flex; justify-content:space-between; align-items:center; padding:0 2rem; background:rgba(8,9,11,.96); backdrop-filter:blur(10px); border-bottom:1px solid rgba(212,175,55,.30); z-index:600; }
+    .nb-brand h1 { font-family:'Cormorant Garamond',Georgia,serif; color:#d4af37; font-size:1.3rem; letter-spacing:.08em; }
+    .nb-brand span { font-size:.62rem; color:#a99e8c; display:block; text-transform:uppercase; letter-spacing:.04em; }
+    .nb-menu { display:flex; gap:1.4rem; list-style:none; align-items:center; }
+    .nb-menu a { color:#ccc; text-decoration:none; font-size:.78rem; font-weight:500; text-transform:uppercase; letter-spacing:.05em; transition:color .2s; }
+    .nb-menu a:hover, .nb-menu a.active { color:#d4af37; }
+    .nb-menu .btn-r { background:#d4af37; color:#000!important; padding:.3rem .9rem; border-radius:20px; font-weight:700!important; }
+
+    /* ── LOADING ── */
+    #loading-screen { position:fixed; inset:0; z-index:9000; background:#0b0c0e; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.8rem; }
+    .ls-ring { width:88px; height:88px; border-radius:50%; border:2px solid rgba(212,175,55,.35); display:flex; align-items:center; justify-content:center; animation:lsp 2s ease-in-out infinite; }
+    .ls-ring img { width:76px; height:76px; border-radius:50%; object-fit:cover; }
+    .ls-fb { width:76px; height:76px; border-radius:50%; background:#2a1808; display:flex; align-items:center; justify-content:center; font-family:Georgia,serif; color:#d4af37; font-size:1.4rem; font-weight:bold; }
+    @keyframes lsp { 0%,100%{box-shadow:0 0 0 0 rgba(212,175,55,.35);} 50%{box-shadow:0 0 0 14px rgba(212,175,55,0);} }
+    .ls-title { text-align:center; }
+    .ls-title h2 { font-family:Georgia,serif; color:#d4af37; font-size:1.8rem; letter-spacing:.1em; margin-bottom:.3rem; }
+    .ls-title p { color:#a99e8c; font-size:.75rem; text-transform:uppercase; letter-spacing:.08em; }
+    .ls-track { width:260px; height:3px; background:rgba(212,175,55,.15); border-radius:2px; overflow:hidden; }
+    #ls-bar { height:100%; width:0%; background:linear-gradient(90deg,#c8a832,#f0d060); border-radius:2px; transition:width .3s ease; }
+    #ls-status { color:#a99e8c; font-size:.76rem; letter-spacing:.04em; }
+
+    /* ── CANVAS ── */
+    #gl-canvas { position:fixed; top:52px; left:0; display:block; }
+
+    /* ── START PROMPT ── */
+    #start-prompt { display:none; position:fixed; top:52px; left:0; right:0; bottom:0; background:rgba(10,12,14,.82); align-items:center; justify-content:center; flex-direction:column; gap:1.6rem; z-index:400; backdrop-filter:blur(5px); }
+    #start-prompt h2 { font-family:Georgia,serif; color:#d4af37; font-size:1.75rem; letter-spacing:.06em; text-align:center; }
+    #start-prompt p { color:#a99e8c; font-size:.88rem; text-align:center; max-width:360px; line-height:1.65; }
+    #btn-start { background:#d4af37; color:#000; border:none; padding:.85rem 2.6rem; border-radius:4px; font-size:.95rem; font-weight:700; cursor:pointer; letter-spacing:.04em; font-family:inherit; transition:background .2s, transform .15s; }
+    #btn-start:hover { background:#f0d060; transform:translateY(-2px); }
+    .ctrl-row { display:flex; gap:2rem; align-items:flex-start; justify-content:center; }
+    .ctrl-col { display:flex; flex-direction:column; align-items:center; gap:.4rem; }
+    .ctrl-col span { color:#777; font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; }
+    .key-row { display:flex; gap:4px; }
+    .key { width:30px; height:30px; border-radius:5px; background:#1e2025; border:1px solid rgba(212,175,55,.4); color:#d4af37; font-size:.65rem; font-weight:600; display:flex; align-items:center; justify-content:center; }
+    .key.w { width:65px; }
+
+    /* ── HUD ── */
+    #hud { display:none; position:fixed; bottom:22px; left:22px; color:#e0d0a0; background:rgba(0,0,0,.62); padding:7px 16px; border-radius:26px; font-size:.8rem; border:1px solid rgba(212,175,55,.25); pointer-events:none; z-index:300; }
+    #crosshair { display:none; position:fixed; top:calc(52px + 50%); left:50%; transform:translate(-50%,-50%); width:20px; height:20px; pointer-events:none; z-index:300; }
+    #crosshair::before, #crosshair::after { content:''; position:absolute; background:rgba(255,255,255,.78); }
+    #crosshair::before { width:1px; height:20px; left:9px; top:0; }
+    #crosshair::after  { width:20px; height:1px; top:9px; left:0; }
+    #crosshair .dot { position:absolute; width:4px; height:4px; background:#d4af37; border-radius:50%; top:8px; left:8px; }
+    #hint-label { display:none; position:fixed; bottom:72px; left:50%; transform:translateX(-50%); background:rgba(212,175,55,.13); border:1px solid #d4af37; color:#d4af37; padding:5px 15px; border-radius:22px; font-size:.8rem; pointer-events:none; white-space:nowrap; z-index:300; }
+    /* Nunca mostrar crosshair ni HUD en dispositivos táctiles */
+    @media (pointer:coarse) {
+      #crosshair { display:none !important; }
+      #hud       { display:none !important; }
+      #hint-label{ display:none !important; }
+    }
+
+    /* ── NAV HAMBURGER ── */
+    .nb-toggle {
+      display:none; flex-direction:column; justify-content:center; align-items:center;
+      gap:5px; background:none; border:1px solid rgba(212,175,55,.30); border-radius:6px;
+      padding:7px 9px; cursor:pointer; -webkit-tap-highlight-color:transparent; z-index:10001;
+    }
+    .nb-toggle span { display:block; width:20px; height:2px; background:#d4af37; border-radius:2px; transition:transform .28s,opacity .22s; }
+    .nb-toggle.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+    .nb-toggle.open span:nth-child(2) { opacity:0; transform:scaleX(0); }
+    .nb-toggle.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+    .nb-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.52); z-index:599; }
+    .nb-overlay.open { display:block; }
+    @media (max-width:1024px) { .nb-toggle { display:flex; } }
+    @media (orientation:landscape) and (min-width:769px) { .nb-toggle { display:none !important; } }
+    @media (max-width:768px) {
+      #top-nav { padding:.6rem 1rem; backdrop-filter:none; -webkit-backdrop-filter:none; }
+      .nb-menu {
+        position:fixed; top:0; right:0;
+        width:min(290px,82vw); height:100%;
+        flex-direction:column; align-items:flex-start;
+        padding:72px 1.5rem 2rem; gap:4px;
+        background:rgba(8,9,11,0.99); border-left:2px solid #d4af37;
+        z-index:9999;
+        transform:translateX(100%);
+        transition:transform .3s cubic-bezier(.25,.46,.45,.94);
+        overflow-y:auto; will-change:transform;
+        box-shadow:-8px 0 32px rgba(0,0,0,.6);
+      }
+      .nb-menu.open { transform:translateX(0); }
+      .nb-menu li { width:100%; }
+      .nb-menu a { display:block; padding:.85rem .6rem; font-size:1.05rem; border-bottom:1px solid rgba(212,175,55,.15); }
+    }
+
+    /* ── LANDSCAPE OVERLAY ── */
+    #landscape-prompt {
+      display:none; position:fixed; inset:0; z-index:99999;
+      background:#0b0c0e; flex-direction:column; align-items:center;
+      justify-content:center; gap:1.4rem; text-align:center; padding:2rem;
+    }
+    #landscape-prompt .lp-icon { font-size:3.2rem; color:#d4af37; animation:lp-rot 1.6s ease-in-out infinite; }
+    @keyframes lp-rot { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(90deg)} }
+    #landscape-prompt h3 { font-family:Georgia,serif; color:#d4af37; font-size:1.4rem; }
+    #landscape-prompt p  { color:#a99e8c; font-size:.85rem; max-width:240px; line-height:1.6; }
+    @media (orientation:portrait) and (max-width:900px) { #landscape-prompt { display:flex; } }
+
+    /* ── JOYSTICK ── */
+    #joystick-zone {
+      display:none; position:fixed; bottom:28px; left:24px;
+      width:120px; height:120px; z-index:300; touch-action:none; user-select:none;
+      border-radius:50%; border:2px solid rgba(212,175,55,0.35);
+      background:rgba(0,0,0,0.30);
+    }
+    #joy-thumb {
+      position:absolute; top:50%; left:50%;
+      width:44px; height:44px; border-radius:50%;
+      background:rgba(212,175,55,0.55); border:2px solid rgba(212,175,55,0.80);
+      transform:translate(-50%,-50%);
+      pointer-events:none;
+    }
+    @media(pointer:coarse),(max-width:900px){ #joystick-zone{display:block;} }
+
+    /* ── PIECE MODAL (recorrido) ── */
+    #piece-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.90); z-index:2000; align-items:center; justify-content:center; }
+    #piece-modal.open { display:flex; }
+    #malagana-modal.open { display:flex !important; }
+    .pm-box { background:#14161a; width:92%; max-width:1180px; height:82vh; border-radius:14px; border:1px solid rgba(212,175,55,0.30); box-shadow:0 0 60px rgba(212,175,55,.12); overflow:hidden; display:flex; flex-direction:column; position:relative; }
+    .pm-close { position:absolute; top:10px; right:16px; color:#d4af37; font-size:26px; cursor:pointer; background:none; border:none; z-index:20; line-height:1; transition:transform .2s; }
+    .pm-close:hover { transform:scale(1.2); }
+    .pm-body   { display:flex; flex:1; min-height:0; }
+    .pm-viewer { flex:2; background:#0c0e13; position:relative; overflow:hidden; }
+    .pm-viewer-inner { position:absolute; inset:0 0 48px 0; overflow:hidden; }
+    #pm-canvas { position:absolute; inset:0; display:block; }
+
+    #pm-slide-wrap { display:none; position:absolute; inset:0; background:#09090d; overflow:hidden; }
+    #pm-slide-dots { position:absolute; top:0; left:0; right:0; height:28px; display:flex; align-items:center; justify-content:center; gap:8px; background:rgba(0,0,0,.50); backdrop-filter:blur(4px); z-index:5; }
+    .pm-dot { width:7px; height:7px; border-radius:50%; background:rgba(212,175,55,.28); cursor:pointer; transition:background .2s; flex-shrink:0; }
+    .pm-dot.active { background:#d4af37; }
+    #pm-slide-img { position:absolute; inset:28px 56px 0 56px; width:calc(100% - 112px); height:calc(100% - 28px); object-fit:contain; transition:opacity .18s ease; }
+    .pm-slide-arrow { position:absolute; top:50%; transform:translateY(-50%); width:42px; height:42px; background:rgba(0,0,0,.30); border:1.5px solid rgba(212,175,55,.50); border-radius:50%; color:rgba(212,175,55,.85); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1rem; z-index:5; opacity:.70; transition:background .18s, opacity .15s; }
+    .pm-slide-arrow:hover { background:rgba(212,175,55,.28); opacity:1; }
+    #pm-slide-prev { left:8px; } #pm-slide-next { right:8px; }
+
+    #pm-qr-wrap { display:none; position:absolute; inset:0; background:#0d0f14; align-items:center; justify-content:center; }
+    .no-media { text-align:center; color:#a99e8c; padding-top:3rem; }
+    .no-media i { display:block; font-size:2.5rem; margin-bottom:.8rem; }
+
+    /* Bottom bar — identical to .media-controls in collection */
+    .pm-ctrl { position:absolute; bottom:0; left:0; right:0; height:48px; background:rgba(0,0,0,0.72); border-top:1px solid rgba(212,175,55,0.18); backdrop-filter:blur(4px); display:flex; align-items:center; padding:0 12px; gap:8px; z-index:6; }
+    .pm-ctrl button { background:rgba(0,0,0,.76); color:#bbb; border:1px solid rgba(212,175,55,.30); padding:5px 13px; border-radius:16px; cursor:pointer; font-size:.77rem; font-family:'Raleway',sans-serif; display:flex; align-items:center; gap:5px; transition:all .18s; }
+    .pm-ctrl button:hover { color:#d4af37; }
+    .pm-ctrl button.on { background:#d4af37; color:#000; border-color:#d4af37; font-weight:700; }
+    .pm-ctrl .pm-right { margin-left:auto; display:flex; gap:6px; }
+    .pm-ctrl .pm-right button { padding:5px 10px; }
+
+    .pm-info { flex:1; padding:1.8rem; overflow-y:auto; border-left:1px solid #1e2025; min-width:245px; display:flex; flex-direction:column; gap:.85rem; }
+    .pm-info::-webkit-scrollbar { width:4px; }
+    .pm-info::-webkit-scrollbar-thumb { background:rgba(212,175,55,.20); border-radius:4px; }
+    .pm-info h3 { font-family:'Cormorant Garamond',Georgia,serif; color:#d4af37; font-size:1.65rem; line-height:1.2; }
+    .pm-prov { color:#a99e8c; font-size:.80rem; }
+    .pm-desc { color:#ccc; font-size:.88rem; line-height:1.75; }
+    .pm-meta { border-top:1px solid #1e2025; padding-top:.9rem; display:flex; flex-direction:column; gap:.4rem; margin-top:auto; }
+    .mt-tag { display:flex; align-items:center; background:rgba(212,175,55,.08); border:1px solid rgba(212,175,55,.30); border-left:3px solid #d4af37; color:#e8d890; padding:0; border-radius:0 6px 6px 0; font-size:.82rem; overflow:hidden; }
+    .mt-tag .mt-label { font-size:.66rem; color:#a99e8c; font-weight:600; text-transform:uppercase; letter-spacing:.05em; min-width:100px; flex-shrink:0; padding:7px 10px; border-right:1px solid rgba(212,175,55,.35); background:rgba(0,0,0,.20); }
+    .mt-tag .mt-value { padding:7px 12px; color:#f0d870; font-weight:500; }
+
+    @media(max-width:680px) {
+      .pm-body { flex-direction:column; }
+      .pm-viewer { flex:none; height:52%; }
+      .pm-info { border-left:none; border-top:1px solid #1e2025; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOADING SCREEN -->
+  <div id="loading-screen">
+    <div class="ls-ring">
+      <img src="assets/logo.jpg" alt="Logo" onerror="this.parentElement.innerHTML='<div class=ls-fb>MS</div>'">
+    </div>
+    <div class="ls-title"><h2>MUSEO SEMINARIO</h2><p>Diocesano de Cristo Sacerdote</p></div>
+    <div class="ls-track"><div id="ls-bar"></div></div>
+    <div id="ls-status">Iniciando motor 3D…</div>
+    <div style="color:#4a4540;font-size:.66rem;text-align:center;letter-spacing:.03em;max-width:260px;line-height:1.65;">Si en algún momento no puedes moverte,<br>recarga la página (F5) para comenzar de nuevo.</div>
+  </div>
+
+  <!-- NAV -->
+  <nav id="top-nav">
+    <div class="nb-brand"><h1>MUSEO SEMINARIO</h1><span>Diocesano de Cristo Sacerdote</span></div>
+    <button class="nb-toggle" aria-label="Menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nb-menu">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="coleccion.html">Colección</a></li>
+      <li><a href="sala-central.html" class="active">Recorrido Virtual</a></li>
+      <li><a href="sobre-nosotros.html">Sobre Nosotros</a></li>
+      <li><a href="qr.html" title="Generar QR"><i class="fas fa-qrcode"></i></a></li>
+    </ul>
+  </nav>
+
+  <!-- 3D CANVAS -->
+  <canvas id="gl-canvas"></canvas>
+
+  <!-- START PROMPT -->
+  <div id="start-prompt">
+    <h2>Sala 4 · Recorrido Virtual</h2>
+    <!-- desktop controls -->
+    <div class="ctrl-row" id="sp-desktop">
+      <div class="ctrl-col">
+        <div class="key-row"><div class="key">W</div></div>
+        <div class="key-row"><div class="key">A</div><div class="key">S</div><div class="key">D</div></div>
+        <span>Moverse</span>
+      </div>
+      <div class="ctrl-col">
+        <div class="key-row"><div class="key w" style="font-size:.56rem">🖱 Ratón</div></div>
+        <span>Mirar</span>
+      </div>
+      <div class="ctrl-col">
+        <div class="key-row"><div class="key w" style="font-size:.56rem">🖱 Clic</div></div>
+        <span>Interactuar</span>
+      </div>
+    </div>
+    <!-- mobile controls -->
+    <p id="sp-mobile" style="display:none;color:#a99e8c;font-size:.88rem;text-align:center;max-width:300px;line-height:1.65;">
+      Usa el <strong style="color:#d4af37;">joystick</strong> para moverte<br>
+      Arrastra la pantalla para <strong style="color:#d4af37;">mirar</strong><br>
+      Toca una vitrina para <strong style="color:#d4af37;">inspeccionar</strong>
+    </p>
+    <p style="color:#7a7060;font-size:.78rem;text-align:center;max-width:320px;line-height:1.6;margin-top:-.4rem;">En computador se verá mejor · Los gráficos y la fluidez dependen del dispositivo</p>
+    <button id="btn-start"><i class="fas fa-play"></i>&nbsp; Iniciar Recorrido</button>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud"><i class="fas fa-lock"></i> ESC para pausar · Apunta a una vitrina y haz clic</div>
+
+  <!-- PAUSE DIALOG (shown when ESC pressed after starting — desktop only) -->
+  <div id="pause-dialog" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:800;align-items:center;justify-content:center;backdrop-filter:blur(6px);">
+    <div style="background:#13151a;border:1.5px solid rgba(212,175,55,.45);border-radius:14px;padding:2.5rem 3rem;text-align:center;box-shadow:0 0 50px rgba(212,175,55,.22);max-width:440px;width:90%;">
+      <div style="font-size:2rem;margin-bottom:.8rem;">⏸</div>
+      <h3 style="font-family:Georgia,serif;color:#d4af37;font-size:1.6rem;margin-bottom:.5rem;">Recorrido en Pausa</h3>
+      <p id="pd-hint" style="color:#a99e8c;font-size:.88rem;margin-bottom:1.8rem;line-height:1.65;">
+        Usa <strong style="color:#d4af37;">WASD</strong> o las flechas para moverte · <strong style="color:#d4af37;">Ratón</strong> para mirar<br>
+        <strong style="color:#d4af37;">Clic</strong> en una vitrina para ver la pieza
+      </p>
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+        <button id="pd-continue" style="background:#d4af37;color:#000;border:none;padding:.75rem 2.2rem;border-radius:4px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s;">
+          <i class="fas fa-play"></i>&nbsp; Continuar
+        </button>
+        <button id="pd-abandon" style="background:transparent;color:#e05050;border:1.5px solid #e05050;padding:.75rem 2rem;border-radius:4px;font-size:.9rem;cursor:pointer;font-family:inherit;transition:all .2s;">
+          <i class="fas fa-door-open"></i>&nbsp; Salir
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="crosshair"><div class="dot"></div></div>
+  <div id="hint-label"><i class="fas fa-hand-pointer"></i> Clic para inspeccionar</div>
+
+  <!-- JOYSTICK -->
+  <div id="joystick-zone"><div id="joy-thumb"></div></div>
+
+  <!-- LANDSCAPE PROMPT -->
+  <div id="landscape-prompt">
+    <div class="lp-icon"><i class="fas fa-mobile-alt"></i></div>
+    <h3>Gira tu dispositivo</h3>
+    <p>El recorrido virtual funciona mejor en modo horizontal</p>
+  </div>
+
+  <!-- NAV OVERLAY -->
+  <div class="nb-overlay" id="nb-overlay"></div>
+
+  <!-- PIECE MODAL -->
+  <div id="piece-modal">
+    <div class="pm-box">
+      <button class="pm-close" id="pm-close">&times;</button>
+      <div class="pm-body">
+        <div class="pm-viewer">
+          <!-- Content area (3D / images / video) -->
+          <div class="pm-viewer-inner">
+            <canvas id="pm-canvas"></canvas>
+
+            <!-- Slideshow -->
+            <div id="pm-slide-wrap">
+              <div id="pm-slide-dots"></div>
+              <img id="pm-slide-img" src="" alt="Vista">
+              <div class="pm-slide-arrow" id="pm-slide-prev"><i class="fas fa-chevron-left"></i></div>
+              <div class="pm-slide-arrow" id="pm-slide-next"><i class="fas fa-chevron-right"></i></div>
+            </div>
+
+            <!-- Video -->
+            <div id="pm-qr-wrap"></div>
+          </div>
+
+          <!-- Bottom bar — same as collection -->
+          <div class="pm-ctrl">
+            <button class="on" id="pm-btn-3d"><i class="fas fa-cube"></i> 3D</button>
+            <button id="pm-btn-img"><i class="fas fa-image"></i> Imágenes</button>
+            <button id="pm-btn-qr"><i class="fas fa-qrcode"></i> QR</button>
+            <div class="pm-right">
+              <button id="pm-btn-ampliar" title="Ver ampliado"><i class="fas fa-expand-alt"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pm-info">
+          <h3 id="pm-title"></h3>
+          <p class="pm-prov" id="pm-prov"></p>
+          <p class="pm-desc" id="pm-desc"></p>
+          <div class="pm-meta" id="pm-meta"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      var toggle  = document.querySelector('.nb-toggle');
+      var menu    = document.querySelector('.nb-menu');
+      var overlay = document.getElementById('nb-overlay');
+      function openM(){ menu.classList.add('open'); overlay.classList.add('open'); toggle.classList.add('open'); }
+      function closeM(){ menu.classList.remove('open'); overlay.classList.remove('open'); toggle.classList.remove('open'); }
+      toggle.addEventListener('click', function(){ menu.classList.contains('open') ? closeM() : openM(); });
+      overlay.addEventListener('click', closeM);
+      menu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', closeM); });
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script type="module" src="js/recorrido.js"></script>
+
+  <!-- Malagana cultural mural modal -->
+  <div id="malagana-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:2000;align-items:center;justify-content:center;">
+    <div style="background:#14161a;width:88%;max-width:1100px;height:80vh;border-radius:14px;border:1px solid rgba(212,175,55,.30);box-shadow:0 0 60px rgba(212,175,55,.18);overflow:hidden;display:flex;flex-direction:column;position:relative;">
+      <button id="ml-close" style="position:absolute;top:12px;right:18px;background:none;border:none;color:#d4af37;font-size:26px;cursor:pointer;z-index:10;line-height:1;">&times;</button>
+      <div style="display:flex;flex:1;min-height:0;">
+        <!-- Video side -->
+        <div style="flex:2;background:#0c0e13;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;">
+          <h3 style="font-family:'Cormorant Garamond',Georgia,serif;color:#d4af37;font-size:1.5rem;margin-bottom:1.2rem;text-align:center;letter-spacing:.05em;">
+            <i class="fas fa-film" style="margin-right:.5rem;opacity:.7;"></i>Historia de la Cultura Malagana
+          </h3>
+          <video id="ml-video" controls muted style="width:100%;max-height:55vh;border-radius:8px;background:#000;"
+            src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4">
+          </video>
+          <p style="color:#a99e8c;font-size:.75rem;margin-top:.8rem;text-align:center;font-style:italic;">
+            * Video ilustrativo — próximamente el video oficial del Seminario
+          </p>
+        </div>
+        <!-- Info side -->
+        <div style="flex:1;padding:2rem;overflow-y:auto;border-left:1px solid #1e2025;display:flex;flex-direction:column;gap:1rem;">
+          <h3 style="font-family:'Cormorant Garamond',Georgia,serif;color:#d4af37;font-size:1.8rem;line-height:1.2;">La Cultura Malagana</h3>
+          <p style="color:#a99e8c;font-size:.82rem;"><i class="fas fa-map-pin"></i> &nbsp;Palmira, Valle del Cauca · 200 a.C. – 400 d.C.</p>
+          <p style="color:#ccc;font-size:.88rem;line-height:1.75;">La cultura Malagana fue una civilización precolombina que habitó el Valle del Cauca entre los siglos II a.C. y IV d.C. Destacaron por su extraordinaria maestría en la orfebrería, produciendo piezas de oro de gran complejidad técnica y simbólica.</p>
+          <p style="color:#ccc;font-size:.88rem;line-height:1.75;">Sus asentamientos principales se concentraron en la región de Palmira, donde desarrollaron una sociedad jerárquica con élites que expresaban su estatus a través de objetos rituales de oro, cerámica y piedra.</p>
+          <p style="color:#ccc;font-size:.88rem;line-height:1.75;">El hallazgo del sitio arqueológico en 1992 en la hacienda Malagana reveló centenares de piezas de excepcional valor, muchas de las cuales hoy forman parte de colecciones de museos nacionales e internacionales.</p>
+          <div style="border-top:1px solid #1e2025;padding-top:.9rem;margin-top:auto;">
+            <p style="color:#a99e8c;font-size:.80rem;line-height:1.6;font-style:italic;">"Nuestra institución custodia estas piezas como testimonio del rico patrimonio cultural de nuestra región y como puente entre el pasado indígena y la memoria colectiva de Palmira."</p>
+            <p style="color:#d4af37;font-size:.75rem;margin-top:.5rem;">— Seminario Diocesano de Cristo Sacerdote</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
