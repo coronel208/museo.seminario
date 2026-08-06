@@ -823,6 +823,208 @@ export const PIECES = [
     video: null,
     modelUrl: 'models/vasija-incisa-sonso-40.glb',
     restY: 1.19
+  },
+
+  // ── SALA 5 · PIEZAS 41–50 ────────────────────────────────────────
+
+  // ── VASIJA CARENADA CON VERTEDERA · Calima Yotoco ────────────────
+  {
+    id: 'vasija-carenada-vertedera-41',
+    nombre: 'Vasija Cerámica Carenada con Vertedera Lateral',
+    procedencia: 'Cultura Calima Yotoco, Valle del Cauca · Período Yotoco (100 a.C. – 1300 d.C.)',
+    descripcion: 'Vasija subglobular carenada con cuello cónico y apéndice tubular lateral que funcionó como vertedera o asa-puente simplificada. Pasta fina y compacta con desgrasante de cuarzo fino, cocción oxidante con reducciones locales y engobe rojo bícromo. Análisis tipológico consistent con los patrones documentados en las estribaciones de la Cordillera Occidental del Valle del Cauca. Fractura prehispánica en borde superior; pátinas de meteorización auténticas.',
+    metadata: 'Material: Cerámica · Cultura: Calima Yotoco · Período: 100 a.C.–1300 d.C. · Dimensiones: Alt. 22.0 × ⌀ 18.9 cm · Técnica: pasta fina compacta, desgrasante cuarzo fino, cocción oxidante · Acabado: alisado / bruñido parcial / engobe rojo Munsell 10R 4/6 · Estado: Fragmento diagnóstico',
+    color: 0xa03010, roughness: 0.87, metalness: 0.02,
+    imagenes: [
+      'images/vasija-carenada-vertedera-41-1.jpeg',
+      'images/vasija-carenada-vertedera-41-2.jpeg',
+      'images/vasija-carenada-vertedera-41-3.jpeg',
+      'images/vasija-carenada-vertedera-41-4.jpeg',
+      'images/vasija-carenada-vertedera-41-5.jpeg'
+    ],
+    video: null,
+    modelUrl: 'models/vasija-carenada-vertedera-41.glb',
+    restY: 1.19
+  },
+
+  // ── CUENCO MINIATURA CON ASA PERFORADA · No arqueológica ─────────
+  {
+    id: 'cuenco-mini-asa-perf-42',
+    nombre: 'Cuenco Miniatura Cerámico con Asa Lateral Perforada',
+    procedencia: 'Valle del Cauca, Colombia · Cultura y período indeterminados',
+    descripcion: 'Cuenco miniatura completo de cuerpo hemisférico, base convexa y asa lateral perforada. Pasta semigruesa con desgrasante visible, cocción oxidante. Acabado alisado básico con rastros de quema en la concavidad interior, sugiriendo exposición al fuego o contacto con residuos orgánicos. Estado de conservación bueno con ligeras alteraciones tafonómicas superficiales.',
+    metadata: 'Material: Cerámica · Cultura: Indeterminada · Período: No prehispánico / Contemporáneo · Dimensiones: Alt. 3.7 × ⌀ 10.6 cm · Técnica: pasta semigruesa, desgrasante cuarzo y arena fina, cocción oxidante · Acabado: alisado tosco Munsell 2.5YR 5/6 · Estado: Completo',
+    color: 0xb84020, roughness: 0.91, metalness: 0.01,
+    imagenes: [
+      'images/cuenco-mini-asa-perf-42-1.jpeg',
+      'images/cuenco-mini-asa-perf-42-2.jpeg',
+      'images/cuenco-mini-asa-perf-42-3.jpeg',
+      'images/cuenco-mini-asa-perf-42-4.jpeg',
+      'images/cuenco-mini-asa-perf-42-5.jpeg'
+    ],
+    video: null,
+    modelUrl: 'models/cuenco-mini-asa-perf-42.glb',
+    restY: 1.19
+  },
+
+  // ── CUENCO SUBGLOBULAR · Calima Sonso ────────────────────────────
+  {
+    id: 'cuenco-subglobular-sonso-43',
+    nombre: 'Cuenco Subglobular Cerámico',
+    procedencia: 'Cultura Calima — Período Sonso, Valle del Cauca · 1200 d.C. – 1600 d.C.',
+    descripcion: 'Cuenco cerámico subglobular de manufactura prehispánica atribuible al período Sonso. Cuerpo globular con base convexa y borde directo sin cuello. Pasta media a gruesa con desgrasante de cuarzo y tiesto molido, cocción oxidante con ligeras reducciones locales. Acabado alisado sin motivos decorativos complejos, característico de la alfarería utilitaria tardía del Valle del Cauca. Estado completo, sin fracturas mayores.',
+    metadata: 'Material: Cerámica · Cultura: Calima Sonso · Período: 1200 d.C.–1600 d.C. · Dimensiones: Alt. 8.7 × ⌀ 17.5 cm · Técnica: pasta media a gruesa, desgrasante cuarzo y tiesto, cocción oxidante · Acabado: alisado superficial Munsell 10R 5/6 · Estado: Completo',
+    color: 0xb04020, roughness: 0.91, metalness: 0.01,
+    imagenes: [
+      'images/cuenco-subglobular-sonso-43-1.jpeg',
+      'images/cuenco-subglobular-sonso-43-2.jpeg',
+      'images/cuenco-subglobular-sonso-43-3.jpeg',
+      'images/cuenco-subglobular-sonso-43-4.jpeg',
+      'images/cuenco-subglobular-sonso-43-5.jpeg'
+    ],
+    video: null,
+    modelUrl: 'models/cuenco-subglobular-sonso-43.glb',
+    restY: 1.19
+  },
+
+  // ── VASIJA MINIATURA GLOBULAR · Contemporánea ────────────────────
+  {
+    id: 'vasija-mini-globular-44',
+    nombre: 'Vasija Miniatura Globular',
+    procedencia: 'Valle del Cauca, Colombia · Cultura y período indeterminados',
+    descripcion: 'Vasija cerámica miniatura de cuerpo globular con borde evertido, superficies alisadas con restos de engobe rojo y manchas tafonómicas. Pasta semi-fina a gruesa con desgrasante de cuarzo y tiesto, cocción oxidante con núcleo visible. Morfología completa en buen estado de conservación general, mostrando el formato utilitario reducido característico de tradiciones alfareras del suroccidente colombiano.',
+    metadata: 'Material: Cerámica · Cultura: Indeterminada · Período: Contemporáneo · Dimensiones: Alt. 11.0 × ⌀ 12.3 cm · Técnica: pasta semi-fina a gruesa, desgrasante cuarzo y tiesto, cocción oxidante · Acabado: alisado / engobe rojo Munsell 10R 4/6 · Estado: Completo',
+    color: 0xa03010, roughness: 0.90, metalness: 0.01,
+    imagenes: [
+      'images/vasija-mini-globular-44-1.jpeg',
+      'images/vasija-mini-globular-44-2.jpeg',
+      'images/vasija-mini-globular-44-3.jpeg',
+      'images/vasija-mini-globular-44-4.jpeg',
+      'images/vasija-mini-globular-44-5.jpeg'
+    ],
+    video: null,
+    modelUrl: 'models/vasija-mini-globular-44.glb',
+    restY: 1.19
+  },
+
+  // ── CUENCO MINIATURA · Calima, Prehispánico ──────────────────────
+  {
+    id: 'cuenco-mini-calima-45',
+    nombre: 'Cuenco Miniatura Cerámico',
+    procedencia: 'Cultura Calima, Valle del Cauca · Período Prehispánico',
+    descripcion: 'Cuenco cerámico miniatura de morfología subglobular con base convexa, característica de los contextos prehispánicos del suroccidente colombiano asociados a tradiciones alfareras del área Calima. Pasta oxidada de color rojizo con desgrasante fino de cuarzo visible. Desgaste superficial moderado y fisuras estructurales propias del enterramiento prolongado. Integridad morfológica completa con filiación probable al período Yotoco o contextos domésticos asociados.',
+    metadata: 'Material: Cerámica · Cultura: Calima · Período: Prehispánico · Dimensiones: Alt. 4.7 × ⌀ 10.4 cm · Técnica: pasta fina a semifina, desgrasante cuarzo molido fino, cocción oxidante · Acabado: alisado externo e interno Munsell 10R 5/8 · Estado: Completo con fisuras menores estabilizadas',
+    color: 0xc04020, roughness: 0.89, metalness: 0.02,
+    imagenes: [
+      'images/cuenco-mini-calima-45-1.jpeg',
+      'images/cuenco-mini-calima-45-2.jpeg',
+      'images/cuenco-mini-calima-45-3.jpeg',
+      'images/cuenco-mini-calima-45-4.jpeg',
+      'images/cuenco-mini-calima-45-5.jpeg'
+    ],
+    video: null,
+    modelUrl: 'models/cuenco-mini-calima-45.glb',
+    restY: 1.19
+  },
+
+  // ── COPA PEDESTAL FRAGMENTARIA · Calima Yotoco ───────────────────
+  {
+    id: 'copa-pedestal-frag-yotoco-46',
+    nombre: 'Copa Pedestal Fragmentaria',
+    procedencia: 'Cultura Calima Yotoco, Valle del Cauca · Período Yotoco (100 a.C. – 1300 d.C.)',
+    descripcion: 'Fragmento diagnóstico de copa con pedestal anular, típico del período Yotoco de la cultura Calima. Cuenco cóncavo abierto sobre pedestal troncocónico con líneas verticales modeladas en el tallo. Pasta cerámica fina a semi-fina con núcleo negro por cocción incompleta en atmósfera mixta. Fracturas antiguas en el borde y desgaste por meteorización edáfica. Tipología alineada con los patrones cerámicos de las estribaciones de la Cordillera Occidental del Valle del Cauca.',
+    metadata: 'Material: Cerámica · Cultura: Calima Yotoco · Período: 100 a.C.–1300 d.C. · Dimensiones: Alt. 15.2 × ⌀ 13.4 cm · Técnica: pasta fina a semi-fina, desgrasante cuarzo y arena fina, núcleo negro cocción mixta · Acabado: alisado / engobe rojo-naranja Munsell 10R 5/8 · Estado: Fragmento diagnóstico',
+    color: 0xc04020, roughness: 0.88, metalness: 0.02,
+    imagenes: [
+      'images/copa-pedestal-frag-yotoco-46-1.jpeg',
+      'images/copa-pedestal-frag-yotoco-46-2.jpeg',
+      'images/copa-pedestal-frag-yotoco-46-3.jpeg',
+      'images/copa-pedestal-frag-yotoco-46-4.jpeg',
+      'images/copa-pedestal-frag-yotoco-46-5.jpeg'
+    ],
+    video: null,
+    modelUrl: 'models/copa-pedestal-frag-yotoco-46.glb',
+    restY: 1.19
+  },
+
+  // ── VASIJA GLOBULAR CON ASAS HORIZONTALES · Calima Sonso ─────────
+  {
+    id: 'vasija-globular-asas-sonso-47',
+    nombre: 'Vasija Globular con Asas Horizontales',
+    procedencia: 'Cultura Calima — Período Sonso, Valle del Cauca · 1200 d.C. – 1600 d.C.',
+    descripcion: 'Vasija cerámica globular de manufactura prehispánica tardía con cuerpo globular acentuado, base convexa y dos asas horizontales opuestas para facilitar el cargue o suspensión. Cuello corto con borde evertido, actualmente fragmentado en su sección superior. Pasta de textura media a gruesa con desgrasantes gruesos y cocción oxidante irregular. Desgaste superficial moderado por enterramiento y erosión tafonómica.',
+    metadata: 'Material: Cerámica · Cultura: Calima Sonso · Período: 1200 d.C.–1600 d.C. · Dimensiones: Alt. 32.0 × ⌀ 27.7 cm · Técnica: pasta media a gruesa, desgrasante cuarzo y tiesto molido, cocción oxidante · Acabado: alisado tosco Munsell 10R 5/8 · Estado: Fragmento diagnóstico (falta borde superior)',
+    color: 0xc04020, roughness: 0.92, metalness: 0.01,
+    imagenes: [
+      'images/vasija-globular-asas-sonso-47-1.jpeg',
+      'images/vasija-globular-asas-sonso-47-2.jpeg',
+      'images/vasija-globular-asas-sonso-47-3.jpeg',
+      'images/vasija-globular-asas-sonso-47-4.jpeg',
+      'images/vasija-globular-asas-sonso-47-5.jpeg'
+    ],
+    video: null,
+    modelUrl: 'models/vasija-globular-asas-sonso-47.glb',
+    restY: 1.32
+  },
+
+  // ── VASIJA GLOBULAR DE CUELLO CORTO · Calima Yotoco ──────────────
+  {
+    id: 'vasija-globular-cuello-yotoco-48',
+    nombre: 'Vasija Globular de Cuello Corto',
+    procedencia: 'Cultura Calima Yotoco, Valle del Cauca · Período Yotoco (100 a.C. – 1300 d.C.)',
+    descripcion: 'Vasija cerámica globular utilitaria con cuerpo globular simétrico, base convexa y cuello corto evertido. Pasta mediana con desgrasante de cuarzo, cocción oxidante con núcleo parcialmente reducido. Manchas de hollín en el cuerpo exterior y depósitos minerales por entierro prolongado. Fractura antigua en el borde superior. Estado general bueno a pesar de las alteraciones tafonómicas.',
+    metadata: 'Material: Cerámica · Cultura: Calima Yotoco · Período: 100 a.C.–1300 d.C. · Dimensiones: Alt. 18.1 × ⌀ 22.3 cm · Técnica: pasta mediana, desgrasante cuarzo, cocción oxidante con núcleo reducido · Acabado: alisado tosco Munsell 10R 5/8 · Estado: Fragmento diagnóstico / fractura en borde',
+    color: 0xc04020, roughness: 0.90, metalness: 0.01,
+    imagenes: [
+      'images/vasija-globular-cuello-yotoco-48-1.jpeg',
+      'images/vasija-globular-cuello-yotoco-48-2.jpeg',
+      'images/vasija-globular-cuello-yotoco-48-3.jpeg',
+      'images/vasija-globular-cuello-yotoco-48-4.jpeg',
+      'images/vasija-globular-cuello-yotoco-48-5.jpeg'
+    ],
+    video: null,
+    modelUrl: 'models/vasija-globular-cuello-yotoco-48.glb',
+    restY: 1.19
+  },
+
+  // ── CUENCO MINIATURA GLOBULAR · Calima Yotoco ────────────────────
+  {
+    id: 'cuenco-mini-yotoco-49',
+    nombre: 'Cuenco Miniatura de Cuerpo Globular',
+    procedencia: 'Cultura Calima Yotoco / Tradición local, Valle del Cauca · Período prehispánico tardío',
+    descripcion: 'Cuenco cerámico miniatura de morfología globular, típico de contextos cotidianos y domésticos del suroccidente colombiano con afiliación probable al período Sonso de la tradición Calima. Pasta oxidante de textura algo burda con desgrasantes minerales visibles, acabado alisado sencillo con tonalidades rojizas. Ligeras huellas de desgaste superficial y erosión por enterramiento. Fractura leve en el borde, integridad estructural básica conservada.',
+    metadata: 'Material: Cerámica · Cultura: Calima Yotoco / Tradición local · Período: Prehispánico tardío · Dimensiones: Alt. 4.7 × ⌀ 8.4 cm · Técnica: pasta semigruesa, desgrasante cuarzo y tiesto, cocción oxidante · Acabado: alisado básico Munsell 10R 5/6 · Estado: Completo con fractura menor en borde',
+    color: 0xb04020, roughness: 0.91, metalness: 0.01,
+    imagenes: [
+      'images/cuenco-mini-yotoco-49-1.jpeg',
+      'images/cuenco-mini-yotoco-49-2.jpeg',
+      'images/cuenco-mini-yotoco-49-3.jpeg',
+      'images/cuenco-mini-yotoco-49-4.jpeg',
+      'images/cuenco-mini-yotoco-49-5.jpeg'
+    ],
+    video: null,
+    modelUrl: 'models/cuenco-mini-yotoco-49.glb',
+    restY: 1.19
+  },
+
+  // ── COPA EN PEDESTAL DE PAREDES SIMPLES · Contemporánea ──────────
+  {
+    id: 'copa-pedestal-moderna-50',
+    nombre: 'Copa en Pedestal de Paredes Simples',
+    procedencia: 'Valle del Cauca, Colombia · Cultura y período indeterminados',
+    descripcion: 'Copa cerámica sobre pedestal de paredes simples, sin decoración incisa en el cuerpo del cuenco, morfología característica del complejo Malagana en la llanura aluvial del Valle del Cauca. Engobe rojo con cocción oxidante y manchas de reducción secundaria. Estado de conservación excelente con integridad estructural completa. Leves desgastes tafonómicos superficiales y depósitos minerales propios de contexto de inhumación.',
+    metadata: 'Material: Cerámica · Cultura: Indeterminada · Período: Contemporáneo / Moderno · Dimensiones: Alt. 8.1 × ⌀ 12.4 cm · Técnica: pasta fina compacta, desgrasante cuarzo moderado, cocción oxidante · Acabado: alisado / engobe rojo Munsell 10R 4/6 · Estado: Completo',
+    color: 0xa03010, roughness: 0.88, metalness: 0.02,
+    imagenes: [
+      'images/copa-pedestal-moderna-50-1.jpeg',
+      'images/copa-pedestal-moderna-50-2.jpeg',
+      'images/copa-pedestal-moderna-50-3.jpeg',
+      'images/copa-pedestal-moderna-50-4.jpeg',
+      'images/copa-pedestal-moderna-50-5.jpeg'
+    ],
+    video: null,
+    modelUrl: 'models/copa-pedestal-moderna-50.glb',
+    restY: 1.19
   }
 
 ];

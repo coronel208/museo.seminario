@@ -123,6 +123,11 @@ var _SALA_THEMES = {
        wBase:'#3d2870', wWainscot:'#110830',
        wB1:'rgba(110,70,210,', wB2:'rgba(160,120,255,', wMot:'rgba(130,90,230,',
        wAccL:'rgba(160,120,255,', wML:'rgba(90,60,190,', wML2:'rgba(130,100,220,' },
+  5: { clr:0x0e7490, hex:'#0e7490', bg:0x01090c, amb:0xc0edf5,
+       floor:0x030f14, ceil:0xa8dce8,
+       wBase:'#0a4a5c', wWainscot:'#021218',
+       wB1:'rgba(14,116,144,', wB2:'rgba(30,180,210,', wMot:'rgba(20,150,180,',
+       wAccL:'rgba(30,190,220,', wML:'rgba(10,90,112,', wML2:'rgba(20,140,170,' },
 };
 var _st = _SALA_THEMES[SALA_NUM] || _SALA_THEMES[1];
 var SALA_CLR     = _st.clr;
@@ -354,6 +359,18 @@ var _LAYOUTS = {
     { piece: getPieceById('vasija-tripode-calima-38'),         x:  3.0, z:  -8 },
     { piece: getPieceById('vasija-apliques-sonso-39'),         x: -3.0, z: -16 },
     { piece: getPieceById('vasija-incisa-sonso-40'),           x:  3.0, z: -16 }
+  ],
+  5: [
+    { piece: getPieceById('vasija-carenada-vertedera-41'),     x: -3.0, z:  16 },
+    { piece: getPieceById('cuenco-mini-asa-perf-42'),          x:  3.0, z:  16 },
+    { piece: getPieceById('cuenco-subglobular-sonso-43'),      x: -3.0, z:   8 },
+    { piece: getPieceById('vasija-mini-globular-44'),          x:  3.0, z:   8 },
+    { piece: getPieceById('cuenco-mini-calima-45'),            x: -3.0, z:   0 },
+    { piece: getPieceById('copa-pedestal-frag-yotoco-46'),     x:  3.0, z:   0 },
+    { piece: getPieceById('vasija-globular-asas-sonso-47'),    x: -3.0, z:  -8 },
+    { piece: getPieceById('vasija-globular-cuello-yotoco-48'), x:  3.0, z:  -8 },
+    { piece: getPieceById('cuenco-mini-yotoco-49'),            x: -3.0, z: -16 },
+    { piece: getPieceById('copa-pedestal-moderna-50'),         x:  3.0, z: -16 }
   ]
 };
 var LAYOUT = _LAYOUTS[SALA_NUM] || _LAYOUTS[1];
