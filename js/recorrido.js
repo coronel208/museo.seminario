@@ -343,7 +343,18 @@ var _LAYOUTS = {
     { piece: getPieceById('vasija-globular-indeterminada'), x: -3.0, z:-16 },
     { piece: getPieceById('vasija-globular-calima-30'),     x:  3.0, z:-16 }
   ],
-  4: []
+  4: [
+    { piece: getPieceById('vasija-uso-sonso-31'),              x: -3.0, z:  16 },
+    { piece: getPieceById('cuenco-miniatura-asa-32'),          x:  3.0, z:  16 },
+    { piece: getPieceById('vasija-carenada-yotoco-33'),        x: -3.0, z:   8 },
+    { piece: getPieceById('vasija-globular-yotoco-34'),        x:  3.0, z:   8 },
+    { piece: getPieceById('cuenco-hemisf-sonso-35'),           x: -3.0, z:   0 },
+    { piece: getPieceById('cuenco-miniatura-tierradentro-36'), x:  3.0, z:   0 },
+    { piece: getPieceById('copa-pedestal-malagana-37'),        x: -3.0, z:  -8 },
+    { piece: getPieceById('vasija-tripode-calima-38'),         x:  3.0, z:  -8 },
+    { piece: getPieceById('vasija-apliques-sonso-39'),         x: -3.0, z: -16 },
+    { piece: getPieceById('vasija-incisa-sonso-40'),           x:  3.0, z: -16 }
+  ]
 };
 var LAYOUT = _LAYOUTS[SALA_NUM] || _LAYOUTS[1];
 
