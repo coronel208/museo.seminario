@@ -299,7 +299,11 @@
 
   </div>
 
-  <script src="js/catalog.js"></script>
+  <script type="module">
+    import { PIECES } from './js/pieces-data.js';
+    window.MUSEUM_CATALOG = PIECES;
+    if (typeof generarTodos === 'function') generarTodos();
+  </script>
 
   <script>
     function generarTodos() {
@@ -309,24 +313,25 @@
 
       grid.innerHTML = '';
 
-      if (!MUSEUM_CATALOG || MUSEUM_CATALOG.length === 0) {
+      var catalog = window.MUSEUM_CATALOG;
+      if (!catalog || catalog.length === 0) {
         empty.style.display = 'block';
         return;
       }
       empty.style.display = 'none';
 
-      MUSEUM_CATALOG.forEach(function(piece) {
-        var arUrl = baseUrl + '/ar.html?id=' + encodeURIComponent(piece.id);
+      catalog.forEach(function(piece) {
+        var pieceUrl = baseUrl + '/coleccion.html?pieza=' + encodeURIComponent(piece.id);
         var hasModel = !!piece.modelUrl;
 
         // Tarjeta
         var card = document.createElement('div');
         card.className = 'qr-card' + (hasModel ? '' : ' no-model');
 
-        // Badge de estado
+        // Badge de sala
         var badge = document.createElement('div');
         badge.className = 'qr-badge';
-        badge.textContent = hasModel ? '✓ Modelo disponible' : '⏳ Sin modelo aún';
+        badge.textContent = hasModel ? '✓ 3D disponible' : '📷 Solo fotos';
         card.appendChild(badge);
 
         // QR
@@ -337,7 +342,7 @@
         card.appendChild(qrWrap);
 
         new QRCode(qrDiv, {
-          text: arUrl,
+          text: pieceUrl,
           width: 180,
           height: 180,
           colorDark:  '#000000',
@@ -362,15 +367,14 @@
         // URL (visible en print)
         var url = document.createElement('div');
         url.className = 'qr-url';
-        url.textContent = arUrl;
+        url.textContent = pieceUrl;
         card.appendChild(url);
 
         grid.appendChild(card);
       });
     }
 
-    // Generar automáticamente al cargar
-    window.addEventListener('DOMContentLoaded', generarTodos);
+    // El módulo ES6 de arriba llama generarTodos() una vez que carga pieces-data.js
 
     (function(){
       var toggle = document.querySelector('.nav-toggle');

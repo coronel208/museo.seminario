@@ -48,7 +48,7 @@
     #crosshair::after  { width:20px; height:1px; top:9px; left:0; }
     #crosshair .dot { position:absolute; width:4px; height:4px; background:#d4af37; border-radius:50%; top:8px; left:8px; }
     #hint-label { display:none; position:fixed; bottom:72px; left:50%; transform:translateX(-50%); background:rgba(212,175,55,.13); border:1px solid #d4af37; color:#d4af37; padding:5px 15px; border-radius:22px; font-size:.8rem; pointer-events:none; white-space:nowrap; z-index:300; }
-    @media(pointer:coarse){ #crosshair{display:none!important;} #hud{display:none!important;} #hint-label{display:none!important;} }
+    @media(pointer:coarse){ #hud{display:none!important;} }
     .nb-toggle { display:none; flex-direction:column; justify-content:center; align-items:center; gap:5px; background:none; border:1px solid rgba(212,175,55,.30); border-radius:6px; padding:7px 9px; cursor:pointer; -webkit-tap-highlight-color:transparent; z-index:10001; }
     .nb-toggle span { display:block; width:20px; height:2px; background:#d4af37; border-radius:2px; transition:transform .28s,opacity .22s; }
     .nb-toggle.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
