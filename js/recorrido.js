@@ -547,6 +547,7 @@ function _mobProximityCheck() {
           m.position.set(-ctr.x * sc, -bbox.min.y * sc, -ctr.z * sc);
           while (_cfg._artifact.children.length) _cfg._artifact.remove(_cfg._artifact.children[0]);
           _cfg._artifact.add(m);
+          _mobileDirty = true;
           _cfg._mobLoaded = true; _cfg._mobLoading = false; _mobActiveLoads--;
         }, undefined, function() { _cfg._mobLoaded = true; _cfg._mobLoading = false; _mobActiveLoads--; });
       })(_pc);
@@ -1061,8 +1062,8 @@ function hidePmLoad() { if (_pmLoadOv) _pmLoadOv.style.display = 'none'; }
 // Init modal 3D renderer — same bright lighting as collection
 mSc  = new THREE.Scene(); mSc.background = new THREE.Color(0x0d0f14);
 mCam = new THREE.PerspectiveCamera(42, 1, 0.05, 80); mCam.position.set(0, 0.5, 3);
-mRdr = new THREE.WebGLRenderer({ canvas: pmCanvas, antialias: true });
-mRdr.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+mRdr = new THREE.WebGLRenderer({ canvas: pmCanvas, antialias: !isMobile, powerPreference: 'high-performance' });
+mRdr.setPixelRatio(isMobile ? Math.min(window.devicePixelRatio, 1) : Math.min(window.devicePixelRatio, 2));
 mRdr.toneMapping = THREE.ACESFilmicToneMapping; mRdr.toneMappingExposure = 1.8;
 // Very bright flat lighting — same as collection modal
 mSc.add(new THREE.AmbientLight(0xffffff, 3.0));
@@ -1254,7 +1255,7 @@ function openPieceModal(pieceId) {
   mCtrl.update();
 
   pieceModal.classList.add('open');
-  setTimeout(function() { resizeMRdr(); setMView('3d'); }, 60);
+  setTimeout(function() { resizeMRdr(); setMView(isMobile ? 'img' : '3d'); }, 60);
 }
 
 // ── Debounced lock helper (prevents double-lock issues) ─────────────
@@ -1325,6 +1326,8 @@ if (malaganaModal) {
 
 function tick(now) {
   requestAnimationFrame(tick);
+  // Modal open: main scene invisible — skip all render work
+  if (modalOpen) return;
   if (TARGET_INTERVAL > 0) {
     if (now - _lastFrame < TARGET_INTERVAL) return;
     _lastFrame = now;
@@ -1365,7 +1368,7 @@ function tick(now) {
   }
 
   if (isLocked) checkHover();
-  if (isMobile && hasStarted) _mobProximityCheck();
+  if (isMobile && hasStarted && _tickCount % 20 === 0) _mobProximityCheck();
 
   // On mobile: skip artifact rotation and skip render when nothing is happening
   if (!isMobile) {

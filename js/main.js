@@ -4,6 +4,8 @@ import { GLTFLoader }  from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { PIECES, getPieceById, buildArtifact } from './pieces-data.js';
 
+var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth <= 768;
+
 var _draco = new DRACOLoader();
 _draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
 function makeGLTF() { var l = new GLTFLoader(); l.setDRACOLoader(_draco); return l; }
@@ -214,8 +216,8 @@ mSc.background = new THREE.Color(0x0d0f14);
 mCam = new THREE.PerspectiveCamera(42, 1, 0.05, 100);
 mCam.position.set(0, 0.5, 3);
 
-mRdr = new THREE.WebGLRenderer({ canvas: mCanvas, antialias: true });
-mRdr.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+mRdr = new THREE.WebGLRenderer({ canvas: mCanvas, antialias: !isMobile, powerPreference: 'high-performance' });
+mRdr.setPixelRatio(isMobile ? Math.min(window.devicePixelRatio, 1) : Math.min(window.devicePixelRatio, 2));
 mRdr.toneMapping = THREE.ACESFilmicToneMapping;
 mRdr.toneMappingExposure = 1.8;
 
@@ -363,7 +365,7 @@ function openModal(pieceId) {
   }
 
   modal.style.display = 'flex';
-  setTimeout(function() { resizeMRdr(); setView('3d'); }, 40);
+  setTimeout(function() { resizeMRdr(); setView(isMobile ? 'img' : '3d'); }, 40);
 }
 
 function closeModal() {

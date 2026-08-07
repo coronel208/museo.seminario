@@ -173,6 +173,7 @@ html, body { font-family:'Raleway','Segoe UI',sans-serif; background:var(--bg); 
   padding:5px 13px; border-radius:16px; cursor:pointer;
   font-size:.77rem; font-family:'Raleway',sans-serif;
   display:flex; align-items:center; gap:5px; transition:all .18s;
+  min-height:38px; touch-action:manipulation;
 }
 .media-controls button:hover { color:var(--gold); }
 .media-controls button.active { background:var(--gold); color:#000; border-color:var(--gold); font-weight:700; }
@@ -183,6 +184,7 @@ html, body { font-family:'Raleway','Segoe UI',sans-serif; background:var(--bg); 
   border-left:1px solid #1e2025; min-width:250px;
   display:flex; flex-direction:column; gap:.85rem;
   transition: background 0.3s, backdrop-filter 0.3s;
+  overscroll-behavior:contain;
 }
 .modal-info::-webkit-scrollbar { width:4px; }
 .modal-info::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
@@ -259,11 +261,12 @@ footer { text-align:center; padding:2rem; border-top:1px solid #1e2025; color:va
   padding:5px 13px; border-radius:16px; cursor:pointer;
   font-size:.77rem; font-family:'Raleway',sans-serif;
   display:flex; align-items:center; gap:5px; transition:all .18s;
+  min-height:38px; touch-action:manipulation;
 }
 .pm-ctrl button:hover { color:var(--gold); }
 .pm-ctrl button.on { background:var(--gold); color:#000; border-color:var(--gold); font-weight:700; }
 
-.pm-info { flex:1; padding:1.8rem; overflow-y:auto; border-left:1px solid #1e2025; min-width:245px; display:flex; flex-direction:column; gap:.85rem; }
+.pm-info { flex:1; padding:1.8rem; overflow-y:auto; border-left:1px solid #1e2025; min-width:245px; display:flex; flex-direction:column; gap:.85rem; overscroll-behavior:contain; }
 .pm-info::-webkit-scrollbar { width:4px; }
 .pm-info::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
 .pm-info h3 { font-family:'Cormorant Garamond',Georgia,serif; color:var(--gold); font-size:1.65rem; line-height:1.2; }
@@ -332,16 +335,33 @@ footer { text-align:center; padding:2rem; border-top:1px solid #1e2025; color:va
   .hero-page { padding:1.5rem 1rem; gap:1.5rem; }
   .hero-image img  { max-height:220px; }
 
-  /* Cards grid */
-  .grid-cards { padding:.75rem; grid-template-columns:1fr; }
+  /* Cards grid — 2 columnas en tablets/mobile medianos */
+  .grid-cards { padding:.75rem; grid-template-columns:repeat(2,1fr); gap:1rem; }
 
   /* Modals — stacked vertically */
   .modal-body, .pm-body { flex-direction:column; }
-  .modal-viewer, .pm-viewer { flex:none; height:45%; }
+  .modal-viewer, .pm-viewer { flex:none; height:50%; }
   .modal-info, .pm-info { border-left:none; border-top:1px solid #1e2025; min-width:unset; }
   .modal-content { height:94vh; width:98%; }
+  .pm-box { height:92vh; width:98%; }
+
+  /* Touch targets más grandes */
+  .close { font-size:34px; top:10px; right:16px; }
+  .pm-close { font-size:30px; }
+  .nav-menu a { min-height:44px; display:flex; align-items:center; }
 
   /* About */
   .about-container { flex-direction:column; }
   .page-title { font-size:2rem; }
+}
+
+/* ── Phones pequeños ────────────────────────────────────────── */
+@media (max-width:480px) {
+  .grid-cards { grid-template-columns:1fr; padding:.5rem; gap:.75rem; }
+  .hero-content h2 { font-size:1.6rem; }
+  .hero-buttons { flex-direction:column; gap:.6rem; }
+  .btn-primary, .btn-secondary { justify-content:center; width:100%; }
+  .pm-info, .modal-info { padding:1rem; }
+  .media-controls button, .pm-ctrl button { padding:4px 10px; font-size:.72rem; }
+  .card h3 { font-size:1.1rem; }
 }
