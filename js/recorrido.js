@@ -15,6 +15,10 @@ var _draco = new DRACOLoader();
 _draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
 var _gltfLoader = (function() { var l = new GLTFLoader(); l.setDRACOLoader(_draco); return l; })();
 
+// CDN prefix: serve assets from jsDelivr CDN instead of GitHub Pages origin
+var _CDN = 'https://cdn.jsdelivr.net/gh/coronel208/museo.seminario@main/';
+function _cdnUrl(url) { return (url && !/^https?:\/\//.test(url)) ? _CDN + url : url; }
+
 /* ── Loading bar helpers ─────────────────────────────────────────── */
 var lsEl     = document.getElementById('loading-screen');
 var lsBar    = document.getElementById('ls-bar');
@@ -221,8 +225,50 @@ function makeWallMat(repX, repY) {
 var sideWallM = makeWallMat(15, 1);
 // End walls (10m wide): 5 panels wide, 1 panel tall
 var wallM     = makeWallMat(5, 1);
-var floorM  = new THREE.MeshStandardMaterial({ color: _st.floor, roughness: 0.70, metalness: 0.05 });
-var ceilM   = new THREE.MeshStandardMaterial({ color: _st.ceil,  roughness: 0.80 });
+// Tiled floor — checkerboard of two shades of the sala's floor color
+var floorM = (function() {
+  var WCS = isMobile ? 128 : 256, T = WCS / 4;
+  var wc = document.createElement('canvas'); wc.width = WCS; wc.height = WCS;
+  var ctx = wc.getContext('2d');
+  var r = (_st.floor >> 16) & 0xff, g = (_st.floor >> 8) & 0xff, b = _st.floor & 0xff;
+  for (var row = 0; row < 4; row++) {
+    for (var col = 0; col < 4; col++) {
+      var light = (row + col) % 2 === 0;
+      ctx.fillStyle = 'rgb(' + (r + (light ? 22 : 0)) + ',' + (g + (light ? 22 : 0)) + ',' + (b + (light ? 22 : 0)) + ')';
+      ctx.fillRect(col * T, row * T, T, T);
+    }
+  }
+  ctx.strokeStyle = 'rgba(0,0,0,0.55)'; ctx.lineWidth = isMobile ? 1 : 2;
+  for (var i = 1; i < 4; i++) {
+    ctx.beginPath(); ctx.moveTo(i*T, 0); ctx.lineTo(i*T, WCS); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, i*T); ctx.lineTo(WCS, i*T); ctx.stroke();
+  }
+  var tex = new THREE.CanvasTexture(wc);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(5, 23);
+  return new THREE.MeshStandardMaterial({ map: tex, roughness: 0.42, metalness: 0.18 });
+})();
+
+// Coffered ceiling — subtle grid
+var ceilM = (function() {
+  var WCS = isMobile ? 128 : 256, T = WCS / 4;
+  var wc = document.createElement('canvas'); wc.width = WCS; wc.height = WCS;
+  var ctx = wc.getContext('2d');
+  var r = (_st.ceil >> 16) & 0xff, g = (_st.ceil >> 8) & 0xff, b = _st.ceil & 0xff;
+  ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')'; ctx.fillRect(0, 0, WCS, WCS);
+  ctx.strokeStyle = 'rgba(0,0,0,0.22)'; ctx.lineWidth = isMobile ? 2 : 4;
+  for (var i = 1; i < 4; i++) {
+    ctx.beginPath(); ctx.moveTo(i*T, 0); ctx.lineTo(i*T, WCS); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, i*T); ctx.lineTo(WCS, i*T); ctx.stroke();
+  }
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = 1;
+  for (var j = 1; j < 4; j++) {
+    ctx.beginPath(); ctx.moveTo(j*T-2, 0); ctx.lineTo(j*T-2, WCS); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, j*T-2); ctx.lineTo(WCS, j*T-2); ctx.stroke();
+  }
+  var tex = new THREE.CanvasTexture(wc);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(5, 23);
+  return new THREE.MeshStandardMaterial({ map: tex, roughness: 0.80 });
+})();
 var woodM   = new THREE.MeshStandardMaterial({ color: 0x5a3010, roughness: 0.82 });
 var goldM   = new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.22, metalness: 0.88 });
 var marbleM = new THREE.MeshStandardMaterial({ color: 0xddd4c8, roughness: 0.38, metalness: 0.08 });
@@ -537,7 +583,7 @@ function _mobProximityCheck() {
     if (Math.sqrt(_dx*_dx + _dz*_dz) < 8.5) {
       _pc._mobLoading = true; _mobActiveLoads++;
       (function(_cfg) {
-        _gltfLoader.load(_cfg.piece.modelUrl, function(gltf) {
+        _gltfLoader.load(_cdnUrl(_cfg.piece.modelUrl), function(gltf) {
           var m = gltf.scene;
           var bbox = new THREE.Box3().setFromObject(m);
           var sz = bbox.getSize(new THREE.Vector3());
@@ -562,7 +608,7 @@ function _mobProximityCheck() {
   function _loadGlb(cfg, cb) {
     if (!cfg.piece || !cfg.piece.modelUrl) { glbDone(); cb(); return; }
     var art = cfg._artifact;
-    _gltfLoader.load(cfg.piece.modelUrl, function(gltf) {
+    _gltfLoader.load(_cdnUrl(cfg.piece.modelUrl), function(gltf) {
       var m = gltf.scene;
       var bbox = new THREE.Box3().setFromObject(m);
       var sz   = bbox.getSize(new THREE.Vector3());
@@ -776,6 +822,27 @@ function _enterFs() {
   if (fsReq && !document.fullscreenElement) fsReq.call(el).catch(function(){});
 }
 
+// Mobile interact button — shows when crosshair aims at something interactive
+var _mobInteractBtn = null;
+if (isMobile) {
+  _mobInteractBtn = document.createElement('button');
+  _mobInteractBtn.style.cssText = 'display:none;position:fixed;bottom:22%;left:50%;transform:translateX(-50%);'
+    + 'width:68px;height:68px;border-radius:50%;'
+    + 'background:rgba(0,0,0,0.55);border:2.5px solid ' + SALA_CLR_HEX + ';color:' + SALA_CLR_HEX + ';'
+    + 'font-size:1.5rem;z-index:60;cursor:pointer;touch-action:manipulation;'
+    + '-webkit-tap-highlight-color:transparent;backdrop-filter:blur(4px);'
+    + 'display:none;align-items:center;justify-content:center;';
+  _mobInteractBtn.innerHTML = '<i class="fas fa-hand-pointer"></i>';
+  document.body.appendChild(_mobInteractBtn);
+  _mobInteractBtn.addEventListener('click', function(e) {
+    e.preventDefault(); e.stopPropagation();
+    if (!hasStarted || modalOpen) return;
+    if (lastBackDoor) { _showExitDlg(); return; }
+    if (lastHovered)  { openPieceModal(lastHovered.pieceId); return; }
+    if (lastMural)    { openMalaganaModal(); }
+  });
+}
+
 document.getElementById('btn-start').addEventListener('click', function() {
   hasStarted = true; startPrompt.style.display = 'none';
   if (!isMobile) {
@@ -783,6 +850,10 @@ document.getElementById('btn-start').addEventListener('click', function() {
     else safeLock();
   } else {
     hudEl.style.display = 'none';
+    crosshairEl.style.display = 'block';
+    hintEl.style.borderColor = SALA_CLR_HEX;
+    hintEl.style.color       = SALA_CLR_HEX;
+    hintEl.style.background  = 'rgba(0,0,0,0.50)';
   }
 });
 document.addEventListener('fullscreenchange', function() {
@@ -996,7 +1067,8 @@ function checkHover() {
     if (found !== lastHovered) { if (lastHovered) lastHovered.hlRing.material.opacity = 0; lastHovered = found; }
     if (lastHovered) lastHovered.hlRing.material.opacity = 0.9;
     hintEl.style.display = 'block';
-    hintEl.textContent   = '👆 Clic para inspeccionar';
+    hintEl.textContent   = isMobile ? '👆 Toca para inspeccionar' : '👆 Clic para inspeccionar';
+    if (_mobInteractBtn) { _mobInteractBtn.style.display = 'flex'; _mobileDirty = true; }
     lastMural = null; lastBackDoor = false;
   } else {
     if (lastHovered) { lastHovered.hlRing.material.opacity = 0; lastHovered = null; }
@@ -1007,12 +1079,14 @@ function checkHover() {
       if (doorHits.length > 0 && doorHits[0].distance < 8.0) {
         lastBackDoor = true;
         hintEl.style.display = 'block';
-        hintEl.textContent   = '🚪 Clic para volver a la Sala Central';
+        hintEl.textContent   = isMobile ? '🚪 Toca para volver a la Sala Central' : '🚪 Clic para volver a la Sala Central';
+        if (_mobInteractBtn) { _mobInteractBtn.innerHTML = '<i class="fas fa-door-open"></i>'; _mobInteractBtn.style.display = 'flex'; _mobileDirty = true; }
         return;
       }
     }
     lastBackDoor = false;
     hintEl.style.display = 'none';
+    if (_mobInteractBtn) { _mobInteractBtn.style.display = 'none'; _mobInteractBtn.innerHTML = '<i class="fas fa-hand-pointer"></i>'; }
   }
 }
 
@@ -1129,9 +1203,10 @@ function setMView(v) {
     hidePmLoad();
     pmQrWrap.style.display = 'flex';
     btnMQr.classList.add('on');
-    var qrUrl = (location.origin !== 'null' ? location.origin : 'https://museo-seminario.com') + '/coleccion.html?pieza=' + currentPiece.id;
+    var _qrBase = location.href.replace(/[^/]*(\?.*)?$/, '');
+    var qrUrl = _qrBase + 'coleccion.html?pieza=' + currentPiece.id;
     pmQrWrap.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;height:100%;padding:1rem;">'
-      + '<div id="pm-qr-container" style="background:#fff;padding:12px;border-radius:8px;"></div>'
+      + '<div id="pm-qr-container" style="background:#fff;padding:12px;border-radius:8px;box-shadow:0 0 24px rgba(212,175,55,.35);"></div>'
       + '<span style="color:#a99e8c;font-size:.82rem;text-align:center;max-width:220px;">' + currentPiece.nombre + '</span>'
       + '</div>';
     if (window.QRCode) {
@@ -1178,9 +1253,10 @@ if (pmBtnAmpliar) {
       img.style.cssText = 'max-width:95vw;max-height:95vh;object-fit:contain;border-radius:4px;';
       ct.appendChild(img);
     } else if (mCurrentView === 'qr') {
-      var qrUrl2 = (location.origin !== 'null' ? location.origin : 'https://museo-seminario.com') + '/coleccion.html?pieza=' + currentPiece.id;
+      var _qrBase2 = location.href.replace(/[^/]*(\?.*)?$/, '');
+      var qrUrl2 = _qrBase2 + 'coleccion.html?pieza=' + currentPiece.id;
       var qrDiv = document.createElement('div');
-      qrDiv.style.cssText = 'background:#fff;padding:16px;border-radius:10px;';
+      qrDiv.style.cssText = 'background:#fff;padding:16px;border-radius:10px;box-shadow:0 0 30px rgba(212,175,55,.4);';
       ct.appendChild(qrDiv);
       if (window.QRCode) {
         new window.QRCode(qrDiv, { text: qrUrl2, width: 250, height: 250, colorDark: '#000', colorLight: '#fff', correctLevel: window.QRCode.CorrectLevel.M });
@@ -1233,7 +1309,7 @@ function openPieceModal(pieceId) {
   mSc.add(mMesh);
   if (piece.modelUrl) {
     showPmLoad();
-    _gltfLoader.load(piece.modelUrl, function(gltf) {
+    _gltfLoader.load(_cdnUrl(piece.modelUrl), function(gltf) {
       hidePmLoad();
       var m = gltf.scene;
       var bbox = new THREE.Box3().setFromObject(m);
@@ -1367,7 +1443,7 @@ function tick(now) {
     _followSpot.target.updateMatrixWorld();
   }
 
-  if (isLocked) checkHover();
+  if (isLocked || (isMobile && hasStarted && !modalOpen)) checkHover();
   if (isMobile && hasStarted && _tickCount % 20 === 0) _mobProximityCheck();
 
   // On mobile: skip artifact rotation and skip render when nothing is happening

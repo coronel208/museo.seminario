@@ -6,6 +6,9 @@ import { PIECES, getPieceById, buildArtifact } from './pieces-data.js';
 
 var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth <= 768;
 
+var _CDN_BASE = 'https://cdn.jsdelivr.net/gh/coronel208/museo.seminario@main/';
+function _cdnUrl(url) { return (url && !/^https?:\/\//.test(url)) ? _CDN_BASE + url : url; }
+
 var _draco = new DRACOLoader();
 _draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
 function makeGLTF() { var l = new GLTFLoader(); l.setDRACOLoader(_draco); return l; }
@@ -301,9 +304,10 @@ function setView(v) {
   } else if (v === 'qr') {
     qrWrap.style.display = 'flex';
     btnQr.classList.add('active');
-    var qrUrl = (location.origin !== 'null' ? location.origin : 'https://museo-seminario.com') + '/coleccion.html?pieza=' + currentPiece.id;
+    var _qrBase = location.href.replace(/[^/]*(\?.*)?$/, '');
+    var qrUrl = _qrBase + 'coleccion.html?pieza=' + currentPiece.id;
     qrWrap.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;height:100%;padding:1rem;">'
-      + '<div id="col-qr-container" style="background:#fff;padding:12px;border-radius:8px;"></div>'
+      + '<div id="col-qr-container" style="background:#fff;padding:12px;border-radius:8px;box-shadow:0 0 24px rgba(212,175,55,.40);"></div>'
       + '<span style="color:#a99e8c;font-size:.82rem;text-align:center;max-width:220px;">' + currentPiece.nombre + '</span>'
       + '</div>';
     if (window.QRCode) {
@@ -347,7 +351,7 @@ function openModal(pieceId) {
   mSc.add(mMesh);
   if (currentPiece.modelUrl) {
     showMLoad();
-    makeGLTF().load(currentPiece.modelUrl, function(gltf) {
+    makeGLTF().load(_cdnUrl(currentPiece.modelUrl), function(gltf) {
       hideMLoad();
       var m = gltf.scene;
       var bbox = new THREE.Box3().setFromObject(m);
@@ -415,7 +419,8 @@ if (btnZoom) {
       img.style.cssText = 'max-width:95vw;max-height:95vh;object-fit:contain;border-radius:4px;';
       ct.appendChild(img);
     } else if (v === 'view-qr') {
-      var qrUrl3 = (location.origin !== 'null' ? location.origin : 'https://museo-seminario.com') + '/coleccion.html?pieza=' + currentPiece.id;
+      var _qrBase3 = location.href.replace(/[^/]*(\?.*)?$/, '');
+      var qrUrl3 = _qrBase3 + 'coleccion.html?pieza=' + currentPiece.id;
       var qrDiv3 = document.createElement('div');
       qrDiv3.style.cssText = 'background:#fff;padding:16px;border-radius:10px;';
       ct.appendChild(qrDiv3);

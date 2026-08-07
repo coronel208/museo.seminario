@@ -177,6 +177,8 @@ html, body { font-family:'Raleway','Segoe UI',sans-serif; background:var(--bg); 
 }
 .media-controls button:hover { color:var(--gold); }
 .media-controls button.active { background:var(--gold); color:#000; border-color:var(--gold); font-weight:700; }
+#view-qr { border-color:rgba(212,175,55,0.70); color:var(--gold); }
+#view-qr.active { background:var(--gold); color:#000; }
 
 /* ── MODAL INFO PANEL ───────────────────────────────────────── */
 .modal-info {
@@ -265,6 +267,8 @@ footer { text-align:center; padding:2rem; border-top:1px solid #1e2025; color:va
 }
 .pm-ctrl button:hover { color:var(--gold); }
 .pm-ctrl button.on { background:var(--gold); color:#000; border-color:var(--gold); font-weight:700; }
+#pm-btn-qr { border-color:rgba(212,175,55,0.70); color:var(--gold); }
+#pm-btn-qr.on { background:var(--gold); color:#000; }
 
 .pm-info { flex:1; padding:1.8rem; overflow-y:auto; border-left:1px solid #1e2025; min-width:245px; display:flex; flex-direction:column; gap:.85rem; overscroll-behavior:contain; }
 .pm-info::-webkit-scrollbar { width:4px; }
