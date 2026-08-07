@@ -9,6 +9,7 @@ import { OrbitControls }       from 'three/addons/controls/OrbitControls.js';
 import { PIECES, getPieceById, buildArtifact } from './pieces-data.js';
 import { GLTFLoader }  from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 /* ── Draco loader ────────────────────────────────────────────────── */
 var _draco = new DRACOLoader();
@@ -283,28 +284,56 @@ function box(geo, mat, x, y, z) {
   return m;
 }
 
+// Geometry batching — merges same-material meshes into one draw call
+var _batch = {};
+function batchBox(geo, mat, wx, wy, wz, ry) {
+  var key = mat.uuid;
+  if (!_batch[key]) _batch[key] = { mat: mat, geos: [] };
+  var g = geo.clone();
+  if (ry) {
+    g.applyMatrix4(new THREE.Matrix4().compose(
+      new THREE.Vector3(wx, wy, wz),
+      new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), ry),
+      new THREE.Vector3(1, 1, 1)
+    ));
+  } else {
+    g.translate(wx, wy, wz);
+  }
+  _batch[key].geos.push(g);
+}
+function _flushBatch() {
+  for (var _bk in _batch) {
+    var _bb = _batch[_bk];
+    if (!_bb.geos.length) continue;
+    var _mg = mergeGeometries(_bb.geos, false);
+    if (_mg) { var _bm = new THREE.Mesh(_mg, _bb.mat); _bm.frustumCulled = false; scene.add(_bm); }
+    _bb.geos.forEach(function(_bg) { _bg.dispose(); });
+  }
+  _batch = {};
+}
+
 /* ── Corridor  Z0=-24 … Z1=22 ────────────────────────────────────── */
 prog(28, 'Construyendo corredor…');
 
 var HW = 10, HH = 8, Z0 = -24, Z1 = 22;
 var MZ = (Z0 + Z1) / 2, HL = Z1 - Z0, WT = 0.3;
 
-box(new THREE.BoxGeometry(HW, WT, HL), floorM,  0, -WT/2, MZ);
-box(new THREE.BoxGeometry(HW, WT, HL), ceilM,   0, HH + WT/2, MZ);
-box(new THREE.BoxGeometry(WT, HH, HL), sideWallM, -HW/2, HH/2, MZ);  // left lateral
-box(new THREE.BoxGeometry(WT, HH, HL), sideWallM,  HW/2, HH/2, MZ);  // right lateral
-box(new THREE.BoxGeometry(HW, HH, WT), wallM,   0, HH/2, Z0);         // entrance end wall
+batchBox(new THREE.BoxGeometry(HW, WT, HL), floorM,  0, -WT/2, MZ);
+batchBox(new THREE.BoxGeometry(HW, WT, HL), ceilM,   0, HH + WT/2, MZ);
+batchBox(new THREE.BoxGeometry(WT, HH, HL), sideWallM, -HW/2, HH/2, MZ);
+batchBox(new THREE.BoxGeometry(WT, HH, HL), sideWallM,  HW/2, HH/2, MZ);
+batchBox(new THREE.BoxGeometry(HW, HH, WT), wallM,   0, HH/2, Z0);
 // Z1 (exit) wall built in back-door block below
 
 // Gold baseboards & crown moulding
-[-HW/2 + 0.08, HW/2 - 0.08].forEach(function(x) {
-  box(new THREE.BoxGeometry(0.05, 0.28, HL), goldM, x, 0.14, MZ);
-  box(new THREE.BoxGeometry(0.05, 0.16, HL), goldM, x, HH - 0.09, MZ);
+[-HW/2 + 0.08, HW/2 - 0.08].forEach(function(bx) {
+  batchBox(new THREE.BoxGeometry(0.05, 0.28, HL), goldM, bx, 0.14, MZ);
+  batchBox(new THREE.BoxGeometry(0.05, 0.16, HL), goldM, bx, HH - 0.09, MZ);
 });
 
 // Carpet
-box(new THREE.BoxGeometry(2.5, 0.01, HL), carpetM, 0, 0.005, MZ);
-box(new THREE.BoxGeometry(2.65, 0.015, HL), goldM, 0, 0.002, MZ);
+batchBox(new THREE.BoxGeometry(2.5, 0.01, HL), carpetM, 0, 0.005, MZ);
+batchBox(new THREE.BoxGeometry(2.65, 0.015, HL), goldM, 0, 0.002, MZ);
 
 /* ── Lighting ────────────────────────────────────────────────────── */
 prog(38, 'Encendiendo luces…');
@@ -325,9 +354,9 @@ rFill.position.set(8, 3, MZ); scene.add(rFill);
 // Ceiling lamp fixtures — emissive only, no PointLights
 var _lampShM = new THREE.MeshStandardMaterial({ color: 0xb0c8ff, roughness: 0.4, emissive: 0x90b0ff, emissiveIntensity: 4.0 });
 [Z0+8, Z0+17, Z0+27, Z0+37, Z0+44].forEach(function(lz) {
-  box(new THREE.BoxGeometry(0.50, 0.08, 0.50), goldM, 0, HH - 0.05, lz);
-  box(new THREE.CylinderGeometry(0.016, 0.016, 0.50, 8), goldM, 0, HH - 0.32, lz);
-  box(new THREE.CylinderGeometry(0.07, 0.23, 0.22, 12), _lampShM, 0, HH - 0.72, lz);
+  batchBox(new THREE.BoxGeometry(0.50, 0.08, 0.50), goldM, 0, HH - 0.05, lz);
+  batchBox(new THREE.CylinderGeometry(0.016, 0.016, 0.50, 8), goldM, 0, HH - 0.32, lz);
+  batchBox(new THREE.CylinderGeometry(0.07, 0.23, 0.22, 12), _lampShM, 0, HH - 0.72, lz);
 });
 
 // Recessed wall lights — emissive only, no PointLights
@@ -336,10 +365,8 @@ var _wallPanelM  = new THREE.MeshStandardMaterial({ color: 0x80aaff, emissive: S
 [-HW/2 + 0.12, HW/2 - 0.12].forEach(function(sx) {
   var side = sx < 0 ? 1 : -1;
   [Z0+11, Z0+23, Z0+35, Z0+45].forEach(function(sz) {
-    var housing = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.18, 0.22), _wallRecessM);
-    housing.position.set(sx, 2.6, sz); scene.add(housing);
-    var panel = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.13, 0.17), _wallPanelM);
-    panel.position.set(sx + side * 0.034, 2.6, sz); scene.add(panel);
+    batchBox(new THREE.BoxGeometry(0.06, 0.18, 0.22), _wallRecessM, sx, 2.6, sz);
+    batchBox(new THREE.BoxGeometry(0.01, 0.13, 0.17), _wallPanelM, sx + side * 0.034, 2.6, sz);
   });
 });
 
@@ -435,57 +462,39 @@ if (!isMobile) {
 
 LAYOUT.forEach(function(cfg) {
   var piece = cfg.piece, x = cfg.x, z = cfg.z;
-  var grp = new THREE.Group();
-  grp.position.set(x, 0, z);
 
-  // Marble base — 14 segments (was 32)
-  var base = new THREE.Mesh(new THREE.CylinderGeometry(0.88, 0.98, 0.52, 14), marbleM);
-  base.position.y = 0.26; grp.add(base);
+  var lblRotY = x > 0 ? -Math.PI / 2 : Math.PI / 2;
+  var faceSign = x > 0 ? -1 : 1;
 
-  // Gold rim on pedestal — 14 segments (was 32)
-  var pRim = new THREE.Mesh(new THREE.CylinderGeometry(0.94, 0.96, 0.055, 14), goldM);
-  pRim.position.y = 0.56; grp.add(pRim);
-
-  // Wooden column — 12 segments (was 16)
-  var col = new THREE.Mesh(new THREE.CylinderGeometry(0.30, 0.34, 0.56, 12), woodM);
-  col.position.y = 0.86; grp.add(col);
-
-  // Transition ring — 12 segments (was 16)
-  var colTop = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.38, 0.055, 12), goldM);
-  colTop.position.y = 1.17; grp.add(colTop);
-
-  // Interior platform — 14 segments (was 24)
-  var plat = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.60, 0.055, 14), marbleM);
-  plat.position.y = 1.15; grp.add(plat);
-  var platRim = new THREE.Mesh(new THREE.CylinderGeometry(0.60, 0.61, 0.022, 14), goldM);
-  platRim.position.y = 1.18; grp.add(platRim);
-
-  // Glass case (raycasting target)
-  var glassMesh = new THREE.Mesh(new THREE.BoxGeometry(1.24, 1.30, 1.24), glassM);
-  glassMesh.position.y = 1.76; glassMesh.userData.pieceId = piece.id; grp.add(glassMesh);
-
-  // Bottom and top rings of case
-  [1.11, 2.43].forEach(function(y) {
-    var ring = new THREE.Mesh(new THREE.BoxGeometry(1.32, 0.055, 1.32), goldM);
-    ring.position.y = y; grp.add(ring);
+  // Static geometry → batch (all world-space positions)
+  batchBox(new THREE.CylinderGeometry(0.88, 0.98, 0.52, 14), marbleM, x, 0.26, z);
+  batchBox(new THREE.CylinderGeometry(0.94, 0.96, 0.055, 14), goldM, x, 0.56, z);
+  batchBox(new THREE.CylinderGeometry(0.30, 0.34, 0.56, 12), woodM, x, 0.86, z);
+  batchBox(new THREE.CylinderGeometry(0.36, 0.38, 0.055, 12), goldM, x, 1.17, z);
+  batchBox(new THREE.CylinderGeometry(0.55, 0.60, 0.055, 14), marbleM, x, 1.15, z);
+  batchBox(new THREE.CylinderGeometry(0.60, 0.61, 0.022, 14), goldM, x, 1.18, z);
+  [1.11, 2.43].forEach(function(ringY) {
+    batchBox(new THREE.BoxGeometry(1.32, 0.055, 1.32), goldM, x, ringY, z);
   });
-
-  // Corner posts
   [[-0.60,-0.60],[0.60,-0.60],[-0.60,0.60],[0.60,0.60]].forEach(function(p) {
-    var post = new THREE.Mesh(new THREE.BoxGeometry(0.055, 1.30, 0.055), goldM);
-    post.position.set(p[0], 1.76, p[1]); grp.add(post);
+    batchBox(new THREE.BoxGeometry(0.055, 1.30, 0.055), goldM, x + p[0], 1.76, z + p[1]);
   });
+  batchBox(new THREE.CylinderGeometry(0.12, 0.64, 0.09, 12), goldM, x, 2.51, z);
+  batchBox(new THREE.BoxGeometry(1.90, 0.54, 0.05), goldM, x, 3.15, z, lblRotY);
+  batchBox(new THREE.BoxGeometry(0.05, 0.36, 0.05), goldM, x, 2.70, z);
 
-  // Cap — 12 segments (was 16)
-  var cap = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.64, 0.09, 12), goldM);
-  cap.position.y = 2.51; grp.add(cap);
+  // Glass case — raycasting target, individual mesh
+  var glassMesh = new THREE.Mesh(new THREE.BoxGeometry(1.24, 1.30, 1.24), glassM);
+  glassMesh.position.set(x, 1.76, z);
+  glassMesh.userData.pieceId = piece.id;
+  scene.add(glassMesh);
 
-  // Artifact — procedural shown immediately, GLB replaces it when loaded
+  // Artifact — procedural proxy, GLB replaces it when loaded/approached
   var artifact = new THREE.Group();
-  artifact.position.set(0, piece.restY !== undefined ? piece.restY : 1.19, 0);
+  artifact.position.set(x, piece.restY !== undefined ? piece.restY : 1.19, z);
   artifact.userData.pieceId = piece.id;
   artifact.add(buildArtifact(piece, 0.62));
-  grp.add(artifact);
+  scene.add(artifact);
   cfg._artifact = artifact;
 
   // ── Label plate ABOVE the case ──
@@ -493,15 +502,12 @@ LAYOUT.forEach(function(cfg) {
   lc.width = isMobile ? 320 : 640; lc.height = isMobile ? 100 : 200;
   if (isMobile) { var _lctx0 = lc.getContext('2d'); _lctx0.scale(0.5, 0.5); }
   var lctx = lc.getContext('2d');
-  // Rich dark background
   var lgr = lctx.createLinearGradient(0, 0, 0, 200);
   lgr.addColorStop(0, '#2e1a06'); lgr.addColorStop(1, '#1a0e02');
   lctx.fillStyle = lgr; lctx.fillRect(0, 0, 640, 200);
-  // Bright gold double border
   lctx.strokeStyle = '#f0c840'; lctx.lineWidth = 5; lctx.strokeRect(4, 4, 632, 192);
   lctx.strokeStyle = 'rgba(240,200,64,0.5)'; lctx.lineWidth = 2; lctx.strokeRect(14, 14, 612, 172);
   lctx.textAlign = 'center';
-  // Title — auto-shrink font until it fits, then word-wrap to 2 lines if still too wide
   var tf = 46;
   lctx.font = 'Bold ' + tf + 'px Georgia,serif';
   while (lctx.measureText(piece.nombre).width > 590 && tf > 26) { tf -= 2; lctx.font = 'Bold ' + tf + 'px Georgia,serif'; }
@@ -517,30 +523,16 @@ LAYOUT.forEach(function(cfg) {
   } else {
     lctx.fillText(piece.nombre, 320, 82);
   }
-  // Location line
   lctx.shadowColor = 'rgba(240,200,64,0.6)'; lctx.shadowBlur = 8;
   lctx.fillStyle = '#f0e080'; lctx.font = 'Bold 23px Georgia';
   lctx.fillText(piece.procedencia.split('·')[0].trim(), 320, locY);
   lctx.shadowBlur = 0;
-  // Date
   var dp = piece.procedencia.split('·')[1];
   if (dp) { lctx.fillStyle='rgba(240,200,80,0.75)'; lctx.font='20px Georgia'; lctx.fillText('· '+dp.trim()+' ·', 320, dateY); }
 
   var lblTex = new THREE.CanvasTexture(lc);
-  // CORRECTED rotation: right side (x>0) normal must face -X (toward corridor center)
-  //   → rotation.y = -π/2  (normal rotates from +Z to -X)
-  // left side (x<0) normal must face +X → rotation.y = +π/2
-  var lblRotY = x > 0 ? -Math.PI / 2 : Math.PI / 2;
-  // Tiny face-direction offset so plane sits proud of frame's front face
-  var faceSign = x > 0 ? -1 : 1;
 
-  // Frame — at y=3.15, stalk reaches only to y=2.89 (no overlap)
-  var lblFrame = new THREE.Mesh(new THREE.BoxGeometry(1.90, 0.54, 0.05), goldM);
-  lblFrame.position.set(0, 3.15, 0);
-  lblFrame.rotation.y = lblRotY;
-  grp.add(lblFrame);
-
-  // Text plane — very bright emissive
+  // Text plane — unique material per piece, can't batch
   var lblPlane = new THREE.Mesh(
     new THREE.PlaneGeometry(1.80, 0.46),
     new THREE.MeshStandardMaterial({
@@ -549,26 +541,19 @@ LAYOUT.forEach(function(cfg) {
       side: THREE.FrontSide
     })
   );
-  lblPlane.position.set(faceSign * 0.026, 3.15, 0);
+  lblPlane.position.set(x + faceSign * 0.026, 3.15, z);
   lblPlane.rotation.y = lblRotY;
-  grp.add(lblPlane);
+  scene.add(lblPlane);
 
-  // Stalk — from cap top (y≈2.52) to label bottom (3.15-0.27=2.88)
-  // Stalk center: (2.52+2.88)/2=2.70, height: 2.88-2.52=0.36
-  var stalk = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.36, 0.05), goldM);
-  stalk.position.set(0, 2.70, 0);
-  grp.add(stalk);
-
-  // Hover ring — 6×24 (was 8×48)
+  // Hover ring — animated, individual mesh
   var hlRing = new THREE.Mesh(
     new THREE.TorusGeometry(0.88, 0.030, 6, 24),
     new THREE.MeshBasicMaterial({ color: 0xd4af37, transparent: true, opacity: 0 })
   );
-  hlRing.rotation.x = Math.PI / 2; hlRing.position.y = 1.12; grp.add(hlRing);
+  hlRing.rotation.x = Math.PI / 2;
+  hlRing.position.set(x, 1.12, z);
+  scene.add(hlRing);
 
-  // No per-vitrina SpotLight or PointLight — replaced by single _followSpot in tick
-
-  scene.add(grp);
   interactables.push({ glassMesh: glassMesh, hlRing: hlRing, artifact: artifact, pieceId: piece.id });
 });
 
@@ -653,16 +638,16 @@ var backDoorMesh = null;
   var SIDE_W = (HW - DOOR_W) / 2;  // 3.1 each side
 
   // Wall with door opening (replaces solid Z1 wall removed above)
-  box(new THREE.BoxGeometry(SIDE_W, HH, WT), wallM, -(DOOR_W/2+SIDE_W/2), HH/2, Z1);
-  box(new THREE.BoxGeometry(SIDE_W, HH, WT), wallM,  (DOOR_W/2+SIDE_W/2), HH/2, Z1);
-  box(new THREE.BoxGeometry(DOOR_W, HH-DOOR_H, WT), wallM, 0, DOOR_H+(HH-DOOR_H)/2, Z1);
+  batchBox(new THREE.BoxGeometry(SIDE_W, HH, WT), wallM, -(DOOR_W/2+SIDE_W/2), HH/2, Z1);
+  batchBox(new THREE.BoxGeometry(SIDE_W, HH, WT), wallM,  (DOOR_W/2+SIDE_W/2), HH/2, Z1);
+  batchBox(new THREE.BoxGeometry(DOOR_W, HH-DOOR_H, WT), wallM, 0, DOOR_H+(HH-DOOR_H)/2, Z1);
 
   // Gold columns (same as sala-central)
   var colH = DOOR_H + 0.08;
-  box(new THREE.BoxGeometry(COL_W, colH, WT+0.05), goldM, -(DOOR_W/2+COL_W/2), colH/2, Z1-0.01);
-  box(new THREE.BoxGeometry(COL_W, colH, WT+0.05), goldM,  (DOOR_W/2+COL_W/2), colH/2, Z1-0.01);
+  batchBox(new THREE.BoxGeometry(COL_W, colH, WT+0.05), goldM, -(DOOR_W/2+COL_W/2), colH/2, Z1-0.01);
+  batchBox(new THREE.BoxGeometry(COL_W, colH, WT+0.05), goldM,  (DOOR_W/2+COL_W/2), colH/2, Z1-0.01);
   // Gold lintel
-  box(new THREE.BoxGeometry(DOOR_W+COL_W*2+0.12, 0.12, WT+0.06), goldM, 0, DOOR_H+0.06, Z1-0.01);
+  batchBox(new THREE.BoxGeometry(DOOR_W+COL_W*2+0.12, 0.12, WT+0.06), goldM, 0, DOOR_H+0.06, Z1-0.01);
 
   // Door canvas texture — exact copy of sala-central getDoorTex
   var cvs = document.createElement('canvas'); cvs.width=512; cvs.height=1024;
@@ -1204,7 +1189,7 @@ function setMView(v) {
     pmQrWrap.style.display = 'flex';
     btnMQr.classList.add('on');
     var _qrBase = location.href.replace(/[^/]*(\?.*)?$/, '');
-    var qrUrl = _qrBase + 'coleccion.html?pieza=' + currentPiece.id;
+    var qrUrl = _qrBase + 'ar.html?id=' + currentPiece.id;
     pmQrWrap.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;height:100%;padding:1rem;">'
       + '<div id="pm-qr-container" style="background:#fff;padding:12px;border-radius:8px;box-shadow:0 0 24px rgba(212,175,55,.35);"></div>'
       + '<span style="color:#a99e8c;font-size:.82rem;text-align:center;max-width:220px;">' + currentPiece.nombre + '</span>'
@@ -1254,7 +1239,7 @@ if (pmBtnAmpliar) {
       ct.appendChild(img);
     } else if (mCurrentView === 'qr') {
       var _qrBase2 = location.href.replace(/[^/]*(\?.*)?$/, '');
-      var qrUrl2 = _qrBase2 + 'coleccion.html?pieza=' + currentPiece.id;
+      var qrUrl2 = _qrBase2 + 'ar.html?id=' + currentPiece.id;
       var qrDiv = document.createElement('div');
       qrDiv.style.cssText = 'background:#fff;padding:16px;border-radius:10px;box-shadow:0 0 30px rgba(212,175,55,.4);';
       ct.appendChild(qrDiv);
@@ -1456,6 +1441,7 @@ function tick(now) {
   }
 }
 
+_flushBatch();
 if (glbPending <= 0) hideLs();
 // Safety: if GLBs hang (Draco decoder timeout, network, etc.), force-hide after 12s
 setTimeout(function(){ if(lsEl && lsEl.style.display !== 'none') hideLs(); }, 12000);

@@ -305,7 +305,7 @@ function setView(v) {
     qrWrap.style.display = 'flex';
     btnQr.classList.add('active');
     var _qrBase = location.href.replace(/[^/]*(\?.*)?$/, '');
-    var qrUrl = _qrBase + 'coleccion.html?pieza=' + currentPiece.id;
+    var qrUrl = _qrBase + 'ar.html?id=' + currentPiece.id;
     qrWrap.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;height:100%;padding:1rem;">'
       + '<div id="col-qr-container" style="background:#fff;padding:12px;border-radius:8px;box-shadow:0 0 24px rgba(212,175,55,.40);"></div>'
       + '<span style="color:#a99e8c;font-size:.82rem;text-align:center;max-width:220px;">' + currentPiece.nombre + '</span>'
@@ -420,7 +420,7 @@ if (btnZoom) {
       ct.appendChild(img);
     } else if (v === 'view-qr') {
       var _qrBase3 = location.href.replace(/[^/]*(\?.*)?$/, '');
-      var qrUrl3 = _qrBase3 + 'coleccion.html?pieza=' + currentPiece.id;
+      var qrUrl3 = _qrBase3 + 'ar.html?id=' + currentPiece.id;
       var qrDiv3 = document.createElement('div');
       qrDiv3.style.cssText = 'background:#fff;padding:16px;border-radius:10px;';
       ct.appendChild(qrDiv3);
