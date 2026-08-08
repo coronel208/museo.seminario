@@ -53,12 +53,11 @@
 
     /* ── HUD ── */
     #hud { display:none; position:fixed; bottom:22px; left:22px; color:#e0d0a0; background:rgba(0,0,0,.62); padding:7px 16px; border-radius:26px; font-size:.8rem; border:1px solid rgba(212,175,55,.25); pointer-events:none; z-index:300; }
-    #crosshair { display:none; position:fixed; top:calc(52px + 50%); left:50%; transform:translate(-50%,-50%); width:20px; height:20px; pointer-events:none; z-index:300; }
-    #crosshair::before, #crosshair::after { content:''; position:absolute; background:rgba(255,255,255,.78); }
-    #crosshair::before { width:1px; height:20px; left:9px; top:0; }
-    #crosshair::after  { width:20px; height:1px; top:9px; left:0; }
-    #crosshair .dot { position:absolute; width:4px; height:4px; background:#d4af37; border-radius:50%; top:8px; left:8px; }
-    #hint-label { display:none; position:fixed; bottom:72px; left:50%; transform:translateX(-50%); background:rgba(212,175,55,.13); border:1px solid #d4af37; color:#d4af37; padding:5px 15px; border-radius:22px; font-size:.8rem; pointer-events:none; white-space:nowrap; z-index:300; }
+    #crosshair { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:28px; height:28px; pointer-events:none; z-index:300; filter:drop-shadow(0 0 3px #000) drop-shadow(0 0 6px #000); }
+    #crosshair::before, #crosshair::after { content:''; position:absolute; background:rgba(255,255,255,.95); }
+    #crosshair::before { width:2px; height:28px; left:13px; top:0; }
+    #crosshair::after  { width:28px; height:2px; top:13px; left:0; }
+    #hint-label { display:none; position:fixed; bottom:72px; left:50%; transform:translateX(-50%); background:rgba(8,10,14,0.92); border:2px solid rgba(212,175,55,0.80); color:#fff; padding:8px 20px; border-radius:22px; font-size:.88rem; font-weight:600; pointer-events:none; white-space:nowrap; z-index:300; }
     @media (pointer:coarse) {
       #hud { display:none !important; }
     }
@@ -256,7 +255,7 @@
       </div>
     </div>
   </div>
-  <div id="crosshair"><div class="dot"></div></div>
+  <div id="crosshair"></div>
   <div id="hint-label"><i class="fas fa-hand-pointer"></i> Clic para inspeccionar</div>
 
   <!-- JOYSTICK -->

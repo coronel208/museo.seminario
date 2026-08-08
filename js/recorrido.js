@@ -807,16 +807,16 @@ function _enterFs() {
   if (fsReq && !document.fullscreenElement) fsReq.call(el).catch(function(){});
 }
 
-// Mobile interact button — shows when crosshair aims at something interactive
+// Mobile interact button — always visible on right side after start
 var _mobInteractBtn = null;
 if (isMobile) {
   _mobInteractBtn = document.createElement('button');
-  _mobInteractBtn.style.cssText = 'display:none;position:fixed;bottom:22%;left:50%;transform:translateX(-50%);'
-    + 'width:68px;height:68px;border-radius:50%;'
-    + 'background:rgba(0,0,0,0.55);border:2.5px solid ' + SALA_CLR_HEX + ';color:' + SALA_CLR_HEX + ';'
-    + 'font-size:1.5rem;z-index:60;cursor:pointer;touch-action:manipulation;'
+  _mobInteractBtn.style.cssText = 'display:none;position:fixed;bottom:28%;right:18px;'
+    + 'width:64px;height:64px;border-radius:50%;'
+    + 'background:rgba(0,0,0,0.60);border:2.5px solid rgba(212,175,55,0.40);color:rgba(212,175,55,0.40);'
+    + 'font-size:1.4rem;z-index:60;cursor:pointer;touch-action:manipulation;'
     + '-webkit-tap-highlight-color:transparent;backdrop-filter:blur(4px);'
-    + 'display:none;align-items:center;justify-content:center;';
+    + 'align-items:center;justify-content:center;transition:border-color .2s,color .2s,box-shadow .2s;';
   _mobInteractBtn.innerHTML = '<i class="fas fa-hand-pointer"></i>';
   document.body.appendChild(_mobInteractBtn);
   _mobInteractBtn.addEventListener('click', function(e) {
@@ -834,11 +834,10 @@ document.getElementById('btn-start').addEventListener('click', function() {
     if (!document.fullscreenElement) _enterFs();
     else safeLock();
   } else {
+    _enterFs();
     hudEl.style.display = 'none';
     crosshairEl.style.display = 'block';
-    hintEl.style.borderColor = SALA_CLR_HEX;
-    hintEl.style.color       = SALA_CLR_HEX;
-    hintEl.style.background  = 'rgba(0,0,0,0.50)';
+    if (_mobInteractBtn) _mobInteractBtn.style.display = 'flex';
   }
 });
 document.addEventListener('fullscreenchange', function() {
@@ -1053,7 +1052,7 @@ function checkHover() {
     if (lastHovered) lastHovered.hlRing.material.opacity = 0.9;
     hintEl.style.display = 'block';
     hintEl.textContent   = isMobile ? '👆 Toca para inspeccionar' : '👆 Clic para inspeccionar';
-    if (_mobInteractBtn) { _mobInteractBtn.style.display = 'flex'; _mobileDirty = true; }
+    if (_mobInteractBtn) { _mobInteractBtn.style.borderColor = SALA_CLR_HEX; _mobInteractBtn.style.color = SALA_CLR_HEX; _mobInteractBtn.style.boxShadow = '0 0 12px ' + SALA_CLR_HEX + '55'; _mobileDirty = true; }
     lastMural = null; lastBackDoor = false;
   } else {
     if (lastHovered) { lastHovered.hlRing.material.opacity = 0; lastHovered = null; }
@@ -1065,13 +1064,13 @@ function checkHover() {
         lastBackDoor = true;
         hintEl.style.display = 'block';
         hintEl.textContent   = isMobile ? '🚪 Toca para volver a la Sala Central' : '🚪 Clic para volver a la Sala Central';
-        if (_mobInteractBtn) { _mobInteractBtn.innerHTML = '<i class="fas fa-door-open"></i>'; _mobInteractBtn.style.display = 'flex'; _mobileDirty = true; }
+        if (_mobInteractBtn) { _mobInteractBtn.innerHTML = '<i class="fas fa-door-open"></i>'; _mobInteractBtn.style.borderColor = SALA_CLR_HEX; _mobInteractBtn.style.color = SALA_CLR_HEX; _mobInteractBtn.style.boxShadow = '0 0 12px ' + SALA_CLR_HEX + '55'; _mobileDirty = true; }
         return;
       }
     }
     lastBackDoor = false;
     hintEl.style.display = 'none';
-    if (_mobInteractBtn) { _mobInteractBtn.style.display = 'none'; _mobInteractBtn.innerHTML = '<i class="fas fa-hand-pointer"></i>'; }
+    if (_mobInteractBtn) { _mobInteractBtn.innerHTML = '<i class="fas fa-hand-pointer"></i>'; _mobInteractBtn.style.borderColor = 'rgba(212,175,55,0.40)'; _mobInteractBtn.style.color = 'rgba(212,175,55,0.40)'; _mobInteractBtn.style.boxShadow = 'none'; }
   }
 }
 
